@@ -136,6 +136,28 @@ class Lightcurve(pd.DataFrame):
         lc.history=history
         return lc
 
+    def plot(self,ax=False,cr=True,title=False,lfont=16,**kwargs):
+
+        if not 'marker' in kwargs.keys(): kwargs['marker']='o'
+        if not 'color' in kwargs.keys(): kwargs['color']='k'
+
+        if ax is False:
+            fig, ax = plt.subplots(figsize=(12,6))
+
+        if (not title is False) and (not ax is False):
+            ax.set_title(title)
+
+        start = self.time.iloc[0]
+        y = self.counts
+        if cr: y = self.counts/self.tres
+        x = self.time-start
+        ax.plot(x,y,**kwargs)
+
+        ax.set_xlabel('Time [{} s]'.format(start),fontsize=lfont)
+        ax.set_ylabel('Counts',fontsize=lfont)
+        if cr: ax.set_ylabel('Count rate [c/s]',fontsize=lfont)
+        ax.grid()
+
     @staticmethod
     def from_event(events,time_res=1.,user_start_time=None,user_dur=None,low_en=0.,high_en=np.inf):
 
@@ -337,16 +359,29 @@ class LightcurveList(list):
                 lc_list += [i for i in l.split(time_seg)]
             return LightcurveList(lc_list)        
 
-    def plot_all(self):
-        fig =plt.figure(figsize=(12,8))
+    def plot(self,ax=False,cr=True,title=False,lfont=16,**kwargs):
+
+        if not 'marker' in kwargs.keys(): kwargs['marker']='o'
+        if not 'color' in kwargs.keys(): kwargs['color']='k'
+
+        if ax is False:
+            fig, ax = plt.subplots(figsize=(12,6))
+
+        if (not title is False) and (not ax is False):
+            ax.set_title(title)
+
         start = np.array([t.time.iloc[0] for t in self]).min()
         for i in range(len(self)):
-            plt.plot(self[i].time-start,self[i].counts,label=f'{i}')
-        plt.xlabel('Time [{} s]'.format(start))
-        plt.ylabel('Counts')
-        plt.grid()
-        plt.legend()
-        return fig
+            y = self[i].counts
+            if cr: y = self[i].cr
+            x = (self[i].time.iloc[-1]+self[i].time.iloc[0])/2. - start
+            ax.plot(x,y,**kwargs)
+
+        ax.set_xlabel('Time [{} s]'.format(start),fontsize=lfont)
+        ax.set_ylabel('Counts',fontsize=lfont)
+        if cr: ax.set_ylabel('Count rate [c/s]',fontsize=lfont)
+        ax.grid()
+
         
     def compare(self,lcs='all'):
         fig =plt.figure(figsize=(12,8))
