@@ -1,0 +1,19 @@
+INFO: 2020-11-06 03:24:37: Creating log folder...
+INFO: 2020-11-06 03:24:37: Creating analysis folder...
+INFO: 2020-11-06 03:24:37: Reducing NICER data
+INFO: 2020-11-06 03:24:37: 
+INFO: 2020-11-06 03:24:37: Obs ID: 0100320101
+INFO: 2020-11-06 03:24:37: Settings:
+INFO: 2020-11-06 03:24:37: ------------------------------------------------------------
+INFO: 2020-11-06 03:24:37: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-06 03:24:37: Selected time resolution: 0.0078125 s
+INFO: 2020-11-06 03:24:37: Selected time segment: 128.0 s
+INFO: 2020-11-06 03:24:37: Time bins: 16384
+INFO: 2020-11-06 03:24:37: Selected GTI minimum duration: 128 s
+INFO: 2020-11-06 03:24:37: Splitting event in GTIs? No
+INFO: 2020-11-06 03:24:37: Log file name: makers_D6_11_2020_T3_24
+INFO: 2020-11-06 03:24:37: ------------------------------------------------------------
+INFO: 2020-11-06 03:24:37: 
+INFO: 2020-11-06 03:24:37: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-06 03:24:37: Reading event file
+INFO: 2020-11-06 03:24:41: Done!

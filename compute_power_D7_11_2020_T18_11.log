@@ -1,0 +1,1077 @@
+INFO: 2020-11-07 18:11:20: Creating log folder...
+INFO: 2020-11-07 18:11:20: COMMENTS:
+INFO: 2020-11-07 18:11:20: 
+
+INFO: 2020-11-07 18:11:20: Computing power
+INFO: 2020-11-07 18:11:20: Processing obs ID 0100320101
+INFO: 2020-11-07 18:11:20: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:20: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:20: Creating analysis folder...
+INFO: 2020-11-07 18:11:20: Reducing NICER data
+INFO: 2020-11-07 18:11:20: 
+INFO: 2020-11-07 18:11:20: Obs ID: 0100320101
+INFO: 2020-11-07 18:11:20: Settings:
+INFO: 2020-11-07 18:11:20: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:20: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:20: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:20: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:20: Time bins: 1048576
+INFO: 2020-11-07 18:11:20: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:20: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:20: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:20: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:20: 
+INFO: 2020-11-07 18:11:20: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:20: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320101/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:20: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320101/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:20: Processing obs ID 0100320102
+INFO: 2020-11-07 18:11:20: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:20: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:20: Creating analysis folder...
+INFO: 2020-11-07 18:11:20: Reducing NICER data
+INFO: 2020-11-07 18:11:20: 
+INFO: 2020-11-07 18:11:20: Obs ID: 0100320102
+INFO: 2020-11-07 18:11:20: Settings:
+INFO: 2020-11-07 18:11:20: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:20: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:20: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:20: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:20: Time bins: 1048576
+INFO: 2020-11-07 18:11:20: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:20: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:20: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:20: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:20: 
+INFO: 2020-11-07 18:11:20: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:20: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320102/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:20: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320102/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:20: Processing obs ID 0100320103
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320103
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320103/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320103/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 0100320104
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320104
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320104/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320104/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 0100320105
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320105
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320105/xti/event_cl/ni0100320105_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320105/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320105/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 0100320106
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320106
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320106/xti/event_cl/ni0100320106_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320106/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320106/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 0100320107
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320107
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320107/xti/event_cl/ni0100320107_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320107/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320107/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 0100320108
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320108
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320108/xti/event_cl/ni0100320108_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320108/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320108/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 0100320109
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320109
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320109/xti/event_cl/ni0100320109_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320109/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320109/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 0100320110
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 0100320110
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320110/xti/event_cl/ni0100320110_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320110/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320110/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 1100320101
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 1100320101
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320101/xti/event_cl/ni1100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320101/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320101/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 1100320102
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 1100320102
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320102/xti/event_cl/ni1100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320102/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320102/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 1100320103
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 1100320103
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320103/xti/event_cl/ni1100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320103/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320103/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 1100320104
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 1100320104
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320104/xti/event_cl/ni1100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320104/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320104/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:11:21: Processing obs ID 1100320105
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 1100320105
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320105/xti/event_cl/ni1100320105_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320105/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:11:21: Computing power spectrum list
+INFO: 2020-11-07 18:11:21: Could not compute power list
+INFO: 2020-11-07 18:11:21: list index out of range
+INFO: 2020-11-07 18:11:21: Something went wrong with obs ID 1100320105
+INFO: 2020-11-07 18:11:21: Processing obs ID 1100320106
+INFO: 2020-11-07 18:11:21: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:11:21: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:11:21: Creating analysis folder...
+INFO: 2020-11-07 18:11:21: Reducing NICER data
+INFO: 2020-11-07 18:11:21: Creating obs_ID folder...
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Obs ID: 1100320106
+INFO: 2020-11-07 18:11:21: Settings:
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:11:21: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:11:21: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:11:21: Time bins: 1048576
+INFO: 2020-11-07 18:11:21: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:11:21: Splitting event in GTIs? No
+INFO: 2020-11-07 18:11:21: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:11:21: ------------------------------------------------------------
+INFO: 2020-11-07 18:11:21: 
+INFO: 2020-11-07 18:11:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320106/xti/event_cl/ni1100320106_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:11:21: Reading event file
+INFO: 2020-11-07 18:11:29: Done!
+INFO: 2020-11-07 18:11:29: Reading GTI from event file
+INFO: 2020-11-07 18:11:32: Done!
+INFO: 2020-11-07 18:11:32: Computing lightcurve
+INFO: 2020-11-07 18:11:33: NumExpr defaulting to 8 threads.
+INFO: 2020-11-07 18:13:25: Splitting lightcurve according to GTI
+INFO: 2020-11-07 18:13:25: Done!
+INFO: 2020-11-07 18:13:25: Splitting lightcurve list according to segments
+INFO: 2020-11-07 18:13:25: Done!
+INFO: 2020-11-07 18:13:25: Saving LightcurveList in the event folder
+INFO: 2020-11-07 18:13:26: Computing power spectrum list
+INFO: 2020-11-07 18:13:27: Done!
+INFO: 2020-11-07 18:13:27: Saving power list
+INFO: 2020-11-07 18:13:28: Done!
+INFO: 2020-11-07 18:13:28: Computing average power
+INFO: 2020-11-07 18:13:29: Done!
+INFO: 2020-11-07 18:13:29: Saving average power
+INFO: 2020-11-07 18:13:30: Done!
+INFO: 2020-11-07 18:13:30: Processing obs ID 1100320107
+INFO: 2020-11-07 18:13:30: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:13:30: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:13:30: Creating analysis folder...
+INFO: 2020-11-07 18:13:30: Reducing NICER data
+INFO: 2020-11-07 18:13:30: Creating obs_ID folder...
+INFO: 2020-11-07 18:13:30: 
+INFO: 2020-11-07 18:13:30: Obs ID: 1100320107
+INFO: 2020-11-07 18:13:30: Settings:
+INFO: 2020-11-07 18:13:30: ------------------------------------------------------------
+INFO: 2020-11-07 18:13:30: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:13:30: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:13:30: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:13:30: Time bins: 1048576
+INFO: 2020-11-07 18:13:30: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:13:30: Splitting event in GTIs? No
+INFO: 2020-11-07 18:13:30: Log file name: compute_power_D7_11_2020_T18_11
+INFO: 2020-11-07 18:13:30: ------------------------------------------------------------
+INFO: 2020-11-07 18:13:30: 
+INFO: 2020-11-07 18:13:30: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320107/xti/event_cl/ni1100320107_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:13:30: Reading event file
+INFO: 2020-11-07 18:13:36: Done!
+INFO: 2020-11-07 18:13:36: Reading GTI from event file
+INFO: 2020-11-07 18:13:39: Done!
+INFO: 2020-11-07 18:13:39: Computing lightcurve
+INFO: 2020-11-07 18:19:43: Creating log folder...
+INFO: 2020-11-07 18:19:43: COMMENTS:
+INFO: 2020-11-07 18:19:43: 
+
+INFO: 2020-11-07 18:19:43: Computing power
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320101
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320101
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320101/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320101/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320102
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320102
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320102/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320102/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320103
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320103
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320103/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320103/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320104
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320104
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320104/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320104/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320105
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320105
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320105/xti/event_cl/ni0100320105_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320105/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320105/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320106
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320106
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320106/xti/event_cl/ni0100320106_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320106/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320106/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320107
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320107
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320107/xti/event_cl/ni0100320107_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320107/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320107/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320108
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320108
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320108/xti/event_cl/ni0100320108_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320108/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320108/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320109
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320109
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320109/xti/event_cl/ni0100320109_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320109/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320109/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 0100320110
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 0100320110
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320110/xti/event_cl/ni0100320110_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320110/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/0100320110/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 1100320101
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 1100320101
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320101/xti/event_cl/ni1100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320101/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320101/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 1100320102
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 1100320102
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320102/xti/event_cl/ni1100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320102/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320102/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 1100320103
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 1100320103
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320103/xti/event_cl/ni1100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320103/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320103/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 1100320104
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 1100320104
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320104/xti/event_cl/ni1100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320104/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Power file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320104/power_E0.5_10.0_T0.0001220703125_128.0.pkl already exists
+INFO: 2020-11-07 18:19:43: Processing obs ID 1100320105
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 1100320105
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320105/xti/event_cl/ni1100320105_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Lightcurve list file /Volumes/Transcend/NICER/Cyg_X1/analysis/1100320105/lc_list_E0.5_10.0_T0.0001220703125_128.0.pkl already exists. Loading...
+INFO: 2020-11-07 18:19:43: Computing power spectrum list
+INFO: 2020-11-07 18:19:43: Could not compute power list
+INFO: 2020-11-07 18:19:43: list index out of range
+INFO: 2020-11-07 18:19:43: Something went wrong with obs ID 1100320105
+INFO: 2020-11-07 18:19:43: Processing obs ID 1100320106
+INFO: 2020-11-07 18:19:43: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:19:43: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:19:43: Creating analysis folder...
+INFO: 2020-11-07 18:19:43: Reducing NICER data
+INFO: 2020-11-07 18:19:43: Creating obs_ID folder...
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Obs ID: 1100320106
+INFO: 2020-11-07 18:19:43: Settings:
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:19:43: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:19:43: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:19:43: Time bins: 1048576
+INFO: 2020-11-07 18:19:43: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:19:43: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:19:43: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:19:43: ------------------------------------------------------------
+INFO: 2020-11-07 18:19:43: 
+INFO: 2020-11-07 18:19:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320106/xti/event_cl/ni1100320106_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:19:43: Reading event file
+INFO: 2020-11-07 18:19:51: Done!
+INFO: 2020-11-07 18:19:51: Reading GTI from event file
+INFO: 2020-11-07 18:19:55: Done!
+INFO: 2020-11-07 18:19:55: Splitting event according to GTIs
+INFO: 2020-11-07 18:19:55: Computing lightcurve
+INFO: 2020-11-07 18:20:06: Done!
+INFO: 2020-11-07 18:20:06: Splitting lightcurve list according to segments
+INFO: 2020-11-07 18:20:06: Done!
+INFO: 2020-11-07 18:20:06: Saving LightcurveList in the event folder
+INFO: 2020-11-07 18:20:08: Computing power spectrum list
+INFO: 2020-11-07 18:20:08: Done!
+INFO: 2020-11-07 18:20:08: Saving power list
+INFO: 2020-11-07 18:20:09: Done!
+INFO: 2020-11-07 18:20:09: Computing average power
+INFO: 2020-11-07 18:20:10: Done!
+INFO: 2020-11-07 18:20:10: Saving average power
+INFO: 2020-11-07 18:20:11: Done!
+INFO: 2020-11-07 18:20:11: Processing obs ID 1100320107
+INFO: 2020-11-07 18:20:11: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:11: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:11: Creating analysis folder...
+INFO: 2020-11-07 18:20:11: Reducing NICER data
+INFO: 2020-11-07 18:20:11: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:11: 
+INFO: 2020-11-07 18:20:11: Obs ID: 1100320107
+INFO: 2020-11-07 18:20:11: Settings:
+INFO: 2020-11-07 18:20:11: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:11: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:11: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:11: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:11: Time bins: 1048576
+INFO: 2020-11-07 18:20:11: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:11: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:11: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:11: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:11: 
+INFO: 2020-11-07 18:20:11: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320107/xti/event_cl/ni1100320107_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:11: Reading event file
+INFO: 2020-11-07 18:20:17: Done!
+INFO: 2020-11-07 18:20:17: Reading GTI from event file
+INFO: 2020-11-07 18:20:20: Done!
+INFO: 2020-11-07 18:20:20: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:20: Computing lightcurve
+INFO: 2020-11-07 18:20:27: Done!
+INFO: 2020-11-07 18:20:27: Splitting lightcurve list according to segments
+INFO: 2020-11-07 18:20:27: Done!
+INFO: 2020-11-07 18:20:27: Saving LightcurveList in the event folder
+INFO: 2020-11-07 18:20:28: Computing power spectrum list
+INFO: 2020-11-07 18:20:28: Done!
+INFO: 2020-11-07 18:20:28: Saving power list
+INFO: 2020-11-07 18:20:28: Done!
+INFO: 2020-11-07 18:20:28: Computing average power
+INFO: 2020-11-07 18:20:29: Done!
+INFO: 2020-11-07 18:20:29: Saving average power
+INFO: 2020-11-07 18:20:30: Done!
+INFO: 2020-11-07 18:20:30: Processing obs ID 1100320108
+INFO: 2020-11-07 18:20:30: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:30: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:30: Creating analysis folder...
+INFO: 2020-11-07 18:20:30: Reducing NICER data
+INFO: 2020-11-07 18:20:30: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:30: 
+INFO: 2020-11-07 18:20:30: Obs ID: 1100320108
+INFO: 2020-11-07 18:20:30: Settings:
+INFO: 2020-11-07 18:20:30: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:30: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:30: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:30: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:30: Time bins: 1048576
+INFO: 2020-11-07 18:20:30: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:30: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:30: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:30: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:30: 
+INFO: 2020-11-07 18:20:30: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320108/xti/event_cl/ni1100320108_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:30: Reading event file
+INFO: 2020-11-07 18:20:31: Done!
+INFO: 2020-11-07 18:20:31: Reading GTI from event file
+INFO: 2020-11-07 18:20:31: Done!
+INFO: 2020-11-07 18:20:31: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:31: Computing lightcurve
+INFO: 2020-11-07 18:20:31: Done!
+INFO: 2020-11-07 18:20:31: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:31: Something went wrong with obs ID 1100320108
+INFO: 2020-11-07 18:20:31: Processing obs ID 1100320109
+INFO: 2020-11-07 18:20:31: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:31: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:31: Creating analysis folder...
+INFO: 2020-11-07 18:20:31: Reducing NICER data
+INFO: 2020-11-07 18:20:31: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:31: 
+INFO: 2020-11-07 18:20:31: Obs ID: 1100320109
+INFO: 2020-11-07 18:20:31: Settings:
+INFO: 2020-11-07 18:20:31: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:31: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:31: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:31: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:31: Time bins: 1048576
+INFO: 2020-11-07 18:20:31: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:31: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:31: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:31: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:31: 
+INFO: 2020-11-07 18:20:31: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320109/xti/event_cl/ni1100320109_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:31: Reading event file
+INFO: 2020-11-07 18:20:32: Done!
+INFO: 2020-11-07 18:20:32: Reading GTI from event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:33: Computing lightcurve
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:33: Something went wrong with obs ID 1100320109
+INFO: 2020-11-07 18:20:33: Processing obs ID 1100320110
+INFO: 2020-11-07 18:20:33: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:33: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:33: Creating analysis folder...
+INFO: 2020-11-07 18:20:33: Reducing NICER data
+INFO: 2020-11-07 18:20:33: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Obs ID: 1100320110
+INFO: 2020-11-07 18:20:33: Settings:
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:33: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:33: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:33: Time bins: 1048576
+INFO: 2020-11-07 18:20:33: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:33: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:33: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320110/xti/event_cl/ni1100320110_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:33: Reading event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Reading GTI from event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:33: Computing lightcurve
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:33: Something went wrong with obs ID 1100320110
+INFO: 2020-11-07 18:20:33: Processing obs ID 1100320111
+INFO: 2020-11-07 18:20:33: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:33: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:33: Creating analysis folder...
+INFO: 2020-11-07 18:20:33: Reducing NICER data
+INFO: 2020-11-07 18:20:33: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Obs ID: 1100320111
+INFO: 2020-11-07 18:20:33: Settings:
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:33: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:33: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:33: Time bins: 1048576
+INFO: 2020-11-07 18:20:33: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:33: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:33: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320111/xti/event_cl/ni1100320111_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:33: Reading event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Reading GTI from event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:33: Computing lightcurve
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:33: Something went wrong with obs ID 1100320111
+INFO: 2020-11-07 18:20:33: Processing obs ID 1100320112
+INFO: 2020-11-07 18:20:33: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:33: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:33: Creating analysis folder...
+INFO: 2020-11-07 18:20:33: Reducing NICER data
+INFO: 2020-11-07 18:20:33: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Obs ID: 1100320112
+INFO: 2020-11-07 18:20:33: Settings:
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:33: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:33: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:33: Time bins: 1048576
+INFO: 2020-11-07 18:20:33: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:33: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:33: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320112/xti/event_cl/ni1100320112_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:33: Reading event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Reading GTI from event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:33: Computing lightcurve
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:33: Something went wrong with obs ID 1100320112
+INFO: 2020-11-07 18:20:33: Processing obs ID 1100320113
+INFO: 2020-11-07 18:20:33: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:33: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:33: Creating analysis folder...
+INFO: 2020-11-07 18:20:33: Reducing NICER data
+INFO: 2020-11-07 18:20:33: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Obs ID: 1100320113
+INFO: 2020-11-07 18:20:33: Settings:
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:33: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:33: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:33: Time bins: 1048576
+INFO: 2020-11-07 18:20:33: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:33: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:33: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320113/xti/event_cl/ni1100320113_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:33: Reading event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Reading GTI from event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:33: Computing lightcurve
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:33: Something went wrong with obs ID 1100320113
+INFO: 2020-11-07 18:20:33: Processing obs ID 1100320114
+INFO: 2020-11-07 18:20:33: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:33: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:33: Creating analysis folder...
+INFO: 2020-11-07 18:20:33: Reducing NICER data
+INFO: 2020-11-07 18:20:33: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Obs ID: 1100320114
+INFO: 2020-11-07 18:20:33: Settings:
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:33: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:33: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:33: Time bins: 1048576
+INFO: 2020-11-07 18:20:33: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:33: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:33: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320114/xti/event_cl/ni1100320114_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:33: Reading event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Reading GTI from event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:33: Computing lightcurve
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:33: Something went wrong with obs ID 1100320114
+INFO: 2020-11-07 18:20:33: Processing obs ID 1100320115
+INFO: 2020-11-07 18:20:33: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:33: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:33: Creating analysis folder...
+INFO: 2020-11-07 18:20:33: Reducing NICER data
+INFO: 2020-11-07 18:20:33: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Obs ID: 1100320115
+INFO: 2020-11-07 18:20:33: Settings:
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:33: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:33: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:33: Time bins: 1048576
+INFO: 2020-11-07 18:20:33: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:33: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:33: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320115/xti/event_cl/ni1100320115_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:33: Reading event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Reading GTI from event file
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:33: Computing lightcurve
+INFO: 2020-11-07 18:20:33: Done!
+INFO: 2020-11-07 18:20:33: Lightcurve list (after gti split) is empty!
+INFO: 2020-11-07 18:20:33: Something went wrong with obs ID 1100320115
+INFO: 2020-11-07 18:20:33: Processing obs ID 1100320116
+INFO: 2020-11-07 18:20:33: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:33: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:33: Creating analysis folder...
+INFO: 2020-11-07 18:20:33: Reducing NICER data
+INFO: 2020-11-07 18:20:33: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Obs ID: 1100320116
+INFO: 2020-11-07 18:20:33: Settings:
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:33: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:33: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:33: Time bins: 1048576
+INFO: 2020-11-07 18:20:33: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:33: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:33: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:33: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:33: 
+INFO: 2020-11-07 18:20:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320116/xti/event_cl/ni1100320116_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:33: Reading event file
+INFO: 2020-11-07 18:20:35: Done!
+INFO: 2020-11-07 18:20:35: Reading GTI from event file
+INFO: 2020-11-07 18:20:36: Done!
+INFO: 2020-11-07 18:20:36: Splitting event according to GTIs
+INFO: 2020-11-07 18:20:36: Computing lightcurve
+INFO: 2020-11-07 18:20:37: Done!
+INFO: 2020-11-07 18:20:37: Splitting lightcurve list according to segments
+INFO: 2020-11-07 18:20:37: Done!
+INFO: 2020-11-07 18:20:37: Saving LightcurveList in the event folder
+INFO: 2020-11-07 18:20:38: Computing power spectrum list
+INFO: 2020-11-07 18:20:38: Done!
+INFO: 2020-11-07 18:20:38: Saving power list
+INFO: 2020-11-07 18:20:39: Done!
+INFO: 2020-11-07 18:20:39: Computing average power
+INFO: 2020-11-07 18:20:40: Done!
+INFO: 2020-11-07 18:20:40: Saving average power
+INFO: 2020-11-07 18:20:41: Done!
+INFO: 2020-11-07 18:20:41: Processing obs ID 1100320117
+INFO: 2020-11-07 18:20:41: Computing energy 0.5-10.0
+INFO: 2020-11-07 18:20:41: Computing fmode tres: 0.0001220703125, time seg: 128, time bins: 1048576
+INFO: 2020-11-07 18:20:41: Creating analysis folder...
+INFO: 2020-11-07 18:20:41: Reducing NICER data
+INFO: 2020-11-07 18:20:41: Creating obs_ID folder...
+INFO: 2020-11-07 18:20:41: 
+INFO: 2020-11-07 18:20:41: Obs ID: 1100320117
+INFO: 2020-11-07 18:20:41: Settings:
+INFO: 2020-11-07 18:20:41: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:41: Selected energy band: 0.5-10.0 keV
+INFO: 2020-11-07 18:20:41: Selected time resolution: 0.0001220703125 s
+INFO: 2020-11-07 18:20:41: Selected time segment: 128.0 s
+INFO: 2020-11-07 18:20:41: Time bins: 1048576
+INFO: 2020-11-07 18:20:41: Selected GTI minimum duration: 128.0 s
+INFO: 2020-11-07 18:20:41: Splitting event in GTIs? Yes
+INFO: 2020-11-07 18:20:41: Log file name: compute_power_D7_11_2020_T18_19
+INFO: 2020-11-07 18:20:41: ------------------------------------------------------------
+INFO: 2020-11-07 18:20:41: 
+INFO: 2020-11-07 18:20:41: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/1100320117/xti/event_cl/ni1100320117_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2020-11-07 18:20:41: Reading event file
