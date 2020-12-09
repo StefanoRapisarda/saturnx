@@ -25,7 +25,7 @@ class FittingTab:
         self._controller = controller
 
         self._first_plot = True
-        self._power = None
+        self._leahy = None
 
         # Frames
         # -------------------------------------------------------------
@@ -77,6 +77,7 @@ class FittingTab:
         box12.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')
         # This will be initialized whhen self._file is changed
         self._gti_sel_string = tk.StringVar()
+        self._gti_sel_string.set('')
         gti_entry = tk.Entry(box12, textvariable=self._gti_sel_string)
         gti_entry.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
         gti_entry.to_change = 1
@@ -155,9 +156,9 @@ class FittingTab:
                                 'analysis',\
                                 self._controller._obs_id,
                                 selection)
-        self._power = PowerList.load(data_file)
+        self._power_list = PowerList.load(data_file)
         if 'LIST' in selection.upper():
-            n_gti = self._power[0].history['N_GTIS']
+            n_gti = self._power_list[0].history['N_GTIS']
             for child in self._frame1.winfo_children():
                 for gchild in child.winfo_children():
 
@@ -170,6 +171,7 @@ class FittingTab:
                             format(n_gti,n_gti-1))
 
         else:
+            self._power = pd.read_pickle(data_file)
             for child in self._frame1.winfo_children():
                 for gchild in child.winfo_children():
 
@@ -194,6 +196,7 @@ class FittingTab:
 
     def _plot(self):
         if self._first_plot:
+            self._ax.clear()
             self._first_plot = False
         else:
             self._ax.clear()
@@ -203,11 +206,40 @@ class FittingTab:
             self._bkg.set(0)
             self._norm.set('Leahy')
             self._first_plot = True
-        leahy = self._power.leahy()
-        rebin = leahy.rebin(-30)
+
+        if 'LIST' in self._file.get().upper():
+            if self._gti_sel_string.get() != '':     
+                gti_indices = self.eval_gti_str(self._gti_sel_string.get())
+                power_list = PowerList([p for p in self._power_list \
+                    if p.history['GTI_INDEX'] in gti_indices])
+                power = power_list.average_leahy()
+            else:
+                power = self._power_list.average_leahy()
+            self._leahy = power
+        else:
+            self._leahy = self._power.leahy()
+
+        rebin = self._leahy.rebin(-30)
         rebin.plot(ax=self._ax,lfont=14)
         self._canvas.draw()
         self._canvas.mpl_connect('motion_notify_event',self._update_cursor)
+
+    def eval_gti_str(self,gti_str):
+        if ',' in gti_str:
+            div = gti_str.split(',')
+        else:
+            div = [gti_str]
+
+        gti_indices = []
+        for d in div:
+            if '-' in d:
+                start = int(d.split('-')[0])
+                stop  = int(d.split('-')[1]) + 1
+                gti_indices += [i for i in range(start,stop)]
+            else:
+                gti_indices += [int(d)]
+
+        return sorted(list(set(gti_indices)))
 
 
     def _update_plot(self,var,indx,mode):
@@ -216,8 +248,7 @@ class FittingTab:
         bkg = self._bkg.get()
         norm = self._norm.get()
 
-        leahy = self._power.leahy()
-        poi = leahy.sub_poi(value=poi_level)
+        poi = self._leahy.sub_poi(value=poi_level)
 
         if norm == 'RMS':
             to_rebin = poi.rms(bkg=bkg)
@@ -257,14 +288,10 @@ class FittingTab:
         self._update_plot('','','')
 
     def _estimate_poi(self):
-        if not self._power is None:
-            mask = self._power.freq>=3000
-            value = self._power.power[mask].mean()
+        if not self._leahy is None:
+            mask = self._leahy.freq>=3000
+            value = self._leahy.power[mask].mean()
             self._poi_level.set(value)
-
-    def _sub_poisson(self):
-        pass
-
 
     def _init_plot_area(self,frame):
 
