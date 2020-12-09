@@ -13,17 +13,19 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 
 import pickle
+import pandas as pd
 
 import os
 import sys
-sys.path.append('/Volumes/Samsung_T5/software/')
+sys.path.append('/Volumes/Samsung_T5/kronos')
+import kronos as kr
+from kronos.core.power import PowerSpectrum
+from kronos.functions.my_functions import my_rebin as rebin
 import matplotlib 
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from timing.utilities import *
 from fitting_functions import lorentzian
 sys.setrecursionlimit(10000)
-import timing as tg
 
 # Fitting data
 import lmfit
@@ -87,7 +89,8 @@ class Data:
     @classmethod
     def load(cls, filename):
 
-        power = tg.PowerSpectrum.load(filename)
+        #power = PowerSpectrum.load(filename)
+        power = pd.read_pickle(filename)
         x_ori = power.freq.to_numpy()
         y_ori = power.power.to_numpy()
         x = x_ori[x_ori>0]
@@ -257,8 +260,9 @@ class PlotWindow2:
 
 
     def _load_data(self):
-        filename = filedialog.askopenfilename(initialdir=os.getcwd(),
-        title = 'Select a power spectrum')
+        #filename = filedialog.askopenfilename(initialdir=os.getcwd(),
+        #title = 'Select a power spectrum')
+        filename = '/Volumes/Transcend/NICER/Cyg_X1/analysis/0100320101/power_E0.5_10.0_T0.0001220703125_128.0.pkl'
         self.controller.dir = os.path.dirname(filename)
         self.controller.data = Data.load(filename)
         self._reset_plot()

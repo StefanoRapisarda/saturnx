@@ -205,12 +205,14 @@ class PowerSpectrum(pd.DataFrame):
             leahy_norm_value=self._leahy_norm, rms_norm_value=self._rms_norm,poi_level_value=self._poi_level,
             notes=self.notes,history=self.history)
             
-    def plot(self,ax=False,xy=False,title=False,lfont=16,color='k',label=''):
+    def plot(self,ax=False,xy=False,title=False,lfont=16,**kwargs):
         
+        if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
+
         if ax is False:
             fig, ax = plt.subplots(figsize=(6,6))
 
-        if not title is False and not ax is False:
+        if (not title is False) and (not ax is False):
             ax.set_title(title)
 
         mask = self.freq > 0
@@ -219,17 +221,17 @@ class PowerSpectrum(pd.DataFrame):
             if xy:
                 ax.errorbar(self.freq[mask],self.power[mask]*self.freq[mask],
                                             self.spower[mask]*self.freq[mask],
-                                            fmt='-',color=color,label=label)
+                                            **kwargs)
             else:
                 ax.errorbar(self.freq[mask],self.power[mask],self.spower[mask],
-                            fmt='-',color=color,label=label)
+                            **kwargs)
         else:
             if xy:
                 ax.plot(self.freq[mask],self.power[mask]*self.freq[mask],
-                        '-',color=color,label=label) 
+                        **kwargs) 
             else:
                 ax.plot(self.freq[mask],self.power[mask],
-                        '-',color=color,label=label)           
+                        **kwargs)           
 
         ax.set_xlabel('Frequency [Hz]',fontsize=lfont)
         if not self._rms_norm is None:

@@ -11,15 +11,10 @@ import pickle
 
 import os
 import sys
-sys.path.append('/Volumes/Samsung_T5/software/')
 import matplotlib 
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from timing.utilities import *
-from fitting_functions import lorentzian
 sys.setrecursionlimit(10000)
-import timing as tg
-
 
 class PlotWindow:
 
@@ -117,7 +112,7 @@ class PlotWindow:
         data = {}
 
         # I need data to be plotted and fitted
-        power = tg.PowerSpectrum.load(filename)
+        power = PowerSpectrum.load(filename)
         x = power.freq.to_numpy()
         y = power.power.to_numpy()
 
@@ -148,6 +143,10 @@ class PlotWindow:
         self.y_to_plot = self.data['y']
         self.yerr_to_plot = self.data['yerr']
         self._plot_data()
+
+    def _new_window(self, newWindow):
+        self.new = tk.Toplevel(self)
+        newWindow(self.new, self)  
 
 
 class Fit:

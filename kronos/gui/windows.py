@@ -1,6 +1,3 @@
-import matplotlib 
-matplotlib.use("TkAgg")
-
 from functools import partial
 
 import os
@@ -16,6 +13,8 @@ import sys
 sys.path.append('/Volumes/Samsung_T5/kronos')
 import kronos as kr
 from kronos.functions.rxte_functions import list_modes
+from kronos.gui.tabs import *
+from kronos.core.power import *
 #from ..functions.rxte_functions import list_modes
 
 #from ..scripts.makers import make_power
@@ -79,7 +78,10 @@ class MakePowerWin(tk.Tk):
           data folder;
         - added new RXTE data mode window, it displays the available
           obs modes per obs ID and it allows selection;
-        - added button window for functionality testing. 
+        - added button window for functionality testing.
+    2020 12 05, Stefano Rapisarda (Uppsala)
+        added panel options. The previous right frame is now in a 
+        timing panel, the other panels are still to fill.
     '''
 
     def __init__(self,*args,**kwargs):
@@ -123,6 +125,9 @@ class MakePowerWin(tk.Tk):
         listbox to host a list of observational IDs
         '''
 
+        # Init variables
+        self._pickle_files = ()
+
         frame.grid_columnconfigure(0,weight=1)
         frame.grid_rowconfigure(1,weight=1)
 
@@ -147,7 +152,7 @@ class MakePowerWin(tk.Tk):
         font=('times', 16, 'bold'))
         label.grid(column=0,row=0,sticky='nswe')
         load_list = ttk.Button(label_frame,text='Load',width=4,
-                             command=self._load_obs_ids)
+                             command=lambda: self._load_obs_ids(0))
         load_list.grid(column=1,row=0,sticky='nswe')  
 
 
@@ -184,6 +189,26 @@ class MakePowerWin(tk.Tk):
                 self._rxte_called = False
 
     def _click_on_obs_id(self,event):
+        '''
+        This function is (or should be) called every time the user 
+        select a single or multiple items inside the Listbox
+        self._obs_id_box
+        '''
+
+        # Listing pkl files inside a potential reduced product
+        # folder
+        sel = self._obs_id_box.curselection()
+        if len(sel) == 1:
+            self._obs_id = self._obs_id_box.get(sel)
+            target_dir = os.path.join(self._output_dir.get(),\
+                'analysis',self._obs_id)
+            pickle_files = sorted(glob.glob('{}/*.pkl'.format(target_dir)))
+            self._pickle_files = tuple(os.path.basename(pf) for pf in\
+                pickle_files if 'power' in pf)
+        else:
+            self._pickle_files = ()
+        self._fitting_tab._update_file_menu()
+        
 
         mission = self._mission.get().strip()
 
@@ -232,12 +257,51 @@ class MakePowerWin(tk.Tk):
         '''
         Populate the right frame with widgets.
 
+        '''
+
+        tabControl = ttk.Notebook(frame)
+        diagnosis_tab = ttk.Frame(tabControl)
+        timing_tab = ttk.Frame(tabControl)
+        plotting_tab = ttk.Frame(tabControl)
+        fitting_tab = ttk.Frame(tabControl)
+        reduction_tab = ttk.Frame(tabControl)
+        tabControl.add(diagnosis_tab,text='Diagnosis')
+        tabControl.add(reduction_tab,text='Data Reduction')
+        tabControl.add(timing_tab, text='Timing')
+        tabControl.add(plotting_tab,text='Plotting')
+        tabControl.add(fitting_tab,text='Fitting')
+
+        tabControl.grid(column=0,row=0,sticky='nswe')
+        #tabControl.pack(expand=1, fill="both")
+
+        self._init_timing_tab(timing_tab)
+        #self._init_fitting_tab(fitting_tab)
+        self._fitting_tab = FittingTab(fitting_tab,self)
+
+        common_frame = ttk.LabelFrame(frame,text='Reduced products directory',
+            style=self._head_style)
+        common_frame.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+        common_frame.grid_columnconfigure(0,weight=1)
+        self._output_dir = tk.StringVar()
+        out_entry = tk.Entry(common_frame,textvariable=self._output_dir)
+        out_entry.grid(column=0,row=0,sticky='nswe')
+        out_button = ttk.Button(common_frame,text='SET',command=self._sel_output_dir)
+        out_button.grid(column=1,row=0,sticky='nswe')
+        load_obs_id_button2 = ttk.Button(common_frame,text='Load IDs.',
+            command=lambda: self._load_obs_ids(self._output_dir.get()+'/analysis'))
+        load_obs_id_button2.grid(column=2,row=0,sticky='nswe')
+
+    def _init_timing_tab(self,frame):
+        '''
+        Populate the timing
+
         There are 4 panels:
             - Fourier analysis parameters;
             - Other seggings (energy range and GTI min dur);
             - Comments;
             - Buttons to trigger function and stop operations. 
         '''
+        
 
         # Main Boxes
         # -------------------------------------------------------------
@@ -255,7 +319,7 @@ class MakePowerWin(tk.Tk):
                                   style=self._head_style)
         mid_box2.grid(column=0,row=3,padx=5,pady=5,sticky='nswe')      
 
-        mid_box3 = ttk.LabelFrame(frame,text='Directories',
+        mid_box3 = ttk.LabelFrame(frame,text='Data to reduce',
                                   style=self._head_style)
         mid_box3.grid(column=0,row=4,padx=5,pady=5,sticky='nswe')              
 
@@ -334,7 +398,7 @@ class MakePowerWin(tk.Tk):
         label_frame = tk.Frame(frame)
         label = tk.Label(label_frame,text='Selected modes',bg='grey92')
         label.grid(column=0,row=0,sticky='nswe')
-        load_tset = ttk.Button(label_frame,text='Load',
+        load_tset = ttk.Button(label_frame,text='Load File',
                                command=self._load_modes)
         load_tset.grid(column=1,row=0,sticky='nswe')
 
@@ -457,9 +521,11 @@ class MakePowerWin(tk.Tk):
     def _load_en_bands(self):
         pass
 
-    def _load_obs_ids(self):
+    def _load_obs_ids(self,value):
 
-        if self._input_dir.get == '':
+        self._obs_id_box.delete(0,tk.END)
+
+        if type(value)==int:
             file_name = filedialog.askopenfilename(initialdir=os.getcwd(),
             title = 'Select a obs ID list file')
             if '.txt' in file_name:
@@ -469,12 +535,12 @@ class MakePowerWin(tk.Tk):
             elif '.pkl' in file_name:
                 with open(file_name,'rb') as infile:
                     obs_ids = pickle.load(infile)
-        else:
-            print('printing')
-            print(self._input_dir.get())
-            dirs = next(os.walk(self._input_dir.get()))[1]
-            # !!! RXTE obs IDs have - in their names
-            obs_ids = sorted([d for d in dirs if d.replace('-','').isdigit()])
+        elif type(value)==str:
+            if value != '':
+                print('Loading obs IDs from {}'.format(ValueError))
+                dirs = next(os.walk(value))[1]
+                # !!! RXTE obs IDs have - in their names
+                obs_ids = sorted([d for d in dirs if d.replace('-','').isdigit()])
 
         for obs_id in obs_ids: 
             self._obs_id_box.insert(tk.END,obs_id)
@@ -566,26 +632,23 @@ class MakePowerWin(tk.Tk):
 
     def _init_dir_box(self,frame):
 
-        frame.grid_columnconfigure(1,weight=5)
+        frame.grid_columnconfigure(1,weight=1)
+        #frame.grid_columnconfigure(2,weight=3)
+        #frame.grid_columnconfigure(3,weight=3)
 
-        in_dir = tk.Label(frame,text='INPUT')
+        in_dir = tk.Label(frame,text='Data Dir')
         in_dir.grid(column=0,row=0,sticky='nswe')
         self._input_dir = tk.StringVar()
         in_entry = tk.Entry(frame,textvariable=self._input_dir)
         in_entry.grid(column=1,row=0,sticky='nswe')
         in_button = ttk.Button(frame,text='SET',command=self._sel_input_dir)
         in_button.grid(column=2,row=0,sticky='nswe')
-
-        out_dir = tk.Label(frame,text='OUTPUT')
-        out_dir.grid(column=0,row=1,sticky='nswe')
-        self._output_dir = tk.StringVar()
-        out_entry = tk.Entry(frame,textvariable=self._output_dir)
-        out_entry.grid(column=1,row=1,sticky='nswe')
-        out_button = ttk.Button(frame,text='SET',command=self._sel_output_dir)
-        out_button.grid(column=2,row=1,sticky='nswe')
+        load_obs_id_button1 = ttk.Button(frame,text='Load IDs.',
+            command=lambda: self._load_obs_ids(self._input_dir.get()))
+        load_obs_id_button1.grid(column=3,row=0,sticky='nswe')
 
         self._frame2 = tk.Frame(frame)
-        self._frame2.grid(column=0,row=2,columnspan=3,sticky='nswe')
+        self._frame2.grid(column=0,row=2,columnspan=4,sticky='nswe')
         
         ext = tk.Label(self._frame2,text='Event file ext:')
         ext.grid(column=0,row=0,sticky='nswe')
@@ -771,9 +834,8 @@ class MakePowerWin(tk.Tk):
         # For comodity
         self._event_ext.set('evt')
         self._event_str.set('bc_bdc')
-        self._input_dir.set('/Volumes/Seagate/NICER_data/SGR_1935+2154')
-        self._output_dir.set('/Volumes/Transcend/NICER/SGR_1935+2154')
-        
+        self._input_dir.set('/Volumes/Seagate/NICER_data/Cygnus_X1')
+        self._output_dir.set('/Volumes/Transcend/NICER/Cyg_X1')
         
 class LogWindow:
     def __init__(self,parent,controller):
