@@ -15,6 +15,17 @@ import kronos as kr
 from kronos.functions.rxte_functions import list_modes
 from kronos.gui.tabs import *
 from kronos.core.power import *
+from kronos.fitting.fitting_functions import *
+from kronos.functions.my_functions import plt_color
+
+# Fitting data
+import lmfit
+from lmfit import Model,Parameters
+from lmfit.model import save_modelresult,load_modelresult
+
+import random
+import uuid
+
 #from ..functions.rxte_functions import list_modes
 
 #from ..scripts.makers import make_power
@@ -859,14 +870,6 @@ class TestButton:
         self._controller._test_button = ttk.Button(frame, text='TEST')
         self._controller._test_button.grid(column=0,row=0,sticky='nswe')
 
-class MainWindow:
-    def __init__(self,parent,controller):
-        self.parent = parent
-        self.controller = controller
-    
-        self.main_frame = tk.Frame(self.parent, width=500,height=500)
-        self.main_frame.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
-
 class RxteModes:
     def __init__(self,parent,controller):
         self.parent = parent
@@ -898,6 +901,736 @@ class RxteModes:
             tree.move(k,'',index)
 
         tree.heading(col, command=lambda: self._sort_modes(tree,col,not reverse))   
+
+class FitWindow:
+    '''
+    Window called by the fitting tab
+
+    HISTORY
+    -------
+    2020 12 10, Stefano Rapisarda (Uppsala), creation date
+        This was independently created in April, here I cleaned it up
+        and I incorporate the window in MakePowerWin (specifically the
+        timing tab).
+
+    TODO:
+    - Implement other fitting functions 
+    '''
+    def __init__(self,parent,controller):
+        # Controller is the timing tab widget
+        self._controller = controller
+        self._parent = parent
+        self._parent.title = 'Fit window'
+
+        s = ttk.Style()
+        s.configure('Black.TLabelframe.Label',
+                    font=('times', 16, 'bold'))
+        self._head_style = 'Black.TLabelframe'
+
+        # self._fit_funcs_dict has an integer as key. Integer is assigned
+        # according to the position of the fitting function in the
+        # fit_funcs_listbox
+        # For each fitting function, the dict item is another dictionary
+        # with keys name, color, par_name (list), par_value (list), 
+        # par_status (list), plots (containing the line plotted in the
+        # canvas)
+        self._fit_funcs_dict = {}
+        # total_fit_func does not have any other specific function than 
+        # storing the plot of the full function (the sum of different
+        # model component)
+        self._total_fit_func_dict = {}
+
+        self._index = 1
+        self._first_fit = True
+        self._canvas_connected = False
+        self._func_list = {'lorentzian':lorentzian}
+
+        # Main frame
+        frame = tk.Frame(self._parent)
+        frame.grid(column=0,row=0,padx=5,pady=5)
+        self._populate_main_frame(frame)
+
+    def _populate_main_frame(self,frame):
+
+        width = 200
+
+        # Fit frequency boxes
+        freq_frame = ttk.LabelFrame(frame,text='Frequency boundaries',\
+            width=width,height=50,style=self._head_style)
+        freq_frame.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
+        self._populate_freq_frame(freq_frame)
+
+        # Fitting functions options and drawing them on the plot
+        fit_func_frame = ttk.LabelFrame(frame,\
+            text='Fitting functions',width=width,style=self._head_style)
+        fit_func_frame.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+        self._populate_fit_func_frame(fit_func_frame)
+
+        # Fitting function parameters
+        fit_pars_frame = ttk.LabelFrame(frame,\
+            text='Fitting parameters',width=width,style=self._head_style)
+        fit_pars_frame.grid(column=0,row=2,padx=5,pady=5,sticky='nswe')
+        self._populate_fit_pars_frame(fit_pars_frame)
+
+    def _populate_freq_frame(self,frame):
+        '''
+        Sets the two buttons to select start and stop frequency for fit
+        '''
+        self._start_fit_freq = tk.DoubleVar()
+        self._start_fit_freq.set(0)
+        start_freq_entry = tk.Entry(frame, \
+            textvar=self._start_fit_freq, width=10)
+        start_freq_entry.grid(column=0,row=0,padx=5,pady=5,sticky='w')
+
+        self._stop_fit_freq = tk.DoubleVar()
+        self._stop_fit_freq.set(100)
+        stop_freq_entry = tk.Entry(frame, \
+            textvar=self._stop_fit_freq, width=10)
+        stop_freq_entry.grid(column=2,row=0,padx=5,pady=5,sticky='w')
+
+        dummy1 = tk.Label(frame,text='-')
+        dummy1.grid(column=1,row=0,padx=5,pady=5,sticky='w')
+        dummy2 = tk.Label(frame,text='[Hz]')
+        dummy2.grid(column=3,row=0,padx=5,pady=5,sticky='w')
+
+    def _populate_fit_func_frame(self,frame):
+
+        frame.grid_columnconfigure(0,weight=1)
+
+        # Left box (fitting function list Box)
+        # -------------------------------------------------------------
+        left_frame = tk.Frame(frame)
+        left_frame.grid(column=0,row=0,sticky='nswe')
+
+        self._fit_func_listbox = tk.Listbox(left_frame,\
+            selectmode='multiple',height=12)
+        self._fit_func_listbox.grid(column=0,row=1,\
+            padx=5,pady=5,sticky='nsew')
+
+        # Draw and hold radio button
+        radio_frame = tk.Frame(left_frame)
+        radio_frame.grid(column=0,row=2,sticky='nsew')
+
+        self._v = tk.IntVar()
+        draw_radio = tk.Radiobutton(radio_frame, text='DRAW',\
+            variable = self._v, value = 1,\
+            command=self._activate_draw_func)
+        draw_radio.grid(column=0,row=0,padx=5,pady=5,sticky='nsew')
+        hold_radio = tk.Radiobutton(radio_frame, text='HOLD',\
+            variable = self._v, value = 0, \
+            command=self._hold_func)
+        hold_radio.grid(column=1,row=0,padx=5,pady=5,sticky='ensw')
+        hold_radio.select()  
+        # -------------------------------------------------------------
+
+        # Right box
+        # -------------------------------------------------------------
+        right_frame = tk.Frame(frame)
+        right_frame.grid(column=1,row=0,sticky='nswe')
+        
+        # Fitting function menu
+        self._fit_func = tk.StringVar()
+        fit_funcs = tuple([i for i in self._func_list.keys()])
+        fit_func_box = ttk.OptionMenu(right_frame,\
+            self._fit_func,*fit_funcs)
+        fit_func_box.grid(column=0,row=0, columnspan=2,\
+            sticky='w',padx=5,pady=5)
+
+        # Add and delete buttons
+        add_button = ttk.Button(right_frame, text='ADD', \
+            command=self._clickAdd)
+        add_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+        del_button = ttk.Button(right_frame, text='DEL', \
+            command=self._clickDel)
+        del_button.grid(column=1,row=1,padx=5,pady=5,sticky='e') 
+
+        # Fit and clear button
+        fit_button = ttk.Button(right_frame, text='FIT', \
+            command=self._clickFit)
+        fit_button.grid(column=0,row=2,padx=5,pady=5,sticky='nswe')        
+        clear_button = ttk.Button(right_frame, text='CLEAR', \
+            command=self._clear)
+        clear_button.grid(column=1,row=2,padx=5,pady=5,sticky='nsew')   
+
+        # Save and load buttons
+        save_frame = ttk.LabelFrame(right_frame,text='output name')
+        save_frame.grid(column=0,row=3,columnspan=2,padx=5,pady=5,sticky='nswe')
+        self._output_name = tk.StringVar()
+        name_entry = tk.Entry(save_frame,textvariable=self._output_name)
+        name_entry.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
+        save_button = ttk.Button(save_frame, text='SAVE', \
+            command=self._save_fit)
+        save_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')        
+        load_button = ttk.Button(save_frame, text='LOAD', \
+            command=self._load_fit)
+        load_button.grid(column=0,row=2,padx=5,pady=5,sticky='nswe')   
+        # -------------------------------------------------------------
+
+    def _clickAdd(self):
+        # Add a fitting function to the dictionary of fitting 
+        # functions and update the ditting function box
+        # If it is the first call, seld._index = 1
+
+        # To avoid a new added function has the same color of the just
+        # deleted one
+        colors = plt_color(hex=True)
+        for key,item in self._fit_funcs_dict.items():
+            colors.remove(item['color'])
+        col = colors[0]
+
+        self._fit_funcs_dict[self._index] = {'name':self._fit_func.get(),'color':col}
+        self._fit_func_listbox.insert(tk.END,\
+            str(self._index)+') '+self._fit_func.get())
+        # Give a color to text in the color box corresponding to the 
+        # just added function
+        self._fit_func_listbox.itemconfig(self._index-1,{'fg':col})
+        self._index += 1
+        
+        # Disconnect the canvas when adding a new function
+        self._v.set(0)
+        if self._canvas_connected:
+            self._disconnect()
+
+    def _clickDel(self):
+        # Selected items can be more than 1
+        sel = self._fit_func_listbox.curselection()
+        #print(sel)
+    
+        # Aelection index MUST be reversed because self._fit_func_listbox 
+        # index changes every time you remove an item
+        for index in sel[::-1]:
+            #print('Deleting function index',index)
+
+            # Removing selected items from listbox
+            self._fit_func_listbox.delete(index) 
+
+            # Removing selected items from plot
+            if 'plots' in self._fit_funcs_dict[index+1].keys():
+                self._controller._ax.lines.remove(self._fit_funcs_dict[index+1]['plots'])
+    
+            # Removing selected items from self._fit_func_dict
+            del self._fit_funcs_dict[index+1]
+
+        # Resetting index of the remaining items
+        items = self._fit_func_listbox.get(0,tk.END)
+        if len(items) != 0:
+            self._reset_index()
+            if not self._controller._to_plot is None:
+                self._plot_func()
+                self._print_par_value()
+
+       # Disconnect the canvas when deleting a new function
+        self._v.set(0)
+        if self._canvas_connected:
+            self._disconnect()
+
+        #for key,value in self._fit_funcs_dict.items():
+        #    print(key,value)
+        #print('-'*80)
+        print('Index at the end of deleting',self._index)
+
+    def _populate_fit_pars_frame(self,frame):
+        
+        # Left box
+        # -------------------------------------------------------------
+        left_frame = tk.Frame(frame)
+        left_frame.grid(column=0,row=0,sticky='nswe')
+
+        self._fit_pars_listbox = tk.Listbox(left_frame, selectmode='multiple')
+        self._fit_pars_listbox .grid(column=0,row=0,padx=5,pady=5,\
+            sticky='nsew')
+        # -------------------------------------------------------------
+
+        # Right box
+        # -------------------------------------------------------------
+        right_frame = tk.Frame(frame)
+        right_frame.grid(column=1,row=0,sticky='nswe')
+
+        self._par_val = tk.StringVar()
+        reset_entry = tk.Entry(right_frame, textvariable=self._par_val, \
+            width=10)
+        reset_entry.grid(column=0,row=0,padx=5,pady=5,sticky='nsew')  
+
+        reset_button = ttk.Button(right_frame, text='RESET', \
+            command=lambda: self._reset_par_value())
+        reset_button.grid(column=1,row=0,padx=5,pady=5,sticky='nsew')        
+
+        self._vII = tk.IntVar()
+        freeze_radio = tk.Radiobutton(right_frame, text='FREEZE',\
+            variable = self._vII, value = 1, \
+            command=lambda: self._reset_par_value(freeze=True))
+        freeze_radio.grid(column=0,row=1,padx=5,pady=5,sticky='senw')
+        free_radio = tk.Radiobutton(right_frame, text='FREE',
+            variable = self._vII, value = 0, \
+            command=lambda: self._reset_par_value())
+        free_radio.grid(column=1,row=1,padx=7,pady=7,sticky='senw')
+        free_radio.select() 
+        # -------------------------------------------------------------
+
+    def _freeze_par(self):
+        par_val = float(self._par_val.get())        
+
+    def _reset_par_value(self,freeze=False):
+        # First getting the value then the selected function and parameter
+        sel = self._fit_pars_listbox.curselection()
+        items = self._fit_pars_listbox.get(0,tk.END)
+        for index in sel[::-1]:
+            item = items[index]
+            key = int(item.split(')')[0].split('L')[1])
+            par_name = item.split('=')[0].strip().split(')')[1].strip()
+            pars = self._fit_funcs_dict[key]['par_name']
+
+            for i in range(len(pars)):
+                if par_name == self._fit_funcs_dict[key]['par_name'][i]:
+
+                    if self._par_val.get() == '':
+                        par_val = self._fit_funcs_dict[key]['par_value'][i]
+                    else:
+                        par_val = float(self._par_val.get())
+
+                    self._fit_funcs_dict[key]['par_value'][i] = par_val  
+                    if freeze:
+                        self._fit_funcs_dict[key]['par_status'][i] = False
+                    else:
+                        self._fit_funcs_dict[key]['par_status'][i] = True
+        self._print_par_value()
+        self._plot_func()
+
+    def _print_par_value(self):
+        # Cleaning par listbox
+        self._fit_pars_listbox.delete(0,tk.END)
+
+        # Writing function pars only if plotted
+        for key,value in self._fit_funcs_dict.items():
+
+            if 'plots' in value.keys():
+                n_pars = len(value['par_value'])
+                for i in range(n_pars):
+                    line = 'L{:2}) {:4} = {:6.4} ({})'.\
+                        format(key,value['par_name'][i],
+                               float(value['par_value'][i]),
+                                ('free' if value['par_status'][i] else 'frozen'))
+                    self._fit_pars_listbox.insert(tk.END,line) 
+                    self._fit_pars_listbox.itemconfig(tk.END,{'fg':value['color']})                 
+
+
+
+    
+    def _clear(self):
+        # Deleting plots (if existing)
+        items = self._fit_pars_listbox.get(0,tk.END)
+        if len(items) != 0:
+            print('Cleaning ')
+            for key,item in self._fit_funcs_dict.items():
+                print('Cleaning parameter',key)
+                self._controller._ax.lines.remove(self._fit_funcs_dict[key]['plots'])
+        if 'plot' in self._total_fit_func_dict.keys():
+            self._controller._ax.lines.remove(self._total_fit_func_dict['plot'])
+        self._controller._canvas.draw()
+        self._controller._ax1.clear()
+        self._controller._ax1bis.clear()
+        self._controller._ax2.clear()
+        self._controller._ax2bis.clear()
+        self._controller._canvas2.draw()
+
+        # Deleting boxes
+        self._fit_func_listbox.delete(0,tk.END)
+        self._fit_pars_listbox.delete(0,tk.END)
+        self._controller._fit_info_box.delete(0,tk.END)
+        
+        # Resetting variables
+        self._first_fit = True
+        self._index = 1
+        self._fit_funcs_dict = {}
+        self._total_fit_func_dict = {}
+
+
+
+    def _save_fit(self):
+        fit_dir = os.path.join(self._controller._controller._output_dir.get(),\
+            'analysis',self._controller._controller._obs_id,'fits')
+        os.system(f'mkdir {fit_dir}')
+        save_modelresult(self._fit_result,\
+            os.path.join(fit_dir,self._output_name.get()+'.sav'))
+
+    def _load_fit(self):
+        pass
+
+    def _reset_index(self):
+        items = self._fit_func_listbox.get(0,tk.END)
+
+        # Reading and storing old info
+        old_func_info = []
+        old_items = []
+        for i in range(len(items)):
+            item = items[i]
+            old_items += [item.split(')')[1].strip()]
+            old_index = int(item.split(')')[0].strip())
+            old_func_info += [self._fit_funcs_dict[old_index]]
+        
+        # Cleaning listbox and self._fit_funcs_dict
+        self._fit_func_listbox.delete(0,tk.END)
+        self._fit_funcs_dict = {}
+        
+        # Re-writing old items with new index
+        for i in range(len(items)):
+            self._fit_func_listbox.insert(tk.END,str(i+1)+') '+old_items[i])
+            self._fit_func_listbox.itemconfig(i,{'fg':old_func_info[i]['color']})
+            self._fit_funcs_dict[i+1] = old_func_info[i]
+
+        # Resetting index
+        print('len(items) + 1',len(items) + 1)
+        self._index = len(items) + 1
+
+    def _close(self):
+        self._parent.destroy()
+
+    def _activate_draw_func(self):
+        items = self._fit_func_listbox.get(0,tk.END)
+        # There must be at least a function to draw
+        #print(len(items),self._controller._to_plot)
+        if len(items) != 0 and not self._controller._to_plot is None:
+
+            print('Draw function activated')
+
+            # Connecting the canvas
+            if not self._canvas_connected:
+                self._connect()
+
+            sel = self._fit_func_listbox.curselection()
+            # If nothing is selected, select the first one
+            if not sel:
+                sel = (0,)
+            # In case of (accidental) multiple selection, it will be 
+            # considered always the first one
+            self._sel_index = int(sel[0])
+
+    def _hold_func(self):
+        if self._canvas_connected:
+            self._disconnect()
+
+        
+    def _plot_func(self,reset=False):
+
+        x = self._controller._to_plot.freq
+        x = x[x>0]
+        if not x is None:
+            counter = 0
+            psum = np.zeros(len(x))
+            for key,value in self._fit_funcs_dict.items():
+
+                if 'par_value' in value.keys():
+
+                    # This remove previous plot of the function
+                    if 'plots' in value.keys():
+                        self._controller._ax.lines.remove(value['plots'])
+
+                    # Computing function plot
+                    col = value['color']
+                    pars = value['par_value']
+                    func = self._func_list[value['name']]
+                    y = func(x,*pars)
+
+                    # Plotting
+                    ylim = self._controller._ax.set_ylim()
+                    xlim = self._controller._ax.set_xlim()
+                    if self._controller._norm.get() == 'Leahy':
+                        lor, = self._controller._ax.plot(x,y,'--',color = col)
+                        psum += y
+                    elif self._controller._norm.get() == 'RMS':
+                        lor, = self._controller._ax.plot(x,y*x,'--',color = col)
+                        psum += y*x
+                    self._controller._ax.set_ylim(ylim)
+                    self._controller._ax.set_xlim(xlim)
+                    self._fit_funcs_dict[key]['plots'] = lor
+                    counter +=1
+
+            # Replotting full function
+            if 'plot' in self._total_fit_func_dict.keys():
+                self._controller._ax.lines.remove(self._total_fit_func_dict['plot'])
+            if counter > 1:
+                allp, = self._controller._ax.plot(x,psum,'r-')
+                self._total_fit_func_dict['plot'] = allp
+
+            self._controller._canvas.draw()
+            self._print_par_value()
+
+    def _connect(self):
+        if not self._canvas_connected:
+            print('Canvas is connected')
+            self._cidclick = self._controller._canvas.mpl_connect('button_press_event',self._on_click)
+            self._cidscroll = self._controller._canvas.mpl_connect('scroll_event',self._on_roll)
+            self._canvas_connected = True
+
+    def _disconnect(self):
+        if self._canvas_connected:
+            print('Canvas is diconnected')
+            self._controller._canvas.mpl_disconnect(self._cidclick)
+            self._controller._canvas.mpl_disconnect(self._cidscroll)
+            self._canvas_connected = False
+
+    def _on_click(self,event):
+        if not event.dblclick:
+            # Left click or right lick
+            if event.button == 1 or event.button == 3:
+                # Position of the cursor
+                self._xpos = event.xdata
+                self._ypos = event.ydata
+
+                if (self._xpos != None) and (self._ypos != None):
+
+                    # Choosing standard value if not existing
+                    if not 'par_value' in self._fit_funcs_dict[self._sel_index+1].keys():
+                        q = 10
+                    else:
+                        q = self._fit_funcs_dict[self._sel_index+1]['par_value'][1]
+
+                    # Computing amp according to cursort position
+                    delta = self._xpos/np.sqrt(1+4*q**2)
+                    r2 = np.pi/2 + np.arctan(2*q)
+                    amp = self._ypos*r2*delta
+                    if self._controller._xy_flag:
+                        self._fit_funcs_dict[self._sel_index+1]['par_value'] = \
+                            [amp/self._xpos,q,self._xpos]
+                    else:
+                         self._fit_funcs_dict[self._sel_index+1]['par_value'] = \
+                            [amp,q,self._xpos]                       
+                    self._fit_funcs_dict[self._sel_index+1]['par_status'] = \
+                        [True,True,True]    
+                    self._fit_funcs_dict[self._sel_index+1]['par_name'] = \
+                        ['amp','q','freq']    
+
+                    # Plotting                                   
+                    self._plot_func()
+
+            if event.button == 2:
+                self._disconnect()
+                self._v.set(0)
+
+    def _on_roll(self,event):
+        q = self._fit_funcs_dict[self._sel_index+1]['par_value'][1]
+        if q > 1:
+            step = 1
+        else:
+            step = 0.1
+        if event.button == 'up':
+            q -= step
+            if q <= 0: q = 0.
+            self._fit_funcs_dict[self._sel_index+1]['par_value'][1] = q
+            self._plot_func()
+        elif event.button == 'down':              
+            q += step
+            self._fit_funcs_dict[self._sel_index+1]['par_value'][1] = q
+            self._plot_func()
+
+            
+    def _clickFit(self):  
+
+        if self._first_fit:
+            self._controller._new_child_window(PlotFitWindow)
+
+        self._hold_func()
+
+        freq = self._controller._to_plot.freq
+        y = self._controller._to_plot.power
+        yerr = self._controller._to_plot.spower
+        x = freq[freq>0]
+        y = y[freq>0]
+        yerr = yerr[freq>0]
+
+        self._fit_mask = (x> self._start_fit_freq.get()) & (x<= self._stop_fit_freq.get())
+        self._build_model()
+        #init = self.model.eval(self.fit_pars,x=x[self.fit_mask])
+        self._fit_result = self._model.fit(y[self._fit_mask],\
+            self._fit_pars,x=x[self._fit_mask],\
+            weights=1./(yerr[self._fit_mask]),mthod='leastsq')
+        #self.comps = self.controller.fit_result.eval_components(x=x[self.fit_mask])
+        self._update_fit_funcs()
+        self._plot_func()
+        if self._first_fit:
+            self._plot_fit()
+            self._first_fit = False
+        else:
+            self._update_fit_plot()
+        self._update_info()
+
+    def _update_fit_funcs(self):
+        for key, value in self._fit_funcs_dict.items():
+            if 'plots' in value.keys():
+                par_names = value['par_name']
+                n_pars = len(par_names)
+
+                for i in range(n_pars):
+                    par_name = 'L{}_{}'.format(key,par_names[i])
+                    self._fit_funcs_dict[key]['par_value'][i] = \
+                        self._fit_result.best_values[par_name]
+
+    def _update_fit_plot(self):
+        freq = self._controller._to_plot.freq
+        y = self._controller._to_plot.power
+        yerr = self._controller._to_plot.spower
+        x = freq[freq>0]
+        y = y[freq>0]
+        yerr = yerr[freq>0]
+
+        self._line1.set_ydata(self._fit_result.best_fit-y[self._fit_mask])
+        self._line2.set_ydata((self._fit_result.best_fit-y[self._fit_mask])**2/yerr[self._fit_mask]**2/self._fit_result.nfree)    
+        self._controller._canvas2.draw()
+
+
+    def _plot_fit(self):
+        freq = self._controller._to_plot.freq
+        y = self._controller._to_plot.power
+        yerr = self._controller._to_plot.spower
+        x = freq[freq>0]
+        y = y[freq>0]
+        yerr = yerr[freq>0]
+
+        self._line1,=self._controller._ax1.plot(
+            x[self._fit_mask],\
+             (self._fit_result.best_fit-y[self._fit_mask]),'-r'
+            )
+        self._line2,=self._controller._ax2.plot(
+            x[self._fit_mask],\
+             (self._fit_result.best_fit-y[self._fit_mask])**2/yerr[self._fit_mask]**2/self._fit_result.nfree,'-r'
+            )
+
+        # Residuals
+        maxr = np.max(abs(self._fit_result.best_fit-y[self._fit_mask]))
+        #ax.plot(x[fit_mask],result.best_fit-y,'r')
+        self._controller._ax1.set_xscale('log')
+        self._controller._ax1.set_ylim([-maxr-maxr/3,maxr+maxr/3])
+        self._controller._ax1.grid()
+        #self._controller._ax1.set_xlabel('Frequency [ Hz]')
+        self._controller._ax1.set_ylabel('Residuals [model-data]',fontsize=12)
+        self._controller._ax1.set_title('').set_visible(False)
+
+        self._controller._ax1bis = self._controller._ax1.twinx()
+        self._controller._to_plot.plot(ax=self._controller._ax1bis,\
+            alpha=0.3,lfont=12,xy=self._controller._xy_flag)
+        self._controller._ax1bis.set_ylabel('')
+        self._controller._ax1bis.grid(False)
+        self._controller._ax1bis.tick_params(axis='both',which='both',length=0)
+        self._controller._ax1bis.set_yscale('log')  
+        self._controller._ax1bis.set_yticklabels([])     
+            
+
+        # Contribution to chi2
+        self._controller._ax2.set_ylabel('Contribution to $\chi^2$',fontsize=12)
+        self._controller._ax2.set_xscale('log')
+        self._controller._ax2.set_xlabel('Frequency [ Hz]',fontsize=12)
+        self._controller._ax2.grid()
+        self._controller._ax2.set_title('').set_visible(False)
+        self._controller._ax2.yaxis.set_label_position('left')
+        self._controller._ax2.yaxis.tick_right()
+
+        self._controller._ax2bis = self._controller._ax2.twinx()
+        self._controller._to_plot.plot(ax=self._controller._ax2bis,\
+            alpha=0.3,lfont=12,xy=self._controller._xy_flag)
+        self._controller._ax2bis.set_ylabel('')
+        self._controller._ax2bis.grid(False)
+        self._controller._ax2bis.tick_params(axis='both',which='both',length=0)
+        self._controller._ax2bis.set_yscale('log')  
+        self._controller._ax2bis.set_yticklabels([])     
+ 
+        if self._first_fit: self._controller._canvas2.draw()
+
+    def _build_model(self):
+        first = True
+        for key, value in self._fit_funcs_dict.items():
+            print(key)
+            if 'plots' in value.keys():
+                par_names = value['par_name']
+                n_pars = len(par_names)
+                func = self._func_list[value['name']]
+
+                print('This one',key,func)
+                
+                tmp_model = Model(func,prefix='L{}_'.format(key))
+                if first:
+                    first = False
+                    self._fit_pars = tmp_model.make_params()
+                    self._model = tmp_model
+                else:
+                    self._fit_pars.update(tmp_model.make_params())
+                    self._model += tmp_model
+
+                par_label = par_names
+
+                for i in range(n_pars):
+                    par_val = value['par_value'][i]
+                    status = value['par_status'][i]
+                    self._fit_pars['L{}_{}'.\
+                        format(key,par_label[i])].\
+                            set(value=par_val,vary=status,min=0)
+
+    def _update_info(self):
+        self._controller._report = lmfit.fit_report(self._fit_result).split('\n')
+        for line in self._controller._report:
+            self._controller._fit_info_box.insert(tk.END,line)
+        if not self._first_fit:
+            self._controller._fit_info_box.insert(tk.END,'='*70+'\n')
+
+class PlotFitWindow:
+    def __init__(self,parent,controller):
+        self._controller = controller
+        self._parent = parent
+
+        s = ttk.Style()
+        s.configure('Black.TLabelframe.Label',
+                    font=('times', 16, 'bold'))
+        self._head_style = 'Black.TLabelframe'
+
+        plot_frame = ttk.LabelFrame(self._parent,text='Residual',
+            style=self._head_style)
+        plot_frame.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
+
+        fig = Figure(figsize=(6.3,5),dpi=100)
+        #gs = fig.add_gridspec(2,1)
+        #gs.tight_layout(fig)
+        self._controller._ax1 = fig.add_subplot(211)
+        self._controller._ax2 = fig.add_subplot(212)  
+        fig.tight_layout(w_pad=1,rect=[0.1,0.05,1.0,1.])
+        fig.align_ylabels([self._controller._ax1,self._controller._ax2])
+
+        self._controller._ax1.get_shared_x_axes().\
+            join(self._controller._ax1, self._controller._ax2)
+
+        self._controller._canvas2 = FigureCanvasTkAgg(fig,\
+            master = plot_frame)
+        self._controller._canvas2.draw()
+        self._controller._canvas2.get_tk_widget().\
+            grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
+        self._controller._canvas2.draw()
+        self._controller._canvas2.mpl_connect(\
+            'motion_notify_event',self._update_cursor)
+
+        coor_frame = tk.Frame(plot_frame)
+        coor_frame.grid(column=0,row=1,pady=5,sticky='nswe')
+        coor_frame.grid_columnconfigure(0,weight=1)
+        coor_frame.grid_columnconfigure(1,weight=1)
+        coor_frame.grid_columnconfigure(2,weight=1)
+        coor_frame.grid_columnconfigure(3,weight=1)
+        labelx = tk.Label(coor_frame,text='x coor: ')
+        labelx.grid(column=0,row=0,pady=5,padx=5,sticky='nswe')
+        self._x_pos = tk.Label(coor_frame,text=' ')
+        self._x_pos.grid(column=1,row=0,pady=5,padx=5,sticky='nswe')
+        labely = tk.Label(coor_frame,text='y coor: ')
+        labely.grid(column=2,row=0,pady=5,padx=5,sticky='nswe')
+        self._y_pos = tk.Label(coor_frame,text=' ')
+        self._y_pos.grid(column=3,row=0,pady=5,padx=5,sticky='nswe')
+
+        info_frame = ttk.LabelFrame(self._parent,text='Fit output',
+            style=self._head_style)
+        info_frame.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+
+        self._controller._fit_info_box = tk.Listbox(self._parent, selectmode='multiple')
+        self._controller._fit_info_box.grid(column=0,row=1,padx=5,pady=5,sticky='nsew')
+
+    def _update_cursor(self,event):
+        print('Updating cursor')
+        self._x_pos.configure(text=str(event.xdata))
+        self._y_pos.configure(text=str(event.ydata))
 
 if __name__ == '__main__':
     app = MakePowerWin()

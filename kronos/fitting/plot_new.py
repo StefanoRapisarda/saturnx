@@ -619,7 +619,7 @@ class FitWindow:
         self.parent.destroy()
 
     def _draw_func(self):
-        self.sel_index = int(self.listbox.curselection()[0])
+        self._sel_index = int(self.listbox.curselection()[0])
         self._connect()
 
     def _hold_func(self):
@@ -662,8 +662,8 @@ class FitWindow:
             self._print_par_value()
 
     def _connect(self):
-        self.cidclick = self.controller.plot_window.canvas1.mpl_connect('button_press_event',self._on_click)
-        self.cidscroll = self.controller.plot_window.canvas1.mpl_connect('scroll_event',self.on_roll)
+        self.cidclick = self._controller.plot_window.canvas1.mpl_connect('button_press_event',self._on_click)
+        self.cidscroll = self._controller.plot_window.canvas1.mpl_connect('scroll_event',self.on_roll)
 
     def _disconnect(self):
         self.controller.plot_window.canvas1.mpl_disconnect(self.cidclick)

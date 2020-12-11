@@ -12,6 +12,17 @@ from scipy import signal
 import logging
 from ..utils import my_classes as mc
 
+import matplotlib
+import matplotlib.pyplot as plt
+
+def plt_color(cmap_name='tab10',hex=False):
+    nc = plt.get_cmap(cmap_name).N
+    ccolors = plt.get_cmap(cmap_name)(np.arange(nc, dtype=int))
+    if hex:
+        ccolors = [matplotlib.colors.rgb2hex(c) for c in ccolors]
+    return ccolors
+
+
 def clean_gti(start,stop):
     '''
     Re-arrange GTIs in order of starting time and merges

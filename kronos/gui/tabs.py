@@ -17,6 +17,7 @@ from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 
 from kronos.core.power import *
+from windows import FitWindow, PlotFitWindow
 
 
 class FittingTab:
@@ -24,6 +25,8 @@ class FittingTab:
         self._parent = parent
         self._controller = controller
 
+        # When self._to_plot is None, nothing has been plotted yet
+        self._to_plot = None
         self._first_plot = True
         self._leahy = None
 
@@ -151,7 +154,7 @@ class FittingTab:
     def _update_label(self,var,indx,mode):
         selection = self._file.get()
         print('selecting',selection)
-        
+
         data_file = os.path.join(self._controller._output_dir.get(),\
                                 'analysis',\
                                 self._controller._obs_id,
@@ -219,8 +222,8 @@ class FittingTab:
         else:
             self._leahy = self._power.leahy()
 
-        rebin = self._leahy.rebin(-30)
-        rebin.plot(ax=self._ax,lfont=14)
+        self._to_plot = self._leahy.rebin(-30)
+        self._to_plot.plot(ax=self._ax,lfont=14)
         self._canvas.draw()
         self._canvas.mpl_connect('motion_notify_event',self._update_cursor)
 
@@ -326,12 +329,16 @@ class FittingTab:
         self._y_pos.configure(text=str(event.ydata))
 
     def _fit(self):
-        for child in self._frame1.winfo_children():
-            for gchild in child.winfo_children():
-                if hasattr(gchild,'tag'):
-                    print('got it')
-                    gchild.configure(text='This is a test of changing label')
-                    break
+        self._new_child_window(FitWindow)
+
+    def _new_window(self, newWindow):
+        self.new = tk.Toplevel(self._controller)
+        newWindow(self.new, self._controller)  
+
+    def _new_child_window(self, newWindow):
+        new = tk.Toplevel(self._controller)
+        newWindow(new, self)
+
 
 
 
