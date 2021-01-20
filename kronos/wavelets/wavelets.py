@@ -109,13 +109,15 @@ class BaseWavelet:
 
         return fft_squared[mask], freq[mask]
 
-    def plot(self, ax=None, title=None, lfont=16, color='k', label='', xlabel='Time',
-            to_plot='real'):
+    def plot(self, ax=None, title=None, lfont=16, xlabel='Time',
+            to_plot='real',**kwargs):
+
+        if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
 
         if ax is None:
             fig, ax = plt.subplots(figsize=(6,6))
 
-        if not title is None and not ax is None:
+        if (not title is None) and (not ax is None):
             ax.set_title(title)
 
         if np.iscomplexobj(self.y):
@@ -129,7 +131,7 @@ class BaseWavelet:
             y = self.y
             y_label = 'Amplitude'
         
-        ax.plot(self.x, y,'-', color=color, label=label)
+        ax.plot(self.x, y,'-', **kwargs)
         ax.set_xlabel(xlabel, fontsize=lfont)
         ax.set_ylabel(y_label, fontsize=lfont)
 

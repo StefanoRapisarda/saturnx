@@ -1,6 +1,8 @@
 import numpy as np 
 import functools
 
+__all__ = ['lorentzian']
+
 class attach_name:
 
     def __init__(self,name=''):

@@ -1,0 +1,7 @@
+{
+  "timing_old/gti_test.py": true,
+  "timing_old/tests/test_event.py": true,
+  "timing_old/tests/test_lightcurve.py": true,
+  "timing_old/tests/test_power.py": true,
+  "timing_old/tests/test_utilities.py": true
+}

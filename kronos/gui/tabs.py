@@ -1,29 +1,39 @@
 import matplotlib 
 matplotlib.use("TkAgg")
-
-import os
-import sys
-sys.path.append('/Volumes/Samsung_T5/kronos')
-
-from tkinter import ttk
-import tkinter as tk
-
-import glob
-
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 # Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 
-from kronos.core.power import *
-from windows import FitWindow, PlotFitWindow
+from kronos.core.power import PowerSpectrum,PowerList
 
+# Fitting data
+import lmfit
+from lmfit import Model,Parameters
+from lmfit.model import save_modelresult,load_modelresult
+
+import random
+import uuid
+
+import os
+import pandas as pd
+
+from tkinter import ttk
+import tkinter as tk
+from tkinter import filedialog
+
+import glob
+
+from functools import partial
+
+__all__ = ['FittingTab']
 
 class FittingTab:
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, fit_window):
         self._parent = parent
         self._controller = controller
+        self._fit_window = fit_window
 
         # When self._to_plot is None, nothing has been plotted yet
         self._to_plot = None
@@ -329,7 +339,7 @@ class FittingTab:
         self._y_pos.configure(text=str(event.ydata))
 
     def _fit(self):
-        self._new_child_window(FitWindow)
+        self._new_child_window(self._fit_window)
 
     def _new_window(self, newWindow):
         self.new = tk.Toplevel(self._controller)
