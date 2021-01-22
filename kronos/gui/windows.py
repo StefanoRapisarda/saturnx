@@ -19,7 +19,9 @@ from astropy.modeling.fitting import SherpaFitter
 from sherpa.data import Data1D
 from sherpa.stats import LeastSq,Chi2,Chi2DataVar
 from sherpa.optmethods import LevMar,MonCar, GridSearch
+from sherpa.estmethods import Confidence, Covariance
 from sherpa.fit import Fit
+from sherpa.utils import calc_ftest
 
 import random
 import uuid
@@ -47,6 +49,7 @@ from kronos.functions.my_functions import plt_color
 from kronos.gui.tabs import FittingTab
 from kronos.fitting.astropy_custom_models import *
 from kronos.fitting.sherpa_custom_models import *
+from kronos.utils.pdf import pdf_page
 
 __all__ = ['MakePowerWin','LogWindow','TestButton','RxteModes',
             'FitWindow_sherpa','PlotFitWindow']
@@ -107,7 +110,67 @@ def init_sherpa_model(sherpa_model,name=None,
 
     return model
 
+def make_sherpa_result_dict(sherpa_result):
+    '''
+    Makes a dictionary containing information from fit result
+    '''
 
+    result_dict = {}
+    lines=sherpa_result.__str__().split('\n')
+    for line in lines:
+        key = line.split('=')[0].strip()
+        item = line.split('=')[1].strip()
+        result_dict[key]=item
+    return result_dict
+
+def print_fit_results(stat_dict,fit_pars,plot1,plot2,output_name):
+    stat_dict1 = {key:stat_dict[key] for key in list(stat_dict.keys())[:8]}
+    stat_dict2 = {key:stat_dict[key] for key in list(stat_dict.keys())[8:]}
+
+    # Preparing model parameters arrays
+    par_names = []
+    par_values = []
+    par_perror = []
+    par_nerror = []
+    for key,item in fit_pars.items():
+        for name,val,status,error in zip(item['par_names'],item['par_values'],item['frozen'],item['errors']):
+            frozen = ('(frozen)' if status else '(free)')
+            par_names += ['{:2}) {:>6}{:>8}'.format(key,frozen,name)]
+            par_values += [f'{val:>20.6}']
+            if error[0] == np.NaN:
+                par_perror += ['+{:>20}'.format('NaN')]
+            else:
+                par_perror += [f'+{error[0]:>20.6}']
+            if error[1] == np.NaN:
+                par_nerror += ['-{:>20}'.format('NaN')]            
+            else:
+                par_nerror += ['-'+f'{error[1]:>20.6}'.replace('-','')]   
+    par_info = [par_names,par_values,par_perror,par_nerror]
+
+    pdf = pdf_page(margins=[10,10,10,10])
+    pdf.add_page()
+
+    # Printing fit statistics
+    pdf.print_key_items(title='Fit statistics',info=stat_dict1,grid=[2,2,5,5],sel='11')
+    pdf.print_key_items(title=' ',info=stat_dict2,grid=[4,2,5,5],sel='12')
+    
+    # Print parameters
+    for i in range(1,5):
+        coors = pdf.get_grid_coors(grid=[4,4,5,5],sel='2'+str(i))
+        if i == 1:
+            title = 'Fitting parameters'
+        else:
+            title = ' '
+        pdf.print_column(title=title,rows=par_info[i-1],xy=(coors[0],coors[1]))
+        
+    # Plotting plots
+    pdf.add_page()
+    coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='11',margins=[10,0,0,0])
+    pdf.image(plot1,x=coors[0],y=coors[1],h=coors[3]-coors[1])
+    coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='21')
+    pdf.image(plot2,x=coors[0],y=coors[1],h=coors[3]-coors[1])
+
+    pdf.output(output_name,'F')
 
 class MakePowerWin(tk.Tk):
     '''
@@ -2460,7 +2523,7 @@ class FitWindow_sherpa:
         left_frame.grid(column=0,row=0,sticky='nswe')
 
         self._fit_func_listbox = tk.Listbox(left_frame,\
-            selectmode='multiple',height=14)
+            selectmode='multiple',height=18)
         self._fit_func_listbox.grid(column=0,row=1,\
             padx=5,pady=5,sticky='nsew')
         # -------------------------------------------------------------
@@ -2487,32 +2550,52 @@ class FitWindow_sherpa:
         draw_radio = tk.Radiobutton(radio_frame, text='DRAW',\
             variable = self._v, value = 1,\
             command=self._activate_draw_func)
-        draw_radio.grid(column=0,row=0,padx=5,pady=5,sticky='nsew')
+        draw_radio.grid(column=0,row=0,padx=5,pady=2,sticky='nsew')
         hold_radio = tk.Radiobutton(radio_frame, text='HOLD',\
             variable = self._v, value = 0, \
             command=self._hold_func)
-        hold_radio.grid(column=1,row=0,padx=5,pady=5,sticky='ensw')
+        hold_radio.grid(column=1,row=0,padx=5,pady=2,sticky='ensw')
         hold_radio.select()  
 
         # Add and delete buttons
         add_button = ttk.Button(right_frame, text='ADD', \
             command=self._clickAdd)
-        add_button.grid(column=0,row=2,padx=5,pady=5,sticky='nswe')
+        add_button.grid(column=0,row=2,padx=5,pady=2,sticky='nswe')
         del_button = ttk.Button(right_frame, text='DEL', \
             command=self._clickDel)
-        del_button.grid(column=1,row=2,padx=5,pady=5,sticky='nswe') 
+        del_button.grid(column=1,row=2,padx=5,pady=2,sticky='nswe') 
 
         # Fit and clear button
         fit_button = ttk.Button(right_frame, text='FIT', \
             command=self._clickFit)
-        fit_button.grid(column=0,row=3,padx=5,pady=5,sticky='nswe')        
+        fit_button.grid(column=0,row=3,padx=5,pady=2,sticky='nswe')        
         clear_button = ttk.Button(right_frame, text='CLEAR', \
             command=self._clear)
-        clear_button.grid(column=1,row=3,padx=5,pady=5,sticky='nsew')   
+        clear_button.grid(column=1,row=3,padx=5,pady=2,sticky='nsew')   
+
+        # Compute errors
+        error_frame = ttk.LabelFrame(right_frame,text='Compute error')
+        error_frame.grid(column=0,row=4,columnspan=2,padx=5,pady=5,sticky='nswe')
+        error_frame.columnconfigure(0,weight=1)
+        error_frame.columnconfigure(1,weight=1)
+
+        error_button = ttk.Button(error_frame,text='ERRORS',\
+            command=self._comp_errors)
+        error_button.grid(column=0,row=0,padx=5,pady=2,sticky='nsew') 
+        sigma_frame = tk.Frame(error_frame)
+        sigma_frame.grid(column=1,row=0,sticky='nswe')
+        sigma_letter = tk.Label(sigma_frame,text=u'\u03c3')
+        sigma_letter.grid(column=0,row=0,sticky='nswe')
+        self._error_sigma = tk.DoubleVar()
+        self._error_sigma.set(1.0)
+        sigma_entry = tk.Entry(sigma_frame,textvariable=self._error_sigma,
+            width=8)
+        sigma_entry.grid(column=1,row=0,sticky='nswe')
 
         # Save and load buttons
         save_frame = ttk.LabelFrame(right_frame,text='Fit output name')
-        save_frame.grid(column=0,row=4,columnspan=2,padx=5,pady=5,sticky='nswe')
+        save_frame.grid(column=0,row=5,columnspan=2,padx=5,pady=5,sticky='nswe')
+
         self._output_name = tk.StringVar()
         name_entry = tk.Entry(save_frame,textvariable=self._output_name)
         name_entry.grid(column=0,row=0,padx=5, pady=5, sticky='nswe')
@@ -2698,13 +2781,24 @@ class FitWindow_sherpa:
         # Writing function pars only if plotted
         for key,value in self._fit_funcs_dict.items():
 
+            err_flag = False
+            if 'errors' in value.keys(): err_flag = True
             if 'plots' in value.keys():
                 n_pars = len(value['par_values'])
                 for i in range(n_pars):
-                    line = '{:2}) {:4} = {:6.4} ({})'.\
-                        format(key,value['par_names'][i],
-                               float(value['par_values'][i]),
-                                ('frozen' if value['frozen'][i] else 'free'))
+                    if err_flag:
+                        print('Printing parameters with errors')
+                        # Minus sign is included in negative error
+                        line = '{:2}) {:>5} = {:6.4} ({:4}) + {:6.6} {:7.6}'.\
+                            format(key,value['par_names'][i],
+                                float(value['par_values'][i]),
+                                ('froz' if value['frozen'][i] else 'free'),
+                                value['errors'][i][0],value['errors'][i][1])
+                    else:
+                        line = '{:2}) {:>5} = {:6.4} ({:4})'.\
+                            format(key,value['par_names'][i],
+                            float(value['par_values'][i]),
+                            ('froz' if value['frozen'][i] else 'free'))
                     self._fit_pars_listbox.insert(tk.END,line) 
                     self._fit_pars_listbox.itemconfig(tk.END,{'fg':value['color']})                 
 
@@ -2748,8 +2842,37 @@ class FitWindow_sherpa:
         fit_dir = os.path.join(self._controller._controller._output_dir.get(),\
             'analysis',self._controller._controller._obs_id,'fits')
         os.system(f'mkdir {fit_dir}')
-        output_file = os.path.join(fit_dir,self._output_name.get()+'.pkl')
-        # To implement
+        output_file_name = os.path.join(fit_dir,self._output_name.get())
+
+        # Saving fit plots  
+        self._controller._chi_fig.savefig(output_file_name+'_chi2.jpeg', dpi=300)
+        
+        self._controller._ax.legend(title='Model comp.')
+        self._controller._fig.savefig(output_file_name+'_fit.jpeg', dpi=300)
+
+        # Saving model result dictionary
+        result_dict=make_sherpa_result_dict(self._fit_result)
+        del result_dict['parnames']
+        del result_dict['parvals']
+        fit_dict=make_sherpa_result_dict(self._fit)
+        estmethod_dict=make_sherpa_result_dict(self._fit.estmethod)
+        result_dict['model']=fit_dict['model']
+        result_dict['estmethod']=fit_dict['estmethod']
+        result_dict['sigma_error']=estmethod_dict['sigma']
+
+        with open(output_file_name+'_fit_stat.pkl','wb') as outfile:
+            pickle.dump(result_dict,outfile)
+
+        # Saving model pars dictionary
+        with open(output_file_name+'_fit_pars.pkl','wb') as outfile:
+            pickle.dump(self._fit_funcs_dict,outfile) 
+
+        # Make pdf page        
+        print_fit_results(result_dict,self._fit_funcs_dict,
+                        output_file_name+'_fit.jpeg',
+                        output_file_name+'_chi2.jpeg',
+                        output_file_name+'_fit_results.pdf')
+
 
     def _load_fit(self):
         # To implement
@@ -2847,10 +2970,12 @@ class FitWindow_sherpa:
                     ylim = self._controller._ax.set_ylim()
                     xlim = self._controller._ax.set_xlim()
                     if not self._controller._xy_flag.get():
-                        line, = self._controller._ax.plot(x,y,'--',color = col)
+                        line, = self._controller._ax.plot(x,y,'--',\
+                            color = col,label=str(key))
                         psum += y
                     else:
-                        line, = self._controller._ax.plot(x,y*x,'--',color = col)
+                        line, = self._controller._ax.plot(x,y*x,'--',\
+                            color = col,label=str(key))
                         psum += y*x
                     self._controller._ax.set_ylim(ylim)
                     self._controller._ax.set_xlim(xlim)
@@ -2980,6 +3105,8 @@ class FitWindow_sherpa:
         self._fit = Fit(self._data_to_fit,self._model, 
                         stat=self._stat, method=self._method)
         self._fit_result = self._fit.fit()
+        # To allow the plot window to fetch fit results
+        self._controller._fit_result = self._fit_result
 
         print('Fitting results')
         print('='*80)
@@ -3000,6 +3127,37 @@ class FitWindow_sherpa:
         else:
             self._update_fit_plot()
         self._update_info()
+
+    def _comp_errors(self):
+        if not self._first_fit:
+            # TODO: make this an option in the future
+            self._fit.estmethod = Covariance()
+            self._fit.estmethod.sigma = self._error_sigma.get()
+            self._errors = self._fit.est_errors()
+            print(self._errors)
+
+            for key0,item in self._fit_funcs_dict.items():
+                errors = [[0.,0.] for j in range(len(item['par_names']))]
+                for j,name0 in enumerate(item['par_names']):
+                    for i,full_name in enumerate(self._errors.parnames):
+                        key = full_name.split('.')[0]
+                        name = full_name.split('.')[1]
+                        if str(key0) == key and name0 == name:                        
+                            plus = self._errors.parmaxes[i]
+                            minus = self._errors.parmins[i]
+                            if not plus is None:
+                                plus = np.round(plus,6)
+                            else: 
+                                plus = np.NaN
+                            if not minus is None:
+                                minus = np.round(minus,6)
+                            else:
+                                minus=np.NaN
+                            errors[j] = [plus,minus]
+                self._fit_funcs_dict[key0]['errors']=errors
+
+            self._print_par_value()
+                
 
     def _update_fit_funcs(self):
         for key, value in self._fit_funcs_dict.items():
@@ -3078,18 +3236,22 @@ class FitWindow_sherpa:
         self._controller._ax2bis.set_yscale('log')  
         self._controller._ax2bis.set_yticklabels([])     
  
-        if self._first_fit: self._controller._canvas2.draw()
+        if self._first_fit: 
+            self._controller._canvas2.draw()
+        self._controller._canvas2.mpl_connect(\
+            'motion_notify_event',self._controller._update_cursor)
 
     def _build_model(self):
         print('Building model')
         first = True
         for key, value in self._fit_funcs_dict.items():
+            print('Building model component n.',key)
             if 'plots' in value.keys():
                 
                 # Initializing model accortding to values stored in
                 # self._fit_funcs_dict
                 func=init_sherpa_model(sherpa_model=self._func_list[value['name']],
-                    name=key,
+                    name=str(key),
                     parvals=value['par_values'],
                     frozen=value['frozen'])
                 
@@ -3118,15 +3280,17 @@ class PlotFitWindow:
                     font=('times', 16, 'bold'))
         self._head_style = 'Black.TLabelframe'
 
+        # Initializaing plot frame
+        # -------------------------------------------------------------
         plot_frame = ttk.LabelFrame(self._parent,text='Residual',
             style=self._head_style)
         plot_frame.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
 
-        fig = Figure(figsize=(6.3,5),dpi=100)
+        fig = Figure(figsize=(6.5,5),dpi=100)
         #gs = fig.add_gridspec(2,1)
         #gs.tight_layout(fig)
         self._controller._ax1 = fig.add_subplot(211)
-        self._controller._ax2 = fig.add_subplot(212)  
+        self._controller._ax2 = fig.add_subplot(212,sharex=self._controller._ax1)  
         fig.tight_layout(w_pad=1,rect=[0.1,0.05,1.0,1.])
         fig.align_ylabels([self._controller._ax1,self._controller._ax2])
 
@@ -3141,6 +3305,7 @@ class PlotFitWindow:
         self._controller._canvas2.draw()
         self._controller._canvas2.mpl_connect(\
             'motion_notify_event',self._update_cursor)
+        self._controller._chi_fig = fig
 
         coor_frame = tk.Frame(plot_frame)
         coor_frame.grid(column=0,row=1,pady=5,sticky='nswe')
@@ -3156,19 +3321,99 @@ class PlotFitWindow:
         labely.grid(column=2,row=0,pady=5,padx=5,sticky='nswe')
         self._y_pos = tk.Label(coor_frame,text=' ')
         self._y_pos.grid(column=3,row=0,pady=5,padx=5,sticky='nswe')
+        # -------------------------------------------------------------
+
+        # F-test frame
+        # -------------------------------------------------------------
+        entry_width = 8
+        entry_width2 = 4
+        button_width = 5
+
+        ftest_frame = ttk.LabelFrame(self._parent,text='F-test',
+            style=self._head_style)
+        ftest_frame.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+
+        self._chi2_1 = tk.DoubleVar()
+        self._dof_1  = tk.DoubleVar()
+        chi2_1_label = tk.Label(ftest_frame,text='chi2/dof (simple)')
+        chi2_1_label.grid(column=0,row=0,sticky='nswe')
+        chi2_1_entry = tk.Entry(ftest_frame,textvar=self._chi2_1,
+            width=entry_width)
+        chi2_1_entry.grid(column=1,row=0,sticky='nswe')
+        dof_1_entry = tk.Entry(ftest_frame,textvar=self._dof_1,
+            width=entry_width2)
+        dof_1_entry.grid(column=2,row=0,sticky='nswe')
+        get_button_1 = ttk.Button(ftest_frame,text='GET',\
+            command=lambda:self._get_chi_dof(1),width=button_width)
+        get_button_1.grid(column=3,row=0,sticky='nswe')
+
+
+        self._chi2_2 = tk.DoubleVar()
+        self._dof_2  = tk.DoubleVar()
+        chi2_2_label = tk.Label(ftest_frame,text='chi2/dof (complex)')
+        chi2_2_label.grid(column=4,row=0,sticky='nsew')
+        chi2_2_entry = tk.Entry(ftest_frame,textvar=self._chi2_2,
+            width=entry_width)
+        chi2_2_entry.grid(column=5,row=0,sticky='nswe')
+        dof_2_entry = tk.Entry(ftest_frame,textvar=self._dof_2,
+            width=entry_width2)
+        dof_2_entry.grid(column=6,row=0,sticky='nswe')
+        get_button_2 = ttk.Button(ftest_frame,text='GET',\
+            command=lambda:self._get_chi_dof(2),width=button_width)
+        get_button_2.grid(column=7,row=0,sticky='nswe')
+
+        stat_frame = tk.Frame(ftest_frame)
+        stat_frame.grid(column=0,row=1,columnspan=8,sticky='nsew')
+        stat_frame.grid_columnconfigure(0,weight=2)
+        stat_frame.grid_columnconfigure(1,weight=2)
+        stat_frame.grid_columnconfigure(2,weight=2)
+        stat_frame.grid_columnconfigure(3,weight=2)   
+        stat_frame.grid_columnconfigure(4,weight=1)  
+        labelf = tk.Label(stat_frame,text='chi2 ratio: ')
+        labelf.grid(column=0,row=0,pady=5,padx=5,sticky='nswe')
+        self._f = tk.Label(stat_frame,text=' ')
+        self._f.grid(column=1,row=0,pady=5,padx=5,sticky='nswe')
+        labelstat = tk.Label(stat_frame,text='p-value: ')
+        labelstat.grid(column=2,row=0,pady=5,padx=5,sticky='nswe')
+        self._fstat = tk.Label(stat_frame,text=' ')
+        self._fstat.grid(column=3,row=0,pady=5,padx=5,sticky='nswe')
+
+        comp_button = ttk.Button(stat_frame,text='COMP',
+            command=self._f_test)
+        comp_button.grid(column=4,row=0,pady=5,padx=5,sticky='nswe')
+
+        # -------------------------------------------------------------
 
         info_frame = ttk.LabelFrame(self._parent,text='Fit output',
             style=self._head_style)
-        info_frame.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+        info_frame.grid(column=0,row=2,padx=5,pady=5,sticky='nswe')
+        self._f_test = ''
 
         self._controller._fit_info_box = tk.Listbox(self._parent, selectmode='multiple')
-        self._controller._fit_info_box.grid(column=0,row=1,padx=5,pady=5,sticky='nsew')
+        self._controller._fit_info_box.grid(column=0,row=2,padx=5,pady=5,sticky='nsew')
 
     def _update_cursor(self,event):
-        print('Updating cursor')
         self._x_pos.configure(text=str(event.xdata))
         self._y_pos.configure(text=str(event.ydata))
 
+    def _f_test(self):
+        f = self._chi2_1.get()/self._chi2_2.get()*self._dof_2.get()/self._dof_1.get()
+        p = calc_ftest(self._dof_1.get(),self._chi2_1.get(),self._dof_2.get(),self._chi2_2.get())
+        self._f.configure(text=str(f))
+        self._fstat.configure(text=str(p))
+
+    def _get_chi_dof(self,opt):
+        chi2 = self._controller._fit_result.statval
+        dof  = self._controller._fit_result.dof
+        if opt == 1:
+            self._chi2_1.set(chi2)
+            self._dof_1.set(dof)
+        elif opt == 2:
+            self._chi2_2.set(chi2)
+            self._dof_2.set(dof)            
+
 if __name__ == '__main__':
+    #win = tk.Tk()
+    #app=PlotFitWindow(win,win)
     app = MakePowerWin()
     app.mainloop()
