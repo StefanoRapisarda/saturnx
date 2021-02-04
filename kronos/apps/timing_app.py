@@ -1,6 +1,5 @@
 import os
 from os.path import split
-from scripts.make_power import make_power
 import numpy as np
 import glob
 import logging
@@ -13,7 +12,7 @@ from kronos.gui.windows import MakePowerWin, LogWindow
 from kronos.functions.my_functions import initialize_logger,make_logger
 
 from kronos.scripts.make_lc import make_nicer_lc
-from kronos.scripts.make_power import make_nicer_power, make_hxmt_power
+from kronos.scripts.make_power import make_power
 from kronos.scripts.read_lc_fits import read_lc
 
 class TimingApp:
@@ -92,6 +91,7 @@ class TimingApp:
                     format(obs_id))
         
         logging.info('Everything done!')
+        logging.shutdown()   
 
 
     def _compute_lightcurve(self):
@@ -169,19 +169,20 @@ class TimingApp:
                     logging.info('Computing fmode {}'.\
                                   format(self.ui._fmodes[i]))
 
-                    test = script(event_file,destination=outdir,
-                    tres=tres[i],low_en=low_en, high_en=high_en,
-                    split_event=split_event,
-                    output_suffix=self.ui._output_suffix.get().strip(),
-                    drama=False,log_name=log_name)
+                    test = script(event_file,tres=tres[i],
+                        low_en=low_en, high_en=high_en,
+                        split_event=split_event,destination=outdir,
+                        output_suffix=self.ui._output_suffix.get().strip(),
+                        log_name=log_name)
 
-                if not test:
-                    logging.info('Something went wrong with obs ID {}'.\
-                        format(obs_id))
-                    logging.info('e: {}-{} keV, tres: {}'.\
-                        format(low_en,high_en,tres))
+                    if not test:
+                        logging.info('Something went wrong with obs ID {}'.\
+                            format(obs_id))
+                        logging.info('e: {}-{} keV, tres: {}'.\
+                            format(low_en,high_en,tres))
         
-        logging.info('Everything done!')            
+        logging.info('Everything done!')   
+        logging.shutdown()         
 
     def _compute_power(self):
 
@@ -214,7 +215,8 @@ class TimingApp:
             logging.info('Processing obs ID {} ({}/{})'.\
                 format(obs_id,i+1,len(self.ui._obs_ids)))
 
-            wf = os.path.join(outdir,'analysis',obs_id)      
+            wf = os.path.join(outdir,'analysis',obs_id)  
+            logging.info('Working folder: {}'.format(wf))    
 
             for e in range(len(en_bands)):
                 low_en = en_bands[e][0]
@@ -228,11 +230,12 @@ class TimingApp:
 
                     # Checking lightcurve list files
                     if suffix == '':
-                        lc_list_files = glob.glob('{}/lc_list_E{}_{}_T{}.pkl'.\
-                            format(wf,low_en,high_en,tres))
+                        file_name = 'lc_list_E{}_{}_T{}.pkl'.\
+                            format(low_en,high_en,tres[i])
                     else:
-                        lc_list_files = glob.glob('{}/lc_list_E{}_{}_T{}_{}.pkl'.\
-                            format(wf,low_en,high_en,tres,suffix))
+                        file_name = 'lc_list_E{}_{}_T{}_{}.pkl'.\
+                            format(low_en,high_en,tres[i],suffix)
+                    lc_list_files = glob.glob('{}/{}'.format(wf,file_name))
 
                     if len(lc_list_files)==1:
                         lc_list_file = lc_list_files[0]
@@ -245,16 +248,20 @@ class TimingApp:
                         msg = 'There are no lc_list_file file selected for'\
                             ' obs ID {}. Skipping.'.format(obs_id)
                         logging.info(msg)
+                        logging.info('Was looking for {}'.format(file_name))
                         continue       
 
                     test = make_power(lc_list_file,destination=wf,
-                    tseg=tseg[i],drama=True,log_name=log_name)
+                        tseg=tseg[i],log_name=log_name)
 
-            if not test:
-                logging.info('Something went wrong with obs ID {}'.\
-                    format(obs_id))
+                    if not test:
+                        logging.info('Something went wrong with obs ID {}'.\
+                            format(obs_id))
+                        logging.info('e: {}-{} keV, tres: {}'.\
+                            format(low_en,high_en,tres[i]))
         
         logging.info('Everything done!')
+        logging.shutdown()   
 
 if __name__ == '__main__':
     app = TimingApp()

@@ -10,19 +10,15 @@ from ..core.lightcurve import Lightcurve,LightcurveList
 from ..core.power import PowerList,PowerSpectrum
 
 def make_power(lc_list_file,destination=os.getcwd(),
-              tseg=16.,drama=False,log_name=None):
+              tseg=16.,log_name=None):
 
     if log_name is None:
-        external_log = False
         log_name = make_logger('make_power',outdir=destination)
-    else:
-        external_log = True
 
     logging.info('*'*72)
     logging.info('{:24}{:^24}{:24}'.format('*'*24,'make_power','*'*24))
     logging.info('*'*72)
     logging.info('')
-    logging.info('Obs ID: {}'.format(obs_id))
     logging.info('Settings:')
     logging.info('-'*60)
     logging.info('Lightcurve list file: {}'.\
@@ -35,6 +31,7 @@ def make_power(lc_list_file,destination=os.getcwd(),
 
     # Reading parameters from Lightcurve list file
     lc_list_name = os.path.basename(lc_list_file)
+    obs_id_dir = os.path.dirname(lc_list_file)
     cleaned = lc_list_name.replace('lc_list_','').replace('.pkl','')
     div = cleaned.split('_')
     low_en = div[0].replace('E','')
@@ -65,7 +62,7 @@ def make_power(lc_list_file,destination=os.getcwd(),
     power_list_file = os.path.join(obs_id_dir,power_list_name)
     power_file = os.path.join(obs_id_dir,power_name)
 
-    logging.info('Processing event file: {}'.format(event_file))
+    logging.info('Processing lightcurve: {}'.format(lc_list_file))
     
     if os.path.isfile(lc2_list_file):
         logging.info('Lightcurve list file {} already exists.'.\
