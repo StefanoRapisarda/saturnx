@@ -6,7 +6,7 @@ import os
 
 from ..functions.my_functions import my_cdate, clean_gti
 
-def read_gti(file_name,clean=True):
+def read_gti(file_name,clean=True,extname=None):
     '''
     Read GTI (start and stop time) from a fits file
     '''
@@ -16,15 +16,18 @@ def read_gti(file_name,clean=True):
 
     history = {}
 
-    if mission == 'NICER' or mission == 'SWIFT':
+    history['CREATION_DATE'] = my_cdate()
+    history['CREATION_MODE'] = 'Gti created from fits file'
+    history['FILE_NAME'] = os.path.basename(file_name)
+    history['DIR'] = os.path.dirname(file_name)
 
-        history['CREATION_DATE'] = my_cdate()
-        history['CREATION_MODE'] = 'Gti created from fits file'
-        history['FILE_NAME'] = os.path.basename(file_name)
-        history['DIR'] = os.path.dirname(file_name)
-
-        data = getdata(file_name,extname='GTI',header=False,memmap=True)
-        start,stop = data['START'],data['STOP']
+    if extname is None:
+        extname = 'GTI'
+        if mission == 'NICER' or mission == 'SWIFT': extname='GTI'
+        if mission == 'HXMT': extname='GTI0'
+    
+    data = getdata(file_name,extname=extname,header=False,memmap=True)
+    start,stop = data['START'],data['STOP']
             
     return Gti(start_array=start,stop_array=stop,history=history)  
 

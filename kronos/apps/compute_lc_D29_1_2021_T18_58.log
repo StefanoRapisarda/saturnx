@@ -1,0 +1,1925 @@
+INFO: 2021-01-29 18:58:14: Creating log folder...
+INFO: 2021-01-29 18:58:14: COMMENTS:
+INFO: 2021-01-29 18:58:14: 
+
+INFO: 2021-01-29 18:58:14: Computing Lightcurve
+INFO: 2021-01-29 18:58:14: Processing obs ID 0100320101 (1/35)
+INFO: 2021-01-29 18:58:19: Computing energy 0.5-10.0
+INFO: 2021-01-29 18:58:19: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 18:58:19: Creating analysis folder...
+INFO: 2021-01-29 18:58:19: 
+INFO: 2021-01-29 18:58:19: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:19: Settings:
+INFO: 2021-01-29 18:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:19: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:19: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:58:19: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:19: 
+INFO: 2021-01-29 18:58:19: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:19: Reading event file
+INFO: 2021-01-29 18:58:23: Done!
+INFO: 2021-01-29 18:58:23: Reading GTI from event file
+INFO: 2021-01-29 18:58:24: Done!
+INFO: 2021-01-29 18:58:24: Computing lightcurve
+INFO: 2021-01-29 18:58:25: NumExpr defaulting to 8 threads.
+INFO: 2021-01-29 18:58:49: Done!
+INFO: 2021-01-29 18:58:49: Saving Lightcurve in the event folder
+INFO: 2021-01-29 18:58:54: Done!
+INFO: 2021-01-29 18:58:54: Saving Gti in the event folder
+INFO: 2021-01-29 18:58:54: Done!
+INFO: 2021-01-29 18:58:54: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 18:58:54: Creating analysis folder...
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:54: Settings:
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:54: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:58:54: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:54: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:58:54: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 18:58:54: Creating analysis folder...
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:54: Settings:
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:54: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:58:54: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:54: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:58:54: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 18:58:54: Creating analysis folder...
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:54: Settings:
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:54: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:58:54: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:54: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:58:54: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 18:58:54: Creating analysis folder...
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:54: Settings:
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:54: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 18:58:54: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:54: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:54: 
+INFO: 2021-01-29 18:58:54: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:54: Reading event file
+INFO: 2021-01-29 18:58:57: Done!
+INFO: 2021-01-29 18:58:57: Reading GTI from event file
+INFO: 2021-01-29 18:58:59: Done!
+INFO: 2021-01-29 18:58:59: Computing lightcurve
+INFO: 2021-01-29 18:58:59: Done!
+INFO: 2021-01-29 18:58:59: Saving Lightcurve in the event folder
+INFO: 2021-01-29 18:58:59: Done!
+INFO: 2021-01-29 18:58:59: Saving Gti in the event folder
+INFO: 2021-01-29 18:58:59: Done!
+INFO: 2021-01-29 18:58:59: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 18:58:59: Creating analysis folder...
+INFO: 2021-01-29 18:58:59: 
+INFO: 2021-01-29 18:58:59: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:59: Settings:
+INFO: 2021-01-29 18:58:59: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:59: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:59: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 18:58:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:59: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:59: 
+INFO: 2021-01-29 18:58:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:59: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:58:59: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 18:58:59: Creating analysis folder...
+INFO: 2021-01-29 18:58:59: 
+INFO: 2021-01-29 18:58:59: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:59: Settings:
+INFO: 2021-01-29 18:58:59: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:59: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:59: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 18:58:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:59: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:59: 
+INFO: 2021-01-29 18:58:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:59: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:58:59: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 18:58:59: Creating analysis folder...
+INFO: 2021-01-29 18:58:59: 
+INFO: 2021-01-29 18:58:59: Obs ID: 0100320101
+INFO: 2021-01-29 18:58:59: Settings:
+INFO: 2021-01-29 18:58:59: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:59: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:58:59: Selected time resolution: 0.5 s
+INFO: 2021-01-29 18:58:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:58:59: ------------------------------------------------------------
+INFO: 2021-01-29 18:58:59: 
+INFO: 2021-01-29 18:58:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:58:59: Reading event file
+INFO: 2021-01-29 18:59:01: Done!
+INFO: 2021-01-29 18:59:01: Reading GTI from event file
+INFO: 2021-01-29 18:59:03: Done!
+INFO: 2021-01-29 18:59:03: Computing lightcurve
+INFO: 2021-01-29 18:59:03: Done!
+INFO: 2021-01-29 18:59:03: Saving Lightcurve in the event folder
+INFO: 2021-01-29 18:59:03: Done!
+INFO: 2021-01-29 18:59:03: Saving Gti in the event folder
+INFO: 2021-01-29 18:59:03: Done!
+INFO: 2021-01-29 18:59:03: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 18:59:03: Creating analysis folder...
+INFO: 2021-01-29 18:59:03: 
+INFO: 2021-01-29 18:59:03: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:03: Settings:
+INFO: 2021-01-29 18:59:03: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:03: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:59:03: Selected time resolution: 0.5 s
+INFO: 2021-01-29 18:59:03: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:03: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:03: 
+INFO: 2021-01-29 18:59:03: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:03: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:03: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 18:59:03: Creating analysis folder...
+INFO: 2021-01-29 18:59:03: 
+INFO: 2021-01-29 18:59:03: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:03: Settings:
+INFO: 2021-01-29 18:59:03: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:03: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 18:59:03: Selected time resolution: 0.5 s
+INFO: 2021-01-29 18:59:03: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:03: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:03: 
+INFO: 2021-01-29 18:59:03: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:03: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:03: Computing energy 0.5-2.0
+INFO: 2021-01-29 18:59:03: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 18:59:03: Creating analysis folder...
+INFO: 2021-01-29 18:59:03: 
+INFO: 2021-01-29 18:59:03: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:03: Settings:
+INFO: 2021-01-29 18:59:03: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:03: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:03: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:03: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:03: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:03: 
+INFO: 2021-01-29 18:59:03: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:03: Reading event file
+INFO: 2021-01-29 18:59:06: Done!
+INFO: 2021-01-29 18:59:06: Reading GTI from event file
+INFO: 2021-01-29 18:59:07: Done!
+INFO: 2021-01-29 18:59:07: Computing lightcurve
+INFO: 2021-01-29 18:59:26: Done!
+INFO: 2021-01-29 18:59:26: Saving Lightcurve in the event folder
+INFO: 2021-01-29 18:59:31: Done!
+INFO: 2021-01-29 18:59:31: Saving Gti in the event folder
+INFO: 2021-01-29 18:59:31: Done!
+INFO: 2021-01-29 18:59:31: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 18:59:31: Creating analysis folder...
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:31: Settings:
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:31: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:31: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:31: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:31: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 18:59:31: Creating analysis folder...
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:31: Settings:
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:31: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:31: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:31: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:31: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 18:59:31: Creating analysis folder...
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:31: Settings:
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:31: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:31: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:31: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:31: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 18:59:31: Creating analysis folder...
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:31: Settings:
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:31: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 18:59:31: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:31: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:31: 
+INFO: 2021-01-29 18:59:31: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:31: Reading event file
+INFO: 2021-01-29 18:59:35: Done!
+INFO: 2021-01-29 18:59:35: Reading GTI from event file
+INFO: 2021-01-29 18:59:36: Done!
+INFO: 2021-01-29 18:59:36: Computing lightcurve
+INFO: 2021-01-29 18:59:36: Done!
+INFO: 2021-01-29 18:59:36: Saving Lightcurve in the event folder
+INFO: 2021-01-29 18:59:36: Done!
+INFO: 2021-01-29 18:59:36: Saving Gti in the event folder
+INFO: 2021-01-29 18:59:36: Done!
+INFO: 2021-01-29 18:59:36: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 18:59:36: Creating analysis folder...
+INFO: 2021-01-29 18:59:36: 
+INFO: 2021-01-29 18:59:36: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:36: Settings:
+INFO: 2021-01-29 18:59:36: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:36: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:36: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 18:59:36: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:36: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:36: 
+INFO: 2021-01-29 18:59:36: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:36: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:36: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 18:59:36: Creating analysis folder...
+INFO: 2021-01-29 18:59:36: 
+INFO: 2021-01-29 18:59:36: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:36: Settings:
+INFO: 2021-01-29 18:59:36: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:36: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:36: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 18:59:36: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:36: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:36: 
+INFO: 2021-01-29 18:59:36: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:36: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:36: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 18:59:36: Creating analysis folder...
+INFO: 2021-01-29 18:59:36: 
+INFO: 2021-01-29 18:59:36: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:36: Settings:
+INFO: 2021-01-29 18:59:36: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:36: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:36: Selected time resolution: 0.5 s
+INFO: 2021-01-29 18:59:36: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:36: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:36: 
+INFO: 2021-01-29 18:59:36: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:36: Reading event file
+INFO: 2021-01-29 18:59:39: Done!
+INFO: 2021-01-29 18:59:39: Reading GTI from event file
+INFO: 2021-01-29 18:59:40: Done!
+INFO: 2021-01-29 18:59:40: Computing lightcurve
+INFO: 2021-01-29 18:59:40: Done!
+INFO: 2021-01-29 18:59:40: Saving Lightcurve in the event folder
+INFO: 2021-01-29 18:59:40: Done!
+INFO: 2021-01-29 18:59:40: Saving Gti in the event folder
+INFO: 2021-01-29 18:59:40: Done!
+INFO: 2021-01-29 18:59:40: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 18:59:40: Creating analysis folder...
+INFO: 2021-01-29 18:59:40: 
+INFO: 2021-01-29 18:59:40: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:40: Settings:
+INFO: 2021-01-29 18:59:40: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:40: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:40: Selected time resolution: 0.5 s
+INFO: 2021-01-29 18:59:40: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:40: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:40: 
+INFO: 2021-01-29 18:59:40: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:40: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:40: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 18:59:40: Creating analysis folder...
+INFO: 2021-01-29 18:59:40: 
+INFO: 2021-01-29 18:59:40: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:40: Settings:
+INFO: 2021-01-29 18:59:40: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:40: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 18:59:40: Selected time resolution: 0.5 s
+INFO: 2021-01-29 18:59:40: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:40: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:40: 
+INFO: 2021-01-29 18:59:40: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:40: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:40: Computing energy 2.0-10.0
+INFO: 2021-01-29 18:59:40: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 18:59:40: Creating analysis folder...
+INFO: 2021-01-29 18:59:40: 
+INFO: 2021-01-29 18:59:40: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:40: Settings:
+INFO: 2021-01-29 18:59:40: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:40: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 18:59:40: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:40: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:40: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:40: 
+INFO: 2021-01-29 18:59:40: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:40: Reading event file
+INFO: 2021-01-29 18:59:43: Done!
+INFO: 2021-01-29 18:59:43: Reading GTI from event file
+INFO: 2021-01-29 18:59:44: Done!
+INFO: 2021-01-29 18:59:44: Computing lightcurve
+INFO: 2021-01-29 18:59:51: Done!
+INFO: 2021-01-29 18:59:51: Saving Lightcurve in the event folder
+INFO: 2021-01-29 18:59:55: Done!
+INFO: 2021-01-29 18:59:55: Saving Gti in the event folder
+INFO: 2021-01-29 18:59:55: Done!
+INFO: 2021-01-29 18:59:55: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 18:59:55: Creating analysis folder...
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:55: Settings:
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 18:59:55: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:55: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:55: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:55: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 18:59:55: Creating analysis folder...
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:55: Settings:
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 18:59:55: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:55: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:55: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:55: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 18:59:55: Creating analysis folder...
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:55: Settings:
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 18:59:55: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 18:59:55: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:55: Lightcurve list file {} already exists.
+INFO: 2021-01-29 18:59:55: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 18:59:55: Creating analysis folder...
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Obs ID: 0100320101
+INFO: 2021-01-29 18:59:55: Settings:
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 18:59:55: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 18:59:55: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 18:59:55: ------------------------------------------------------------
+INFO: 2021-01-29 18:59:55: 
+INFO: 2021-01-29 18:59:55: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 18:59:55: Reading event file
+INFO: 2021-01-29 18:59:59: Done!
+INFO: 2021-01-29 18:59:59: Reading GTI from event file
+INFO: 2021-01-29 19:00:00: Done!
+INFO: 2021-01-29 19:00:00: Computing lightcurve
+INFO: 2021-01-29 19:00:00: Done!
+INFO: 2021-01-29 19:00:00: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:00:00: Done!
+INFO: 2021-01-29 19:00:00: Saving Gti in the event folder
+INFO: 2021-01-29 19:00:00: Done!
+INFO: 2021-01-29 19:00:00: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 19:00:00: Creating analysis folder...
+INFO: 2021-01-29 19:00:00: 
+INFO: 2021-01-29 19:00:00: Obs ID: 0100320101
+INFO: 2021-01-29 19:00:00: Settings:
+INFO: 2021-01-29 19:00:00: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:00: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:00:00: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:00:00: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:00:00: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:00: 
+INFO: 2021-01-29 19:00:00: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:00:00: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:00:00: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 19:00:00: Creating analysis folder...
+INFO: 2021-01-29 19:00:00: 
+INFO: 2021-01-29 19:00:00: Obs ID: 0100320101
+INFO: 2021-01-29 19:00:00: Settings:
+INFO: 2021-01-29 19:00:00: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:00: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:00:00: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:00:00: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:00:00: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:00: 
+INFO: 2021-01-29 19:00:00: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:00:00: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:00:00: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 19:00:00: Creating analysis folder...
+INFO: 2021-01-29 19:00:00: 
+INFO: 2021-01-29 19:00:00: Obs ID: 0100320101
+INFO: 2021-01-29 19:00:00: Settings:
+INFO: 2021-01-29 19:00:00: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:00: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:00:00: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:00:00: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:00:00: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:00: 
+INFO: 2021-01-29 19:00:00: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:00:00: Reading event file
+INFO: 2021-01-29 19:00:03: Done!
+INFO: 2021-01-29 19:00:03: Reading GTI from event file
+INFO: 2021-01-29 19:00:04: Done!
+INFO: 2021-01-29 19:00:04: Computing lightcurve
+INFO: 2021-01-29 19:00:04: Done!
+INFO: 2021-01-29 19:00:04: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:00:04: Done!
+INFO: 2021-01-29 19:00:04: Saving Gti in the event folder
+INFO: 2021-01-29 19:00:04: Done!
+INFO: 2021-01-29 19:00:05: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 19:00:05: Creating analysis folder...
+INFO: 2021-01-29 19:00:05: 
+INFO: 2021-01-29 19:00:05: Obs ID: 0100320101
+INFO: 2021-01-29 19:00:05: Settings:
+INFO: 2021-01-29 19:00:05: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:05: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:00:05: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:00:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:00:05: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:05: 
+INFO: 2021-01-29 19:00:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:00:05: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:00:05: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 19:00:05: Creating analysis folder...
+INFO: 2021-01-29 19:00:05: 
+INFO: 2021-01-29 19:00:05: Obs ID: 0100320101
+INFO: 2021-01-29 19:00:05: Settings:
+INFO: 2021-01-29 19:00:05: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:05: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:00:05: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:00:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:00:05: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:05: 
+INFO: 2021-01-29 19:00:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:00:05: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:00:05: Processing obs ID 0100320102 (2/35)
+INFO: 2021-01-29 19:00:05: Computing energy 0.5-10.0
+INFO: 2021-01-29 19:00:05: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 19:00:05: Creating analysis folder...
+INFO: 2021-01-29 19:00:05: 
+INFO: 2021-01-29 19:00:05: Obs ID: 0100320102
+INFO: 2021-01-29 19:00:05: Settings:
+INFO: 2021-01-29 19:00:05: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:05: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:00:05: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:00:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:00:05: ------------------------------------------------------------
+INFO: 2021-01-29 19:00:05: 
+INFO: 2021-01-29 19:00:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:00:05: Reading event file
+INFO: 2021-01-29 19:00:24: Done!
+INFO: 2021-01-29 19:00:24: Reading GTI from event file
+INFO: 2021-01-29 19:00:34: Done!
+INFO: 2021-01-29 19:00:34: Computing lightcurve
+INFO: 2021-01-29 19:18:51: Done!
+INFO: 2021-01-29 19:18:51: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:19:34: Done!
+INFO: 2021-01-29 19:19:34: Saving Gti in the event folder
+INFO: 2021-01-29 19:19:34: Done!
+INFO: 2021-01-29 19:19:35: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 19:19:35: Creating analysis folder...
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Obs ID: 0100320102
+INFO: 2021-01-29 19:19:35: Settings:
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:19:35: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:19:35: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:19:35: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:19:35: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 19:19:35: Creating analysis folder...
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Obs ID: 0100320102
+INFO: 2021-01-29 19:19:35: Settings:
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:19:35: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:19:35: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:19:35: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:19:35: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 19:19:35: Creating analysis folder...
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Obs ID: 0100320102
+INFO: 2021-01-29 19:19:35: Settings:
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:19:35: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:19:35: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:19:35: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:19:35: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 19:19:35: Creating analysis folder...
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Obs ID: 0100320102
+INFO: 2021-01-29 19:19:35: Settings:
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:19:35: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:19:35: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:19:35: ------------------------------------------------------------
+INFO: 2021-01-29 19:19:35: 
+INFO: 2021-01-29 19:19:35: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:19:35: Reading event file
+INFO: 2021-01-29 19:19:54: Done!
+INFO: 2021-01-29 19:19:54: Reading GTI from event file
+INFO: 2021-01-29 19:20:02: Done!
+INFO: 2021-01-29 19:20:02: Computing lightcurve
+INFO: 2021-01-29 19:20:04: Done!
+INFO: 2021-01-29 19:20:04: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:20:04: Done!
+INFO: 2021-01-29 19:20:04: Saving Gti in the event folder
+INFO: 2021-01-29 19:20:04: Done!
+INFO: 2021-01-29 19:20:04: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 19:20:04: Creating analysis folder...
+INFO: 2021-01-29 19:20:04: 
+INFO: 2021-01-29 19:20:04: Obs ID: 0100320102
+INFO: 2021-01-29 19:20:04: Settings:
+INFO: 2021-01-29 19:20:04: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:04: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:20:04: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:20:04: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:20:04: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:04: 
+INFO: 2021-01-29 19:20:04: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:20:04: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:20:04: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 19:20:04: Creating analysis folder...
+INFO: 2021-01-29 19:20:04: 
+INFO: 2021-01-29 19:20:04: Obs ID: 0100320102
+INFO: 2021-01-29 19:20:04: Settings:
+INFO: 2021-01-29 19:20:04: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:04: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:20:04: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:20:04: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:20:04: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:04: 
+INFO: 2021-01-29 19:20:04: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:20:04: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:20:04: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 19:20:04: Creating analysis folder...
+INFO: 2021-01-29 19:20:04: 
+INFO: 2021-01-29 19:20:04: Obs ID: 0100320102
+INFO: 2021-01-29 19:20:04: Settings:
+INFO: 2021-01-29 19:20:04: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:04: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:20:04: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:20:04: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:20:04: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:04: 
+INFO: 2021-01-29 19:20:04: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:20:04: Reading event file
+INFO: 2021-01-29 19:20:17: Done!
+INFO: 2021-01-29 19:20:17: Reading GTI from event file
+INFO: 2021-01-29 19:20:25: Done!
+INFO: 2021-01-29 19:20:25: Computing lightcurve
+INFO: 2021-01-29 19:20:26: Done!
+INFO: 2021-01-29 19:20:26: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:20:26: Done!
+INFO: 2021-01-29 19:20:26: Saving Gti in the event folder
+INFO: 2021-01-29 19:20:26: Done!
+INFO: 2021-01-29 19:20:26: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 19:20:26: Creating analysis folder...
+INFO: 2021-01-29 19:20:26: 
+INFO: 2021-01-29 19:20:26: Obs ID: 0100320102
+INFO: 2021-01-29 19:20:26: Settings:
+INFO: 2021-01-29 19:20:26: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:26: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:20:26: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:20:26: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:20:26: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:26: 
+INFO: 2021-01-29 19:20:26: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:20:26: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:20:26: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 19:20:26: Creating analysis folder...
+INFO: 2021-01-29 19:20:26: 
+INFO: 2021-01-29 19:20:26: Obs ID: 0100320102
+INFO: 2021-01-29 19:20:26: Settings:
+INFO: 2021-01-29 19:20:26: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:26: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:20:26: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:20:26: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:20:26: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:26: 
+INFO: 2021-01-29 19:20:26: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:20:26: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:20:26: Computing energy 0.5-2.0
+INFO: 2021-01-29 19:20:26: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 19:20:26: Creating analysis folder...
+INFO: 2021-01-29 19:20:26: 
+INFO: 2021-01-29 19:20:26: Obs ID: 0100320102
+INFO: 2021-01-29 19:20:26: Settings:
+INFO: 2021-01-29 19:20:26: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:26: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:20:26: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:20:26: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:20:26: ------------------------------------------------------------
+INFO: 2021-01-29 19:20:26: 
+INFO: 2021-01-29 19:20:26: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:20:26: Reading event file
+INFO: 2021-01-29 19:20:39: Done!
+INFO: 2021-01-29 19:20:39: Reading GTI from event file
+INFO: 2021-01-29 19:20:47: Done!
+INFO: 2021-01-29 19:20:47: Computing lightcurve
+INFO: 2021-01-29 19:34:23: Done!
+INFO: 2021-01-29 19:34:23: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:35:04: Done!
+INFO: 2021-01-29 19:35:04: Saving Gti in the event folder
+INFO: 2021-01-29 19:35:04: Done!
+INFO: 2021-01-29 19:35:04: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 19:35:04: Creating analysis folder...
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:09: Settings:
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:09: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:35:09: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:09: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:35:09: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 19:35:09: Creating analysis folder...
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:09: Settings:
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:09: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:35:09: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:09: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:35:09: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 19:35:09: Creating analysis folder...
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:09: Settings:
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:09: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:35:09: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:09: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:35:09: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 19:35:09: Creating analysis folder...
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:09: Settings:
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:09: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:35:09: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:09: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:09: 
+INFO: 2021-01-29 19:35:09: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:09: Reading event file
+INFO: 2021-01-29 19:35:27: Done!
+INFO: 2021-01-29 19:35:27: Reading GTI from event file
+INFO: 2021-01-29 19:35:35: Done!
+INFO: 2021-01-29 19:35:35: Computing lightcurve
+INFO: 2021-01-29 19:35:37: Done!
+INFO: 2021-01-29 19:35:37: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:35:37: Done!
+INFO: 2021-01-29 19:35:37: Saving Gti in the event folder
+INFO: 2021-01-29 19:35:37: Done!
+INFO: 2021-01-29 19:35:37: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 19:35:37: Creating analysis folder...
+INFO: 2021-01-29 19:35:37: 
+INFO: 2021-01-29 19:35:37: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:37: Settings:
+INFO: 2021-01-29 19:35:37: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:37: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:37: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:35:37: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:37: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:37: 
+INFO: 2021-01-29 19:35:37: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:37: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:35:37: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 19:35:37: Creating analysis folder...
+INFO: 2021-01-29 19:35:37: 
+INFO: 2021-01-29 19:35:37: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:37: Settings:
+INFO: 2021-01-29 19:35:37: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:37: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:37: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:35:37: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:37: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:37: 
+INFO: 2021-01-29 19:35:37: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:37: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:35:37: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 19:35:37: Creating analysis folder...
+INFO: 2021-01-29 19:35:37: 
+INFO: 2021-01-29 19:35:37: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:37: Settings:
+INFO: 2021-01-29 19:35:37: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:37: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:37: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:35:37: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:37: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:37: 
+INFO: 2021-01-29 19:35:37: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:37: Reading event file
+INFO: 2021-01-29 19:35:50: Done!
+INFO: 2021-01-29 19:35:50: Reading GTI from event file
+INFO: 2021-01-29 19:35:58: Done!
+INFO: 2021-01-29 19:35:58: Computing lightcurve
+INFO: 2021-01-29 19:35:59: Done!
+INFO: 2021-01-29 19:35:59: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:35:59: Done!
+INFO: 2021-01-29 19:35:59: Saving Gti in the event folder
+INFO: 2021-01-29 19:35:59: Done!
+INFO: 2021-01-29 19:35:59: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 19:35:59: Creating analysis folder...
+INFO: 2021-01-29 19:35:59: 
+INFO: 2021-01-29 19:35:59: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:59: Settings:
+INFO: 2021-01-29 19:35:59: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:59: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:59: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:35:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:59: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:59: 
+INFO: 2021-01-29 19:35:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:59: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:35:59: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 19:35:59: Creating analysis folder...
+INFO: 2021-01-29 19:35:59: 
+INFO: 2021-01-29 19:35:59: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:59: Settings:
+INFO: 2021-01-29 19:35:59: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:59: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 19:35:59: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:35:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:59: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:59: 
+INFO: 2021-01-29 19:35:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:59: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:35:59: Computing energy 2.0-10.0
+INFO: 2021-01-29 19:35:59: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 19:35:59: Creating analysis folder...
+INFO: 2021-01-29 19:35:59: 
+INFO: 2021-01-29 19:35:59: Obs ID: 0100320102
+INFO: 2021-01-29 19:35:59: Settings:
+INFO: 2021-01-29 19:35:59: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:59: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:35:59: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:35:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:35:59: ------------------------------------------------------------
+INFO: 2021-01-29 19:35:59: 
+INFO: 2021-01-29 19:35:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:35:59: Reading event file
+INFO: 2021-01-29 19:36:12: Done!
+INFO: 2021-01-29 19:36:12: Reading GTI from event file
+INFO: 2021-01-29 19:36:20: Done!
+INFO: 2021-01-29 19:36:20: Computing lightcurve
+INFO: 2021-01-29 19:40:14: Done!
+INFO: 2021-01-29 19:40:14: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:40:53: Done!
+INFO: 2021-01-29 19:40:53: Saving Gti in the event folder
+INFO: 2021-01-29 19:40:53: Done!
+INFO: 2021-01-29 19:40:53: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 19:40:53: Creating analysis folder...
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Obs ID: 0100320102
+INFO: 2021-01-29 19:40:53: Settings:
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:40:53: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:40:53: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:40:53: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:40:53: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 19:40:53: Creating analysis folder...
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Obs ID: 0100320102
+INFO: 2021-01-29 19:40:53: Settings:
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:40:53: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:40:53: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:40:53: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:40:53: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 19:40:53: Creating analysis folder...
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Obs ID: 0100320102
+INFO: 2021-01-29 19:40:53: Settings:
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:40:53: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:40:53: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:40:53: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:40:53: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 19:40:53: Creating analysis folder...
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Obs ID: 0100320102
+INFO: 2021-01-29 19:40:53: Settings:
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:40:53: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:40:53: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:40:53: ------------------------------------------------------------
+INFO: 2021-01-29 19:40:53: 
+INFO: 2021-01-29 19:40:53: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:40:53: Reading event file
+INFO: 2021-01-29 19:41:12: Done!
+INFO: 2021-01-29 19:41:12: Reading GTI from event file
+INFO: 2021-01-29 19:41:20: Done!
+INFO: 2021-01-29 19:41:20: Computing lightcurve
+INFO: 2021-01-29 19:41:21: Done!
+INFO: 2021-01-29 19:41:21: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:41:21: Done!
+INFO: 2021-01-29 19:41:21: Saving Gti in the event folder
+INFO: 2021-01-29 19:41:21: Done!
+INFO: 2021-01-29 19:41:21: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 19:41:21: Creating analysis folder...
+INFO: 2021-01-29 19:41:21: 
+INFO: 2021-01-29 19:41:21: Obs ID: 0100320102
+INFO: 2021-01-29 19:41:21: Settings:
+INFO: 2021-01-29 19:41:21: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:21: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:41:21: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:41:21: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:41:21: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:21: 
+INFO: 2021-01-29 19:41:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:41:21: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:41:21: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 19:41:21: Creating analysis folder...
+INFO: 2021-01-29 19:41:21: 
+INFO: 2021-01-29 19:41:21: Obs ID: 0100320102
+INFO: 2021-01-29 19:41:21: Settings:
+INFO: 2021-01-29 19:41:21: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:21: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:41:21: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 19:41:21: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:41:21: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:21: 
+INFO: 2021-01-29 19:41:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:41:21: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:41:21: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 19:41:21: Creating analysis folder...
+INFO: 2021-01-29 19:41:21: 
+INFO: 2021-01-29 19:41:21: Obs ID: 0100320102
+INFO: 2021-01-29 19:41:21: Settings:
+INFO: 2021-01-29 19:41:21: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:21: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:41:21: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:41:21: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:41:21: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:21: 
+INFO: 2021-01-29 19:41:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:41:21: Reading event file
+INFO: 2021-01-29 19:41:34: Done!
+INFO: 2021-01-29 19:41:34: Reading GTI from event file
+INFO: 2021-01-29 19:41:42: Done!
+INFO: 2021-01-29 19:41:42: Computing lightcurve
+INFO: 2021-01-29 19:41:42: Done!
+INFO: 2021-01-29 19:41:42: Saving Lightcurve in the event folder
+INFO: 2021-01-29 19:41:42: Done!
+INFO: 2021-01-29 19:41:42: Saving Gti in the event folder
+INFO: 2021-01-29 19:41:42: Done!
+INFO: 2021-01-29 19:41:42: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 19:41:42: Creating analysis folder...
+INFO: 2021-01-29 19:41:42: 
+INFO: 2021-01-29 19:41:42: Obs ID: 0100320102
+INFO: 2021-01-29 19:41:42: Settings:
+INFO: 2021-01-29 19:41:42: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:42: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:41:42: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:41:42: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:41:42: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:42: 
+INFO: 2021-01-29 19:41:42: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:41:42: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:41:42: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 19:41:42: Creating analysis folder...
+INFO: 2021-01-29 19:41:42: 
+INFO: 2021-01-29 19:41:42: Obs ID: 0100320102
+INFO: 2021-01-29 19:41:42: Settings:
+INFO: 2021-01-29 19:41:42: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:42: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 19:41:42: Selected time resolution: 0.5 s
+INFO: 2021-01-29 19:41:42: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:41:42: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:42: 
+INFO: 2021-01-29 19:41:42: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320102/xti/event_cl/ni0100320102_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:41:42: Lightcurve list file {} already exists.
+INFO: 2021-01-29 19:41:42: Processing obs ID 0100320103 (3/35)
+INFO: 2021-01-29 19:41:43: Computing energy 0.5-10.0
+INFO: 2021-01-29 19:41:43: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 19:41:43: Creating analysis folder...
+INFO: 2021-01-29 19:41:43: 
+INFO: 2021-01-29 19:41:43: Obs ID: 0100320103
+INFO: 2021-01-29 19:41:43: Settings:
+INFO: 2021-01-29 19:41:43: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:43: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 19:41:43: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 19:41:43: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 19:41:43: ------------------------------------------------------------
+INFO: 2021-01-29 19:41:43: 
+INFO: 2021-01-29 19:41:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 19:41:43: Reading event file
+INFO: 2021-01-29 19:41:46: Done!
+INFO: 2021-01-29 19:41:46: Reading GTI from event file
+INFO: 2021-01-29 19:41:48: Done!
+INFO: 2021-01-29 19:41:48: Computing lightcurve
+INFO: 2021-01-29 20:52:57: Done!
+INFO: 2021-01-29 20:52:57: Saving Lightcurve in the event folder
+INFO: 2021-01-29 20:57:58: Done!
+INFO: 2021-01-29 20:57:58: Saving Gti in the event folder
+INFO: 2021-01-29 20:57:58: Done!
+INFO: 2021-01-29 20:57:58: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 20:57:58: Creating analysis folder...
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Obs ID: 0100320103
+INFO: 2021-01-29 20:57:58: Settings:
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:57:58: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 20:57:58: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:57:58: Lightcurve list file {} already exists.
+INFO: 2021-01-29 20:57:58: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 20:57:58: Creating analysis folder...
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Obs ID: 0100320103
+INFO: 2021-01-29 20:57:58: Settings:
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:57:58: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 20:57:58: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:57:58: Lightcurve list file {} already exists.
+INFO: 2021-01-29 20:57:58: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 20:57:58: Creating analysis folder...
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Obs ID: 0100320103
+INFO: 2021-01-29 20:57:58: Settings:
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:57:58: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 20:57:58: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:57:58: Lightcurve list file {} already exists.
+INFO: 2021-01-29 20:57:58: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 20:57:58: Creating analysis folder...
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Obs ID: 0100320103
+INFO: 2021-01-29 20:57:58: Settings:
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:57:58: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 20:57:58: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:57:58: ------------------------------------------------------------
+INFO: 2021-01-29 20:57:58: 
+INFO: 2021-01-29 20:57:58: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:57:58: Reading event file
+INFO: 2021-01-29 20:58:07: Done!
+INFO: 2021-01-29 20:58:07: Reading GTI from event file
+INFO: 2021-01-29 20:58:09: Done!
+INFO: 2021-01-29 20:58:09: Computing lightcurve
+INFO: 2021-01-29 20:58:13: Done!
+INFO: 2021-01-29 20:58:13: Saving Lightcurve in the event folder
+INFO: 2021-01-29 20:58:14: Done!
+INFO: 2021-01-29 20:58:14: Saving Gti in the event folder
+INFO: 2021-01-29 20:58:14: Done!
+INFO: 2021-01-29 20:58:14: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 20:58:14: Creating analysis folder...
+INFO: 2021-01-29 20:58:14: 
+INFO: 2021-01-29 20:58:14: Obs ID: 0100320103
+INFO: 2021-01-29 20:58:14: Settings:
+INFO: 2021-01-29 20:58:14: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:14: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:58:14: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 20:58:14: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:58:14: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:14: 
+INFO: 2021-01-29 20:58:14: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:58:14: Lightcurve list file {} already exists.
+INFO: 2021-01-29 20:58:14: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 20:58:14: Creating analysis folder...
+INFO: 2021-01-29 20:58:14: 
+INFO: 2021-01-29 20:58:14: Obs ID: 0100320103
+INFO: 2021-01-29 20:58:14: Settings:
+INFO: 2021-01-29 20:58:14: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:14: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:58:14: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 20:58:14: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:58:14: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:14: 
+INFO: 2021-01-29 20:58:14: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:58:14: Lightcurve list file {} already exists.
+INFO: 2021-01-29 20:58:14: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 20:58:14: Creating analysis folder...
+INFO: 2021-01-29 20:58:14: 
+INFO: 2021-01-29 20:58:14: Obs ID: 0100320103
+INFO: 2021-01-29 20:58:14: Settings:
+INFO: 2021-01-29 20:58:14: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:14: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:58:14: Selected time resolution: 0.5 s
+INFO: 2021-01-29 20:58:14: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:58:14: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:14: 
+INFO: 2021-01-29 20:58:14: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:58:14: Reading event file
+INFO: 2021-01-29 20:58:16: Done!
+INFO: 2021-01-29 20:58:16: Reading GTI from event file
+INFO: 2021-01-29 20:58:18: Done!
+INFO: 2021-01-29 20:58:18: Computing lightcurve
+INFO: 2021-01-29 20:58:19: Done!
+INFO: 2021-01-29 20:58:19: Saving Lightcurve in the event folder
+INFO: 2021-01-29 20:58:19: Done!
+INFO: 2021-01-29 20:58:19: Saving Gti in the event folder
+INFO: 2021-01-29 20:58:19: Done!
+INFO: 2021-01-29 20:58:19: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 20:58:19: Creating analysis folder...
+INFO: 2021-01-29 20:58:19: 
+INFO: 2021-01-29 20:58:19: Obs ID: 0100320103
+INFO: 2021-01-29 20:58:19: Settings:
+INFO: 2021-01-29 20:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:19: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:58:19: Selected time resolution: 0.5 s
+INFO: 2021-01-29 20:58:19: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:19: 
+INFO: 2021-01-29 20:58:19: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:58:19: Lightcurve list file {} already exists.
+INFO: 2021-01-29 20:58:19: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 20:58:19: Creating analysis folder...
+INFO: 2021-01-29 20:58:19: 
+INFO: 2021-01-29 20:58:19: Obs ID: 0100320103
+INFO: 2021-01-29 20:58:19: Settings:
+INFO: 2021-01-29 20:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:19: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 20:58:19: Selected time resolution: 0.5 s
+INFO: 2021-01-29 20:58:19: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:19: 
+INFO: 2021-01-29 20:58:19: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:58:19: Lightcurve list file {} already exists.
+INFO: 2021-01-29 20:58:19: Computing energy 0.5-2.0
+INFO: 2021-01-29 20:58:19: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 20:58:19: Creating analysis folder...
+INFO: 2021-01-29 20:58:19: 
+INFO: 2021-01-29 20:58:19: Obs ID: 0100320103
+INFO: 2021-01-29 20:58:19: Settings:
+INFO: 2021-01-29 20:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:19: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 20:58:19: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 20:58:19: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 20:58:19: ------------------------------------------------------------
+INFO: 2021-01-29 20:58:19: 
+INFO: 2021-01-29 20:58:19: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 20:58:19: Reading event file
+INFO: 2021-01-29 20:58:21: Done!
+INFO: 2021-01-29 20:58:21: Reading GTI from event file
+INFO: 2021-01-29 20:58:23: Done!
+INFO: 2021-01-29 20:58:23: Computing lightcurve
+INFO: 2021-01-29 21:50:14: Done!
+INFO: 2021-01-29 21:50:14: Saving Lightcurve in the event folder
+INFO: 2021-01-29 21:55:14: Done!
+INFO: 2021-01-29 21:55:14: Saving Gti in the event folder
+INFO: 2021-01-29 21:55:14: Done!
+INFO: 2021-01-29 21:55:14: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 21:55:14: Creating analysis folder...
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:14: Settings:
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:14: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 21:55:14: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:14: Lightcurve list file {} already exists.
+INFO: 2021-01-29 21:55:14: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 21:55:14: Creating analysis folder...
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:14: Settings:
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:14: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 21:55:14: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:14: Lightcurve list file {} already exists.
+INFO: 2021-01-29 21:55:14: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 21:55:14: Creating analysis folder...
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:14: Settings:
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:14: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 21:55:14: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:14: Lightcurve list file {} already exists.
+INFO: 2021-01-29 21:55:14: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 21:55:14: Creating analysis folder...
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:14: Settings:
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:14: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 21:55:14: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:14: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:14: 
+INFO: 2021-01-29 21:55:14: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:14: Reading event file
+INFO: 2021-01-29 21:55:23: Done!
+INFO: 2021-01-29 21:55:23: Reading GTI from event file
+INFO: 2021-01-29 21:55:24: Done!
+INFO: 2021-01-29 21:55:24: Computing lightcurve
+INFO: 2021-01-29 21:55:28: Done!
+INFO: 2021-01-29 21:55:28: Saving Lightcurve in the event folder
+INFO: 2021-01-29 21:55:29: Done!
+INFO: 2021-01-29 21:55:29: Saving Gti in the event folder
+INFO: 2021-01-29 21:55:29: Done!
+INFO: 2021-01-29 21:55:29: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 21:55:29: Creating analysis folder...
+INFO: 2021-01-29 21:55:29: 
+INFO: 2021-01-29 21:55:29: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:29: Settings:
+INFO: 2021-01-29 21:55:29: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:29: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:29: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 21:55:29: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:29: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:29: 
+INFO: 2021-01-29 21:55:29: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:29: Lightcurve list file {} already exists.
+INFO: 2021-01-29 21:55:29: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 21:55:29: Creating analysis folder...
+INFO: 2021-01-29 21:55:29: 
+INFO: 2021-01-29 21:55:29: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:29: Settings:
+INFO: 2021-01-29 21:55:29: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:29: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:29: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 21:55:29: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:29: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:29: 
+INFO: 2021-01-29 21:55:29: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:29: Lightcurve list file {} already exists.
+INFO: 2021-01-29 21:55:29: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 21:55:29: Creating analysis folder...
+INFO: 2021-01-29 21:55:29: 
+INFO: 2021-01-29 21:55:29: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:29: Settings:
+INFO: 2021-01-29 21:55:29: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:29: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:29: Selected time resolution: 0.5 s
+INFO: 2021-01-29 21:55:29: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:29: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:29: 
+INFO: 2021-01-29 21:55:29: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:29: Reading event file
+INFO: 2021-01-29 21:55:31: Done!
+INFO: 2021-01-29 21:55:31: Reading GTI from event file
+INFO: 2021-01-29 21:55:33: Done!
+INFO: 2021-01-29 21:55:33: Computing lightcurve
+INFO: 2021-01-29 21:55:33: Done!
+INFO: 2021-01-29 21:55:33: Saving Lightcurve in the event folder
+INFO: 2021-01-29 21:55:33: Done!
+INFO: 2021-01-29 21:55:33: Saving Gti in the event folder
+INFO: 2021-01-29 21:55:33: Done!
+INFO: 2021-01-29 21:55:33: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 21:55:33: Creating analysis folder...
+INFO: 2021-01-29 21:55:33: 
+INFO: 2021-01-29 21:55:33: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:33: Settings:
+INFO: 2021-01-29 21:55:33: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:33: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:33: Selected time resolution: 0.5 s
+INFO: 2021-01-29 21:55:33: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:33: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:33: 
+INFO: 2021-01-29 21:55:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:33: Lightcurve list file {} already exists.
+INFO: 2021-01-29 21:55:33: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 21:55:33: Creating analysis folder...
+INFO: 2021-01-29 21:55:33: 
+INFO: 2021-01-29 21:55:33: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:33: Settings:
+INFO: 2021-01-29 21:55:33: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:33: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-29 21:55:33: Selected time resolution: 0.5 s
+INFO: 2021-01-29 21:55:33: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:33: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:33: 
+INFO: 2021-01-29 21:55:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:33: Lightcurve list file {} already exists.
+INFO: 2021-01-29 21:55:33: Computing energy 2.0-10.0
+INFO: 2021-01-29 21:55:33: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 21:55:33: Creating analysis folder...
+INFO: 2021-01-29 21:55:33: 
+INFO: 2021-01-29 21:55:33: Obs ID: 0100320103
+INFO: 2021-01-29 21:55:33: Settings:
+INFO: 2021-01-29 21:55:33: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:33: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 21:55:33: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 21:55:33: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 21:55:33: ------------------------------------------------------------
+INFO: 2021-01-29 21:55:33: 
+INFO: 2021-01-29 21:55:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 21:55:33: Reading event file
+INFO: 2021-01-29 21:55:36: Done!
+INFO: 2021-01-29 21:55:36: Reading GTI from event file
+INFO: 2021-01-29 21:55:38: Done!
+INFO: 2021-01-29 21:55:38: Computing lightcurve
+INFO: 2021-01-29 22:11:09: Done!
+INFO: 2021-01-29 22:11:09: Saving Lightcurve in the event folder
+INFO: 2021-01-29 22:16:08: Done!
+INFO: 2021-01-29 22:16:08: Saving Gti in the event folder
+INFO: 2021-01-29 22:16:08: Done!
+INFO: 2021-01-29 22:16:08: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-29 22:16:08: Creating analysis folder...
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:08: Settings:
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:08: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 22:16:08: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:08: Lightcurve list file {} already exists.
+INFO: 2021-01-29 22:16:08: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-29 22:16:08: Creating analysis folder...
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:08: Settings:
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:08: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 22:16:08: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:08: Lightcurve list file {} already exists.
+INFO: 2021-01-29 22:16:08: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-29 22:16:08: Creating analysis folder...
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:08: Settings:
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:08: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 22:16:08: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:08: Lightcurve list file {} already exists.
+INFO: 2021-01-29 22:16:08: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-29 22:16:08: Creating analysis folder...
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:08: Settings:
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:08: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 22:16:08: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:08: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:08: 
+INFO: 2021-01-29 22:16:08: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:08: Reading event file
+INFO: 2021-01-29 22:16:17: Done!
+INFO: 2021-01-29 22:16:17: Reading GTI from event file
+INFO: 2021-01-29 22:16:19: Done!
+INFO: 2021-01-29 22:16:19: Computing lightcurve
+INFO: 2021-01-29 22:16:20: Done!
+INFO: 2021-01-29 22:16:20: Saving Lightcurve in the event folder
+INFO: 2021-01-29 22:16:21: Done!
+INFO: 2021-01-29 22:16:21: Saving Gti in the event folder
+INFO: 2021-01-29 22:16:21: Done!
+INFO: 2021-01-29 22:16:21: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-29 22:16:21: Creating analysis folder...
+INFO: 2021-01-29 22:16:21: 
+INFO: 2021-01-29 22:16:21: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:21: Settings:
+INFO: 2021-01-29 22:16:21: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:21: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:21: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 22:16:21: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:21: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:21: 
+INFO: 2021-01-29 22:16:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:21: Lightcurve list file {} already exists.
+INFO: 2021-01-29 22:16:21: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-29 22:16:21: Creating analysis folder...
+INFO: 2021-01-29 22:16:21: 
+INFO: 2021-01-29 22:16:21: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:21: Settings:
+INFO: 2021-01-29 22:16:21: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:21: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:21: Selected time resolution: 0.0625 s
+INFO: 2021-01-29 22:16:21: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:21: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:21: 
+INFO: 2021-01-29 22:16:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:21: Lightcurve list file {} already exists.
+INFO: 2021-01-29 22:16:21: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-29 22:16:21: Creating analysis folder...
+INFO: 2021-01-29 22:16:21: 
+INFO: 2021-01-29 22:16:21: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:21: Settings:
+INFO: 2021-01-29 22:16:21: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:21: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:21: Selected time resolution: 0.5 s
+INFO: 2021-01-29 22:16:21: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:21: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:21: 
+INFO: 2021-01-29 22:16:21: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:21: Reading event file
+INFO: 2021-01-29 22:16:24: Done!
+INFO: 2021-01-29 22:16:24: Reading GTI from event file
+INFO: 2021-01-29 22:16:25: Done!
+INFO: 2021-01-29 22:16:25: Computing lightcurve
+INFO: 2021-01-29 22:16:25: Done!
+INFO: 2021-01-29 22:16:25: Saving Lightcurve in the event folder
+INFO: 2021-01-29 22:16:26: Done!
+INFO: 2021-01-29 22:16:26: Saving Gti in the event folder
+INFO: 2021-01-29 22:16:26: Done!
+INFO: 2021-01-29 22:16:26: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-29 22:16:26: Creating analysis folder...
+INFO: 2021-01-29 22:16:26: 
+INFO: 2021-01-29 22:16:26: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:26: Settings:
+INFO: 2021-01-29 22:16:26: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:26: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:26: Selected time resolution: 0.5 s
+INFO: 2021-01-29 22:16:26: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:26: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:26: 
+INFO: 2021-01-29 22:16:26: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:26: Lightcurve list file {} already exists.
+INFO: 2021-01-29 22:16:26: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-29 22:16:26: Creating analysis folder...
+INFO: 2021-01-29 22:16:26: 
+INFO: 2021-01-29 22:16:26: Obs ID: 0100320103
+INFO: 2021-01-29 22:16:26: Settings:
+INFO: 2021-01-29 22:16:26: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:26: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-29 22:16:26: Selected time resolution: 0.5 s
+INFO: 2021-01-29 22:16:26: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:26: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:26: 
+INFO: 2021-01-29 22:16:26: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320103/xti/event_cl/ni0100320103_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:26: Lightcurve list file {} already exists.
+INFO: 2021-01-29 22:16:26: Processing obs ID 0100320104 (4/35)
+INFO: 2021-01-29 22:16:26: Computing energy 0.5-10.0
+INFO: 2021-01-29 22:16:26: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-29 22:16:26: Creating analysis folder...
+INFO: 2021-01-29 22:16:26: 
+INFO: 2021-01-29 22:16:26: Obs ID: 0100320104
+INFO: 2021-01-29 22:16:26: Settings:
+INFO: 2021-01-29 22:16:26: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:26: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-29 22:16:26: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-29 22:16:26: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-29 22:16:26: ------------------------------------------------------------
+INFO: 2021-01-29 22:16:26: 
+INFO: 2021-01-29 22:16:26: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-29 22:16:26: Reading event file
+INFO: 2021-01-29 22:17:29: Done!
+INFO: 2021-01-29 22:17:29: Reading GTI from event file
+INFO: 2021-01-29 22:17:55: Done!
+INFO: 2021-01-29 22:17:55: Computing lightcurve
+INFO: 2021-01-30 15:44:56: Done!
+INFO: 2021-01-30 15:44:56: Saving Lightcurve in the event folder
+INFO: 2021-01-30 15:50:42: Done!
+INFO: 2021-01-30 15:50:42: Saving Gti in the event folder
+INFO: 2021-01-30 15:50:42: Done!
+INFO: 2021-01-30 15:50:43: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-30 15:50:43: Creating analysis folder...
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Obs ID: 0100320104
+INFO: 2021-01-30 15:50:43: Settings:
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:50:43: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-30 15:50:43: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:50:43: Lightcurve list file {} already exists.
+INFO: 2021-01-30 15:50:43: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-30 15:50:43: Creating analysis folder...
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Obs ID: 0100320104
+INFO: 2021-01-30 15:50:43: Settings:
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:50:43: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-30 15:50:43: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:50:43: Lightcurve list file {} already exists.
+INFO: 2021-01-30 15:50:43: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-30 15:50:43: Creating analysis folder...
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Obs ID: 0100320104
+INFO: 2021-01-30 15:50:43: Settings:
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:50:43: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-30 15:50:43: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:50:43: Lightcurve list file {} already exists.
+INFO: 2021-01-30 15:50:43: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-30 15:50:43: Creating analysis folder...
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Obs ID: 0100320104
+INFO: 2021-01-30 15:50:43: Settings:
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:50:43: Selected time resolution: 0.0625 s
+INFO: 2021-01-30 15:50:43: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:50:43: ------------------------------------------------------------
+INFO: 2021-01-30 15:50:43: 
+INFO: 2021-01-30 15:50:43: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:50:43: Reading event file
+INFO: 2021-01-30 15:51:49: Done!
+INFO: 2021-01-30 15:51:49: Reading GTI from event file
+INFO: 2021-01-30 15:52:14: Done!
+INFO: 2021-01-30 15:52:14: Computing lightcurve
+INFO: 2021-01-30 15:53:04: Done!
+INFO: 2021-01-30 15:53:04: Saving Lightcurve in the event folder
+INFO: 2021-01-30 15:53:05: Done!
+INFO: 2021-01-30 15:53:05: Saving Gti in the event folder
+INFO: 2021-01-30 15:53:05: Done!
+INFO: 2021-01-30 15:53:05: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-30 15:53:05: Creating analysis folder...
+INFO: 2021-01-30 15:53:05: 
+INFO: 2021-01-30 15:53:05: Obs ID: 0100320104
+INFO: 2021-01-30 15:53:05: Settings:
+INFO: 2021-01-30 15:53:05: ------------------------------------------------------------
+INFO: 2021-01-30 15:53:05: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:53:05: Selected time resolution: 0.0625 s
+INFO: 2021-01-30 15:53:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:53:05: ------------------------------------------------------------
+INFO: 2021-01-30 15:53:05: 
+INFO: 2021-01-30 15:53:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:53:05: Lightcurve list file {} already exists.
+INFO: 2021-01-30 15:53:05: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-30 15:53:05: Creating analysis folder...
+INFO: 2021-01-30 15:53:05: 
+INFO: 2021-01-30 15:53:05: Obs ID: 0100320104
+INFO: 2021-01-30 15:53:05: Settings:
+INFO: 2021-01-30 15:53:05: ------------------------------------------------------------
+INFO: 2021-01-30 15:53:05: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:53:05: Selected time resolution: 0.0625 s
+INFO: 2021-01-30 15:53:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:53:05: ------------------------------------------------------------
+INFO: 2021-01-30 15:53:05: 
+INFO: 2021-01-30 15:53:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:53:05: Lightcurve list file {} already exists.
+INFO: 2021-01-30 15:53:05: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-30 15:53:05: Creating analysis folder...
+INFO: 2021-01-30 15:53:05: 
+INFO: 2021-01-30 15:53:05: Obs ID: 0100320104
+INFO: 2021-01-30 15:53:05: Settings:
+INFO: 2021-01-30 15:53:05: ------------------------------------------------------------
+INFO: 2021-01-30 15:53:05: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:53:05: Selected time resolution: 0.5 s
+INFO: 2021-01-30 15:53:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:53:05: ------------------------------------------------------------
+INFO: 2021-01-30 15:53:05: 
+INFO: 2021-01-30 15:53:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:53:05: Reading event file
+INFO: 2021-01-30 15:53:47: Done!
+INFO: 2021-01-30 15:53:47: Reading GTI from event file
+INFO: 2021-01-30 15:54:11: Done!
+INFO: 2021-01-30 15:54:11: Computing lightcurve
+INFO: 2021-01-30 15:54:19: Done!
+INFO: 2021-01-30 15:54:19: Saving Lightcurve in the event folder
+INFO: 2021-01-30 15:54:20: Done!
+INFO: 2021-01-30 15:54:20: Saving Gti in the event folder
+INFO: 2021-01-30 15:54:20: Done!
+INFO: 2021-01-30 15:54:20: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-30 15:54:20: Creating analysis folder...
+INFO: 2021-01-30 15:54:20: 
+INFO: 2021-01-30 15:54:20: Obs ID: 0100320104
+INFO: 2021-01-30 15:54:20: Settings:
+INFO: 2021-01-30 15:54:20: ------------------------------------------------------------
+INFO: 2021-01-30 15:54:20: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:54:20: Selected time resolution: 0.5 s
+INFO: 2021-01-30 15:54:20: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:54:20: ------------------------------------------------------------
+INFO: 2021-01-30 15:54:20: 
+INFO: 2021-01-30 15:54:20: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:54:20: Lightcurve list file {} already exists.
+INFO: 2021-01-30 15:54:20: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-30 15:54:20: Creating analysis folder...
+INFO: 2021-01-30 15:54:20: 
+INFO: 2021-01-30 15:54:20: Obs ID: 0100320104
+INFO: 2021-01-30 15:54:20: Settings:
+INFO: 2021-01-30 15:54:20: ------------------------------------------------------------
+INFO: 2021-01-30 15:54:20: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-30 15:54:20: Selected time resolution: 0.5 s
+INFO: 2021-01-30 15:54:20: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:54:20: ------------------------------------------------------------
+INFO: 2021-01-30 15:54:20: 
+INFO: 2021-01-30 15:54:20: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:54:20: Lightcurve list file {} already exists.
+INFO: 2021-01-30 15:54:20: Computing energy 0.5-2.0
+INFO: 2021-01-30 15:54:20: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-30 15:54:20: Creating analysis folder...
+INFO: 2021-01-30 15:54:20: 
+INFO: 2021-01-30 15:54:20: Obs ID: 0100320104
+INFO: 2021-01-30 15:54:20: Settings:
+INFO: 2021-01-30 15:54:20: ------------------------------------------------------------
+INFO: 2021-01-30 15:54:20: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-30 15:54:20: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-30 15:54:20: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-30 15:54:20: ------------------------------------------------------------
+INFO: 2021-01-30 15:54:20: 
+INFO: 2021-01-30 15:54:20: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-30 15:54:20: Reading event file
+INFO: 2021-01-30 15:54:59: Done!
+INFO: 2021-01-30 15:54:59: Reading GTI from event file
+INFO: 2021-01-30 15:55:23: Done!
+INFO: 2021-01-30 15:55:23: Computing lightcurve
+INFO: 2021-01-31 06:08:37: Done!
+INFO: 2021-01-31 06:08:37: Saving Lightcurve in the event folder
+INFO: 2021-01-31 06:14:18: Done!
+INFO: 2021-01-31 06:14:18: Saving Gti in the event folder
+INFO: 2021-01-31 06:14:18: Done!
+INFO: 2021-01-31 06:14:19: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-31 06:14:19: Creating analysis folder...
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Obs ID: 0100320104
+INFO: 2021-01-31 06:14:24: Settings:
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:14:24: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 06:14:24: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:14:24: Lightcurve list file {} already exists.
+INFO: 2021-01-31 06:14:24: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-31 06:14:24: Creating analysis folder...
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Obs ID: 0100320104
+INFO: 2021-01-31 06:14:24: Settings:
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:14:24: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 06:14:24: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:14:24: Lightcurve list file {} already exists.
+INFO: 2021-01-31 06:14:24: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-31 06:14:24: Creating analysis folder...
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Obs ID: 0100320104
+INFO: 2021-01-31 06:14:24: Settings:
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:14:24: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 06:14:24: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:14:24: Lightcurve list file {} already exists.
+INFO: 2021-01-31 06:14:24: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-31 06:14:24: Creating analysis folder...
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Obs ID: 0100320104
+INFO: 2021-01-31 06:14:24: Settings:
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:14:24: Selected time resolution: 0.0625 s
+INFO: 2021-01-31 06:14:24: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:14:24: ------------------------------------------------------------
+INFO: 2021-01-31 06:14:24: 
+INFO: 2021-01-31 06:14:24: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:14:24: Reading event file
+INFO: 2021-01-31 06:15:26: Done!
+INFO: 2021-01-31 06:15:26: Reading GTI from event file
+INFO: 2021-01-31 06:15:52: Done!
+INFO: 2021-01-31 06:15:52: Computing lightcurve
+INFO: 2021-01-31 06:16:32: Done!
+INFO: 2021-01-31 06:16:32: Saving Lightcurve in the event folder
+INFO: 2021-01-31 06:16:33: Done!
+INFO: 2021-01-31 06:16:33: Saving Gti in the event folder
+INFO: 2021-01-31 06:16:33: Done!
+INFO: 2021-01-31 06:16:33: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-31 06:16:33: Creating analysis folder...
+INFO: 2021-01-31 06:16:33: 
+INFO: 2021-01-31 06:16:33: Obs ID: 0100320104
+INFO: 2021-01-31 06:16:33: Settings:
+INFO: 2021-01-31 06:16:33: ------------------------------------------------------------
+INFO: 2021-01-31 06:16:33: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:16:33: Selected time resolution: 0.0625 s
+INFO: 2021-01-31 06:16:33: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:16:33: ------------------------------------------------------------
+INFO: 2021-01-31 06:16:33: 
+INFO: 2021-01-31 06:16:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:16:33: Lightcurve list file {} already exists.
+INFO: 2021-01-31 06:16:33: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-31 06:16:33: Creating analysis folder...
+INFO: 2021-01-31 06:16:33: 
+INFO: 2021-01-31 06:16:33: Obs ID: 0100320104
+INFO: 2021-01-31 06:16:33: Settings:
+INFO: 2021-01-31 06:16:33: ------------------------------------------------------------
+INFO: 2021-01-31 06:16:33: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:16:33: Selected time resolution: 0.0625 s
+INFO: 2021-01-31 06:16:33: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:16:33: ------------------------------------------------------------
+INFO: 2021-01-31 06:16:33: 
+INFO: 2021-01-31 06:16:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:16:33: Lightcurve list file {} already exists.
+INFO: 2021-01-31 06:16:33: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-31 06:16:33: Creating analysis folder...
+INFO: 2021-01-31 06:16:33: 
+INFO: 2021-01-31 06:16:33: Obs ID: 0100320104
+INFO: 2021-01-31 06:16:33: Settings:
+INFO: 2021-01-31 06:16:33: ------------------------------------------------------------
+INFO: 2021-01-31 06:16:33: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:16:33: Selected time resolution: 0.5 s
+INFO: 2021-01-31 06:16:33: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:16:33: ------------------------------------------------------------
+INFO: 2021-01-31 06:16:33: 
+INFO: 2021-01-31 06:16:33: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:16:33: Reading event file
+INFO: 2021-01-31 06:17:17: Done!
+INFO: 2021-01-31 06:17:17: Reading GTI from event file
+INFO: 2021-01-31 06:17:42: Done!
+INFO: 2021-01-31 06:17:42: Computing lightcurve
+INFO: 2021-01-31 06:17:49: Done!
+INFO: 2021-01-31 06:17:49: Saving Lightcurve in the event folder
+INFO: 2021-01-31 06:17:50: Done!
+INFO: 2021-01-31 06:17:50: Saving Gti in the event folder
+INFO: 2021-01-31 06:17:50: Done!
+INFO: 2021-01-31 06:17:50: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-31 06:17:50: Creating analysis folder...
+INFO: 2021-01-31 06:17:50: 
+INFO: 2021-01-31 06:17:50: Obs ID: 0100320104
+INFO: 2021-01-31 06:17:50: Settings:
+INFO: 2021-01-31 06:17:50: ------------------------------------------------------------
+INFO: 2021-01-31 06:17:50: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:17:50: Selected time resolution: 0.5 s
+INFO: 2021-01-31 06:17:50: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:17:50: ------------------------------------------------------------
+INFO: 2021-01-31 06:17:50: 
+INFO: 2021-01-31 06:17:50: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:17:50: Lightcurve list file {} already exists.
+INFO: 2021-01-31 06:17:50: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-31 06:17:50: Creating analysis folder...
+INFO: 2021-01-31 06:17:50: 
+INFO: 2021-01-31 06:17:50: Obs ID: 0100320104
+INFO: 2021-01-31 06:17:50: Settings:
+INFO: 2021-01-31 06:17:50: ------------------------------------------------------------
+INFO: 2021-01-31 06:17:50: Selected energy band: 0.5-2.0 keV
+INFO: 2021-01-31 06:17:50: Selected time resolution: 0.5 s
+INFO: 2021-01-31 06:17:50: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:17:50: ------------------------------------------------------------
+INFO: 2021-01-31 06:17:50: 
+INFO: 2021-01-31 06:17:50: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:17:50: Lightcurve list file {} already exists.
+INFO: 2021-01-31 06:17:50: Computing energy 2.0-10.0
+INFO: 2021-01-31 06:17:50: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-31 06:17:50: Creating analysis folder...
+INFO: 2021-01-31 06:17:50: 
+INFO: 2021-01-31 06:17:50: Obs ID: 0100320104
+INFO: 2021-01-31 06:17:50: Settings:
+INFO: 2021-01-31 06:17:50: ------------------------------------------------------------
+INFO: 2021-01-31 06:17:50: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 06:17:50: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 06:17:50: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 06:17:50: ------------------------------------------------------------
+INFO: 2021-01-31 06:17:50: 
+INFO: 2021-01-31 06:17:50: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 06:17:50: Reading event file
+INFO: 2021-01-31 06:18:30: Done!
+INFO: 2021-01-31 06:18:30: Reading GTI from event file
+INFO: 2021-01-31 06:18:55: Done!
+INFO: 2021-01-31 06:18:55: Computing lightcurve
+INFO: 2021-01-31 10:06:16: Done!
+INFO: 2021-01-31 10:06:16: Saving Lightcurve in the event folder
+INFO: 2021-01-31 10:12:00: Done!
+INFO: 2021-01-31 10:12:00: Saving Gti in the event folder
+INFO: 2021-01-31 10:12:00: Done!
+INFO: 2021-01-31 10:12:00: Computing fmode tres: 0.0001220703125, time seg: 16.0, time bins: 131072.0
+INFO: 2021-01-31 10:12:00: Creating analysis folder...
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Obs ID: 0100320104
+INFO: 2021-01-31 10:12:05: Settings:
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:12:05: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 10:12:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:12:05: Lightcurve list file {} already exists.
+INFO: 2021-01-31 10:12:05: Computing fmode tres: 0.0001220703125, time seg: 256.0, time bins: 2097152.0
+INFO: 2021-01-31 10:12:05: Creating analysis folder...
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Obs ID: 0100320104
+INFO: 2021-01-31 10:12:05: Settings:
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:12:05: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 10:12:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:12:05: Lightcurve list file {} already exists.
+INFO: 2021-01-31 10:12:05: Computing fmode tres: 0.0001220703125, time seg: 512.0, time bins: 4194304.0
+INFO: 2021-01-31 10:12:05: Creating analysis folder...
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Obs ID: 0100320104
+INFO: 2021-01-31 10:12:05: Settings:
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:12:05: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 10:12:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:12:05: Lightcurve list file {} already exists.
+INFO: 2021-01-31 10:12:05: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-31 10:12:05: Creating analysis folder...
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Obs ID: 0100320104
+INFO: 2021-01-31 10:12:05: Settings:
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:12:05: Selected time resolution: 0.0625 s
+INFO: 2021-01-31 10:12:05: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:12:05: ------------------------------------------------------------
+INFO: 2021-01-31 10:12:05: 
+INFO: 2021-01-31 10:12:05: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:12:05: Reading event file
+INFO: 2021-01-31 10:13:07: Done!
+INFO: 2021-01-31 10:13:07: Reading GTI from event file
+INFO: 2021-01-31 10:13:32: Done!
+INFO: 2021-01-31 10:13:32: Computing lightcurve
+INFO: 2021-01-31 10:13:44: Done!
+INFO: 2021-01-31 10:13:44: Saving Lightcurve in the event folder
+INFO: 2021-01-31 10:13:45: Done!
+INFO: 2021-01-31 10:13:45: Saving Gti in the event folder
+INFO: 2021-01-31 10:13:45: Done!
+INFO: 2021-01-31 10:13:45: Computing fmode tres: 0.0625, time seg: 256.0, time bins: 4096.0
+INFO: 2021-01-31 10:13:45: Creating analysis folder...
+INFO: 2021-01-31 10:13:45: 
+INFO: 2021-01-31 10:13:45: Obs ID: 0100320104
+INFO: 2021-01-31 10:13:45: Settings:
+INFO: 2021-01-31 10:13:45: ------------------------------------------------------------
+INFO: 2021-01-31 10:13:45: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:13:45: Selected time resolution: 0.0625 s
+INFO: 2021-01-31 10:13:45: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:13:45: ------------------------------------------------------------
+INFO: 2021-01-31 10:13:45: 
+INFO: 2021-01-31 10:13:45: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:13:45: Lightcurve list file {} already exists.
+INFO: 2021-01-31 10:13:45: Computing fmode tres: 0.0625, time seg: 512.0, time bins: 8192.0
+INFO: 2021-01-31 10:13:45: Creating analysis folder...
+INFO: 2021-01-31 10:13:45: 
+INFO: 2021-01-31 10:13:45: Obs ID: 0100320104
+INFO: 2021-01-31 10:13:45: Settings:
+INFO: 2021-01-31 10:13:45: ------------------------------------------------------------
+INFO: 2021-01-31 10:13:45: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:13:45: Selected time resolution: 0.0625 s
+INFO: 2021-01-31 10:13:45: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:13:45: ------------------------------------------------------------
+INFO: 2021-01-31 10:13:45: 
+INFO: 2021-01-31 10:13:45: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:13:45: Lightcurve list file {} already exists.
+INFO: 2021-01-31 10:13:45: Computing fmode tres: 0.5, time seg: 128.0, time bins: 256.0
+INFO: 2021-01-31 10:13:45: Creating analysis folder...
+INFO: 2021-01-31 10:13:45: 
+INFO: 2021-01-31 10:13:45: Obs ID: 0100320104
+INFO: 2021-01-31 10:13:45: Settings:
+INFO: 2021-01-31 10:13:45: ------------------------------------------------------------
+INFO: 2021-01-31 10:13:45: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:13:45: Selected time resolution: 0.5 s
+INFO: 2021-01-31 10:13:45: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:13:45: ------------------------------------------------------------
+INFO: 2021-01-31 10:13:45: 
+INFO: 2021-01-31 10:13:45: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:13:45: Reading event file
+INFO: 2021-01-31 10:14:29: Done!
+INFO: 2021-01-31 10:14:29: Reading GTI from event file
+INFO: 2021-01-31 10:14:55: Done!
+INFO: 2021-01-31 10:14:55: Computing lightcurve
+INFO: 2021-01-31 10:14:58: Done!
+INFO: 2021-01-31 10:14:58: Saving Lightcurve in the event folder
+INFO: 2021-01-31 10:14:59: Done!
+INFO: 2021-01-31 10:14:59: Saving Gti in the event folder
+INFO: 2021-01-31 10:14:59: Done!
+INFO: 2021-01-31 10:14:59: Computing fmode tres: 0.5, time seg: 256.0, time bins: 512.0
+INFO: 2021-01-31 10:14:59: Creating analysis folder...
+INFO: 2021-01-31 10:14:59: 
+INFO: 2021-01-31 10:14:59: Obs ID: 0100320104
+INFO: 2021-01-31 10:14:59: Settings:
+INFO: 2021-01-31 10:14:59: ------------------------------------------------------------
+INFO: 2021-01-31 10:14:59: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:14:59: Selected time resolution: 0.5 s
+INFO: 2021-01-31 10:14:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:14:59: ------------------------------------------------------------
+INFO: 2021-01-31 10:14:59: 
+INFO: 2021-01-31 10:14:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:14:59: Lightcurve list file {} already exists.
+INFO: 2021-01-31 10:14:59: Computing fmode tres: 0.5, time seg: 512.0, time bins: 1024.0
+INFO: 2021-01-31 10:14:59: Creating analysis folder...
+INFO: 2021-01-31 10:14:59: 
+INFO: 2021-01-31 10:14:59: Obs ID: 0100320104
+INFO: 2021-01-31 10:14:59: Settings:
+INFO: 2021-01-31 10:14:59: ------------------------------------------------------------
+INFO: 2021-01-31 10:14:59: Selected energy band: 2.0-10.0 keV
+INFO: 2021-01-31 10:14:59: Selected time resolution: 0.5 s
+INFO: 2021-01-31 10:14:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:14:59: ------------------------------------------------------------
+INFO: 2021-01-31 10:14:59: 
+INFO: 2021-01-31 10:14:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320104/xti/event_cl/ni0100320104_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:14:59: Lightcurve list file {} already exists.
+INFO: 2021-01-31 10:14:59: Processing obs ID 0100320105 (5/35)
+INFO: 2021-01-31 10:14:59: Computing energy 0.5-10.0
+INFO: 2021-01-31 10:14:59: Computing fmode tres: 0.0001220703125, time seg: 128.0, time bins: 1048576.0
+INFO: 2021-01-31 10:14:59: Creating analysis folder...
+INFO: 2021-01-31 10:14:59: 
+INFO: 2021-01-31 10:14:59: Obs ID: 0100320105
+INFO: 2021-01-31 10:14:59: Settings:
+INFO: 2021-01-31 10:14:59: ------------------------------------------------------------
+INFO: 2021-01-31 10:14:59: Selected energy band: 0.5-10.0 keV
+INFO: 2021-01-31 10:14:59: Selected time resolution: 0.0001220703125 s
+INFO: 2021-01-31 10:14:59: Log file name: compute_lc_D29_1_2021_T18_58
+INFO: 2021-01-31 10:14:59: ------------------------------------------------------------
+INFO: 2021-01-31 10:14:59: 
+INFO: 2021-01-31 10:14:59: Processing event file: /Volumes/Seagate/NICER_data/Cygnus_X1/0100320105/xti/event_cl/ni0100320105_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-01-31 10:14:59: Reading event file
+INFO: 2021-01-31 10:16:00: Done!
+INFO: 2021-01-31 10:16:00: Reading GTI from event file
+INFO: 2021-01-31 10:16:25: Done!
+INFO: 2021-01-31 10:16:25: Computing lightcurve

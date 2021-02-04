@@ -8,6 +8,10 @@ class pdf_page(FPDF):
         ----------
         margins: list
             left,top,right,bottom (<,^,>,v)
+
+        HISTORY
+        -------
+        2021 01 22, Stefano Rapisarda (Uppsala), creation date
         '''
         super().__init__(*args,**kwargs)
         

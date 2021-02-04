@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 from ..functions.my_functions import my_cdate, my_rebin
 
+from astropy.io.fits import getdata,getheader,getval
+
 import pickle
 
 class Lightcurve(pd.DataFrame):
@@ -209,7 +211,38 @@ class Lightcurve(pd.DataFrame):
         lc.history = history 
 
         return lc
-    
+
+    @staticmethod
+    def read_from_fits(fits_file, extname='COUNTS'):
+        '''
+        Reads lightcurve from FITS file 
+        '''
+
+        assert os.path.isfile(fits_file),'FITS file does not exist'
+        mission = getval(fits_file,'telescop',1)
+
+        history = {}
+
+        history['CREATION_DATE'] = my_cdate()
+        history['CREATION_MODE'] = 'Gti created from fits file'
+        history['FILE_NAME'] = os.path.basename(fits_file)
+        history['DIR'] = os.path.dirname(fits_file)
+
+        data = getdata(fits_file,extname=extname,header=False,memmap=True)
+        col_names = data.columns.names
+
+        assert 'TIME' in col_names, 'FITS file does not have TIME column'
+        time = data['TIME']
+        if 'COUNTS' in col_names:
+            counts = data['COUNTS']
+        elif 'RATE' in col_names:
+            tres = np.round(np.median(np.ediff1d(time)),12)
+            counts = data['RATE']*tres
+        
+        return Lightcurve(time_array=time,count_array=counts,
+            history=history)
+        
+
     @property
     def tot_counts(self):
         if len(self.counts) == 0:

@@ -22,6 +22,7 @@ from sherpa.optmethods import LevMar,MonCar, GridSearch
 from sherpa.estmethods import Confidence, Covariance
 from sherpa.fit import Fit
 from sherpa.utils import calc_ftest
+from sherpa.models.basic import Gauss1D,PowLaw1D,Const1D
 
 import random
 import uuid
@@ -658,10 +659,14 @@ class MakePowerWin(tk.Tk):
                     obs_ids = pickle.load(infile)
         elif type(value)==str:
             if value != '':
-                print('Loading obs IDs from {}'.format(ValueError))
+                print('Loading obs IDs from {}'.format(value))
                 dirs = next(os.walk(value))[1]
                 # !!! RXTE obs IDs have - in their names
-                obs_ids = sorted([d for d in dirs if d.replace('-','').isdigit()])
+                mission = self._mission.get()
+                if mission == 'RXTE' or mission == 'NICER':
+                    obs_ids = sorted([d for d in dirs if d.replace('-','').isdigit()])
+                elif mission == 'HXMT':
+                    obs_ids = sorted([d for d in dirs if d[1:].replace('-','').isdigit()])
 
         for obs_id in obs_ids: 
             self._obs_id_box.insert(tk.END,obs_id)
@@ -798,21 +803,39 @@ class MakePowerWin(tk.Tk):
         suffix_entry.grid(column=5,row=0,sticky='nswe')
 
     def _init_buttons(self,frame):
-        frame.grid_columnconfigure(0,weight=1)
+        frame.grid_columnconfigure(0,weight=4)
         frame.grid_columnconfigure(1,weight=1)
 
-        self._button1 = tk.Button(frame,text='Compute Power',
-                            height=2)
-        self._button1.grid(column=0,row=0,padx=5,pady=5,sticky='nesw')
+        self._comp_lc = tk.IntVar()
+        self._read_lc = tk.IntVar()
+        self._comp_pow = tk.IntVar()
+        check_frame = tk.Frame(frame)
+        check_frame.grid(column=0,row=0,padx=5,pady=5,sticky='nesw')
+        comp_light_check = tk.Checkbutton(check_frame,text='Compute Lightcurves',
+            var = self._comp_lc)
+        comp_light_check.grid(column=0,row=0,sticky='nswe')
+        read_light_check = tk.Checkbutton(check_frame,
+            text='Read Lightcurves (from FITS)',var = self._read_lc)
+        read_light_check.grid(column=1,row=0,sticky='nswe')
+        comp_pow_check = tk.Checkbutton(check_frame,text='Compute Powers',
+            var = self._comp_pow)
+        comp_pow_check.grid(column=2,row=0,sticky='nswe')
 
-        self._button2 = tk.Button(frame,text='Compute Lightcurve',
-                            height=2)
-        self._button2.grid(column=1,row=0,padx=5,pady=5,sticky='nesw')        
+        self._comp_button = tk.Button(check_frame,text='Compute')
+        self._comp_button.grid(column=0,row=1,padx=5,pady=5,
+            columnspan=3,sticky='nesw')
 
-        button3 = tk.Button(frame,text='STOP!',
-                            height=2,        
+        #self._button1 = tk.Button(frame,text='Compute Power',
+        #                    height=2)
+        #self._button1.grid(column=0,row=0,padx=5,pady=5,sticky='nesw')
+
+        #self._button2 = tk.Button(frame,text='Compute Lightcurve',
+        #                    height=2)
+        #self._button2.grid(column=1,row=0,padx=5,pady=5,sticky='nesw')        
+
+        stop_button = tk.Button(frame,text='STOP!',        
                             command=self._stop)
-        button3.grid(column=2,row=0,padx=5,pady=5,sticky='nswe')  
+        stop_button.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')  
 
     def _add_tmode(self):
         mode = 'tres: {}, time seg: {}, time bins: {}'.format(
@@ -2187,7 +2210,9 @@ class FitWindow_astropy:
                         self._fit_funcs_dict[self._sel_index+1]['par_status'] = \
                             [False,False,False]    
                         self._fit_funcs_dict[self._sel_index+1]['par_name'] = \
-                            self._func_list[name].param_names    
+                            self._func_list[name].param_names   
+
+                          
 
                     # Plotting                                   
                     self._plot_func()
@@ -2198,6 +2223,7 @@ class FitWindow_astropy:
 
     def _on_roll(self,event):
         name = self._fit_funcs_dict[self._sel_index+1]['name']
+
         if name=='fmax_lorentzian':
             q = self._fit_funcs_dict[self._sel_index+1]['par_value'][1]
             if q > 1:
@@ -2214,7 +2240,8 @@ class FitWindow_astropy:
                 self._fit_funcs_dict[self._sel_index+1]['par_value'][1] = q
                 self._plot_func()
 
-            
+
+
     def _clickFit(self):  
 
         if self._first_fit:
@@ -2462,7 +2489,10 @@ class FitWindow_sherpa:
         # Listing 1D models
         # Add new models here
         self._func_list = {'fmax_lorentzian':Fmax_lorentzian1D,
-                           'f0_lorentzian':F0_lorentzian1D}
+                           'f0_lorentzian':F0_lorentzian1D,
+                           'constant':Const1D,
+                           'gaussian':Gauss1D,
+                           'power law':PowLaw1D}
         # -------------------------------------------------------------
 
         # Main frame
@@ -2536,7 +2566,7 @@ class FitWindow_sherpa:
         
         # Fitting function menu
         self._fit_func = tk.StringVar()
-        fit_funcs = tuple([i for i in self._func_list.keys()])
+        fit_funcs = tuple(['']+[i for i in self._func_list.keys()])
         fit_func_box = ttk.OptionMenu(right_frame,\
             self._fit_func,*fit_funcs)
         fit_func_box.grid(column=0,row=0, columnspan=2,\
@@ -2793,7 +2823,8 @@ class FitWindow_sherpa:
                             format(key,value['par_names'][i],
                                 float(value['par_values'][i]),
                                 ('froz' if value['frozen'][i] else 'free'),
-                                value['errors'][i][0],value['errors'][i][1])
+                                (0. if value['frozen'][i] else value['errors'][i][0]),
+                                (0. if value['frozen'][i] else value['errors'][i][1]) )
                     else:
                         line = '{:2}) {:>5} = {:6.4} ({:4})'.\
                             format(key,value['par_names'][i],
@@ -3048,6 +3079,66 @@ class FitWindow_sherpa:
                         self._fit_funcs_dict[self._sel_index+1]['par_names'] = \
                             [par.name for par in self._func_list[name]().pars]    
 
+                    elif name=='constant': 
+
+                        if not 'par_values' in self._fit_funcs_dict[self._sel_index+1].keys():
+                            status = [False]
+                        else:
+                            status = self._fit_funcs_dict[self._sel_index+1]['frozen']
+
+                        amplitude = self._ypos
+                        print('Plotting const amplitude',amplitude)
+                        self._fit_funcs_dict[self._sel_index+1]['par_values'] = \
+                                [amplitude]                       
+                        self._fit_funcs_dict[self._sel_index+1]['frozen'] = status   
+                        self._fit_funcs_dict[self._sel_index+1]['par_names'] = \
+                            [par.name for par in self._func_list[name]().pars] 
+
+                    elif name=='gaussian':
+
+                        if not 'par_values' in self._fit_funcs_dict[self._sel_index+1].keys():
+                            fwhm = 1
+                            status = [False,False,False]
+                        else:
+                            fwhm = self._fit_funcs_dict[self._sel_index+1]['par_values'][0]
+                            status = self._fit_funcs_dict[self._sel_index+1]['frozen']
+
+                        amplitude = self._ypos
+                        pos = self._xpos
+
+                        if self._controller._xy_flag.get():
+                            self._fit_funcs_dict[self._sel_index+1]['par_values'] = \
+                                [fwhm,pos,amplitude/self._xpos]
+                        else:
+                            self._fit_funcs_dict[self._sel_index+1]['par_values'] = \
+                                [fwhm,pos,amplitude]                       
+                        self._fit_funcs_dict[self._sel_index+1]['frozen'] = status   
+                        self._fit_funcs_dict[self._sel_index+1]['par_names'] = \
+                            [par.name for par in self._func_list[name]().pars]    
+
+                    elif name=='power law':
+
+                        if not 'par_values' in self._fit_funcs_dict[self._sel_index+1].keys():
+                            gamma = 1
+                            status = [False,True,False]
+                        else:
+                            gamma = self._fit_funcs_dict[self._sel_index+1]['par_values'][0]
+                            status = self._fit_funcs_dict[self._sel_index+1]['frozen']
+
+                        amplitude = self._ypos
+                        ref = self._xpos
+
+                        if self._controller._xy_flag.get():
+                            self._fit_funcs_dict[self._sel_index+1]['par_values'] = \
+                                [gamma,ref,amplitude/self._xpos]
+                        else:
+                            self._fit_funcs_dict[self._sel_index+1]['par_values'] = \
+                                [gamma,ref,amplitude]                       
+                        self._fit_funcs_dict[self._sel_index+1]['frozen'] = status   
+                        self._fit_funcs_dict[self._sel_index+1]['par_names'] = \
+                            [par.name for par in self._func_list[name]().pars] 
+
+
                     # Plotting                                   
                     self._plot_func()
 
@@ -3072,6 +3163,35 @@ class FitWindow_sherpa:
                 q += step
                 self._fit_funcs_dict[self._sel_index+1]['par_values'][1] = q
                 self._plot_func()
+
+        elif name=='gaussian':
+            fwhm = self._fit_funcs_dict[self._sel_index+1]['par_values'][0]
+            if fwhm > 1:
+                step = 1
+            else:
+                step = 0.1
+            if event.button == 'up':
+                fwhm -= step
+                if fwhm <= 0: fwhm = 0.
+                self._fit_funcs_dict[self._sel_index+1]['par_values'][0] = fwhm
+                self._plot_func()
+            elif event.button == 'down':              
+                fwhm += step
+                self._fit_funcs_dict[self._sel_index+1]['par_values'][0] = fwhm
+                self._plot_func()            
+
+        elif name=='power law':
+            gamma = self._fit_funcs_dict[self._sel_index+1]['par_values'][0]
+
+            step = 0.1
+            if event.button == 'up':
+                gamma -= step
+                self._fit_funcs_dict[self._sel_index+1]['par_values'][0] = gamma
+                self._plot_func()
+            elif event.button == 'down':              
+                gamma += step
+                self._fit_funcs_dict[self._sel_index+1]['par_values'][0] = gamma
+                self._plot_func()  
 
             
     def _clickFit(self):  

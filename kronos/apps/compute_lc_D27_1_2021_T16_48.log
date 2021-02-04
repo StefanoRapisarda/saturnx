@@ -1,0 +1,48 @@
+INFO: 2021-01-27 16:48:57: Creating log folder...
+INFO: 2021-01-27 16:48:57: COMMENTS:
+INFO: 2021-01-27 16:48:57: 
+
+INFO: 2021-01-27 16:48:57: Processing obs ID P010131500101 (1/1)
+INFO: 2021-01-27 16:48:57: Reading HXMT lightcurve FITS file
+INFO: 2021-01-27 16:48:57: Creating analysis folder...
+INFO: 2021-01-27 16:48:57: 
+INFO: 2021-01-27 16:48:57: Obs ID: P010131500101-20170824-01-01
+INFO: 2021-01-27 16:48:57: Settings:
+INFO: 2021-01-27 16:48:57: ------------------------------------------------------------
+INFO: 2021-01-27 16:48:57: Selected energy band: None-None keV
+INFO: 2021-01-27 16:48:57: Selected time resolution: 0.0625 s
+INFO: 2021-01-27 16:48:57: Log file name: compute_lc_D27_1_2021_T16_48
+INFO: 2021-01-27 16:48:57: ------------------------------------------------------------
+INFO: 2021-01-27 16:48:57: 
+INFO: 2021-01-27 16:50:12: Creating log folder...
+INFO: 2021-01-27 16:50:12: COMMENTS:
+INFO: 2021-01-27 16:50:12: 
+
+INFO: 2021-01-27 16:50:12: Processing obs ID P010131500101 (1/1)
+INFO: 2021-01-27 16:50:12: Reading HXMT lightcurve FITS file
+INFO: 2021-01-27 16:50:12: Creating analysis folder...
+INFO: 2021-01-27 16:50:12: 
+INFO: 2021-01-27 16:50:12: Obs ID: P010131500101-20170824-01-01
+INFO: 2021-01-27 16:50:12: Settings:
+INFO: 2021-01-27 16:50:12: ------------------------------------------------------------
+INFO: 2021-01-27 16:50:12: Selected energy band: None-None keV
+INFO: 2021-01-27 16:50:12: Selected time resolution: 0.0625 s
+INFO: 2021-01-27 16:50:12: Log file name: compute_lc_D27_1_2021_T16_50
+INFO: 2021-01-27 16:50:12: ------------------------------------------------------------
+INFO: 2021-01-27 16:50:12: 
+INFO: 2021-01-27 16:50:52: Creating log folder...
+INFO: 2021-01-27 16:50:52: COMMENTS:
+INFO: 2021-01-27 16:50:52: 
+
+INFO: 2021-01-27 16:50:52: Processing obs ID P010131500101 (1/1)
+INFO: 2021-01-27 16:50:52: Reading HXMT lightcurve FITS file
+INFO: 2021-01-27 16:50:52: Creating analysis folder...
+INFO: 2021-01-27 16:50:52: 
+INFO: 2021-01-27 16:50:52: Obs ID: P010131500101-20170824-01-01
+INFO: 2021-01-27 16:50:52: Settings:
+INFO: 2021-01-27 16:50:52: ------------------------------------------------------------
+INFO: 2021-01-27 16:50:52: Selected energy band: None-None keV
+INFO: 2021-01-27 16:50:52: Selected time resolution: 0.0625 s
+INFO: 2021-01-27 16:50:52: Log file name: compute_lc_D27_1_2021_T16_50
+INFO: 2021-01-27 16:50:52: ------------------------------------------------------------
+INFO: 2021-01-27 16:50:52: 

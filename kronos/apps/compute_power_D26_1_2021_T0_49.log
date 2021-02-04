@@ -1,0 +1,30 @@
+INFO: 2021-01-26 00:49:48: Creating log folder...
+INFO: 2021-01-26 00:50:29: Creating log folder...
+INFO: 2021-01-26 00:50:29: COMMENTS:
+INFO: 2021-01-26 00:50:29: 
+
+INFO: 2021-01-26 00:50:29: Computing power
+INFO: 2021-01-26 00:50:29: Processing obs ID P010131500101 (1/1)
+INFO: 2021-01-26 00:50:29: Computing energy 1.0-100.0
+INFO: 2021-01-26 00:50:29: Computing fmode tres: 0.0625, time seg: 128.0, time bins: 2048.0
+INFO: 2021-01-26 00:50:29: Creating analysis folder...
+INFO: 2021-01-26 00:50:29: 
+INFO: 2021-01-26 00:50:29: Obs ID: P010131500101-20170824-01-01
+INFO: 2021-01-26 00:50:29: Settings:
+INFO: 2021-01-26 00:50:29: ------------------------------------------------------------
+INFO: 2021-01-26 00:50:29: Selected energy band: 1.0-100.0 keV
+INFO: 2021-01-26 00:50:29: Selected time resolution: 0.0625 s
+INFO: 2021-01-26 00:50:29: Selected time segment: 128.0 s
+INFO: 2021-01-26 00:50:29: Time bins: 2048
+INFO: 2021-01-26 00:50:29: Selected GTI minimum duration: 128.0 s
+INFO: 2021-01-26 00:50:29: Splitting event in GTIs? No
+INFO: 2021-01-26 00:50:29: Log file name: compute_power_D26_1_2021_T0_50
+INFO: 2021-01-26 00:50:29: ------------------------------------------------------------
+INFO: 2021-01-26 00:50:29: 
+INFO: 2021-01-26 00:50:29: Processing event file: /Volumes/Samsung_T5/from_zhen/lc_fps/raw_data/P010131500101/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+INFO: 2021-01-26 00:50:29: Reading GTI from event file
+INFO: 2021-01-26 00:50:29: Done!
+INFO: 2021-01-26 00:50:29: Could not compute lightcurve
+INFO: 2021-01-26 00:50:29: "Key 'COUNTS' does not exist."
+INFO: 2021-01-26 00:50:29: Something went wrong with obs ID P010131500101
+INFO: 2021-01-26 00:50:29: Everything done!
