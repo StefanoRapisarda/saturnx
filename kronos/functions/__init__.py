@@ -17,7 +17,5 @@ from . import nicer_functions
 from .nicer_functions import *
 from . import xray
 from .xray import *
-from . import fits
-from .fits import *
 from . import rxte_functions
 from .rxte_functions import *

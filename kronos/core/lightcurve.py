@@ -14,11 +14,11 @@ import pickle
 
 class Lightcurve(pd.DataFrame):
 
-    _metadata = ['_low_en','_high_en','_tres','notes','history']
+    _metadata = ['_low_en','_high_en','_tres','header','notes','history']
 
     def __init__(self, time_array=None, count_array=None,
     low_en_value = None, high_en_value = None,
-    tres_value = None,notes=None,history=None):
+    tres_value = None,header=None,notes=None,history=None):
 
         if time_array is None:
             column_dict = {'time':np.array([]),'counts':np.array([])}      
@@ -37,6 +37,9 @@ class Lightcurve(pd.DataFrame):
         if history is None:
             self.history = {}   
         else: self.history = history
+        if header is None:
+            self.header = {}
+        else: self.header = header
 
     def __add__(self, other):
         assert len(self) == len(other),'You cannot add Lightcurves with different dimensions'
@@ -74,12 +77,13 @@ class Lightcurve(pd.DataFrame):
    
     def split(self,time_seg=16):
 
-        history = self.history.copy()     
+        history = self.history.copy()  
+        header = self.header.copy()   
 
         if 'kronos.core.gti.Gti' in str(time_seg.__class__):
             gti = time_seg
             history['GTI_SPLITTING'] = my_cdate()
-            history['N_GTIS'] = len(gti)
+            header['N_GTIS'] = len(gti)
 
             lcs = []
             gti_index = 0
@@ -87,13 +91,14 @@ class Lightcurve(pd.DataFrame):
                 mask = (self.time>= start) & (self.time<stop)
                 time=self.time[mask]
                 history_gti = history.copy()
-                history_gti['GTI_INDEX'] = gti_index
+                header_gti = header.copy()
+                header_gti['GTI_INDEX'] = gti_index
                 counts = self.counts[mask]
                 lc = Lightcurve(time,counts,self.low_en,self.high_en,self.tres)
                 lc.history = history_gti
+                lc.header = header_gti
                 lcs += [lc]
                 gti_index += 1
-
 
         else:
 
@@ -102,11 +107,11 @@ class Lightcurve(pd.DataFrame):
             assert time_seg <= self.texp,'Lightcurve duration is less than the specfied segment ({} < {})'.format(time_seg,self.texp)
 
             history['SEG_SPLITTING'] = my_cdate()
-            history['SEG_DUR'] = time_seg
+            header['SEG_DUR'] = time_seg
 
             seg_bins = int(time_seg/self.tres)
             n_segs = int(len(self)/seg_bins)
-            history['N_SEGS'] = n_segs
+            header['N_SEGS'] = n_segs
             indices = [i*seg_bins for i in range(1,n_segs+1)]
             # !!! Time intervals must be contigous to use this!!! 
             time_array = np.split(self.time.to_numpy(),indices)[:-1]
@@ -114,10 +119,11 @@ class Lightcurve(pd.DataFrame):
             seg_index=0
             lcs = []
             for time,counts in zip(time_array,count_array):
-                seg_history = history.copy()
-                seg_history['SEG_INDEX'] = seg_index
+                seg_header = header.copy()
+                seg_header['SEG_INDEX'] = seg_index
                 lc = Lightcurve(time,counts,self.low_en,self.high_en,self.tres)
-                lc.history=seg_history
+                lc.history = history
+                lc.header=seg_header
                 lcs += [lc]
                 seg_index+=1
 
@@ -127,8 +133,9 @@ class Lightcurve(pd.DataFrame):
         if type(factors) != list: factors=[factors]
 
         history = self.history.copy()
+        header = self.header.copy()
         history['REBIN'] = my_cdate()
-        history['REBIN FACTOR'] = factors
+        header['REBIN FACTOR'] = factors
 
         binned_counts = self.counts.to_numpy()
         binned_time = self.time.to_numpy()
@@ -136,6 +143,7 @@ class Lightcurve(pd.DataFrame):
             binned_time,binned_counts,dummy,dummy=my_rebin(binned_time,binned_counts,rf = f)
         lc = Lightcurve(binned_time,binned_counts,self.low_en,self.high_en,self.tres)
         lc.history=history
+        lc.header = header
         return lc
 
     def plot(self,ax=False,cr=True,title=False,lfont=16,**kwargs):
@@ -168,10 +176,12 @@ class Lightcurve(pd.DataFrame):
         assert 'kronos.core.event.Event' in str(events.__class__),'Input must be an Event object'
 
         history = {}
+        header = {}
         history['CREATION_DATE'] = my_cdate()
         history['CREATION_MODE'] = 'Lightcurve computed from Event object'
-        history['FILE_NAME'] = events.history['FILE_NAME']
-        history['DIR'] = events.history['DIR']
+        header['FILE_NAME'] = events.header['FILE_NAME']
+        header['DIR'] = events.header['DIR']
+        header['MISSION'] = events.mission
 
         mission = events.mission
 

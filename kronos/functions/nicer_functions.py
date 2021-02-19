@@ -7,6 +7,15 @@ from astropy.io import fits
 from .my_functions import get_nn_var
 import numpy as np
 
+all_det = np.array([0,1,2,3,4,5,6,
+                10,11,12,13,14,15,7,
+                20,21,22,23,24,25,16,
+                30,31,32,33,34,26,17,
+                40,41,42,43,44,35,27,
+                50,51,52,53,45,36,37,
+                60,62,64,66,54,46,47,
+                61,63,65,67,55,56,57])
+
 def check_nicer_data(obs_id,home=os.getcwd()):
     '''
     Check NICER folder data structure
