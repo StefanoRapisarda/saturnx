@@ -1,5 +1,7 @@
 import pytest
 import numpy as np
+
+from kronos.functions.nicer_functions import all_det
 from kronos.utils.time_series import poi_events
 from kronos.core import Event,Gti
 
@@ -8,9 +10,12 @@ def fake_nicer_event(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):
     events = poi_events(tres=tres,nbins=nbins,cr=cr)
     texp = max(events)-min(events)
     pi = np.random.uniform(low_ch,high_ch,len(events))
+    dets = np.array([
+        all_det[np.random.randint(0,len(all_det))] for i in range(len(events))
+    ])
     notes = {}
     notes['STEF1'] = 'This is a test note'
-    event_object = Event(time_array=events,
+    event_object = Event(time_array=events,det_array=dets,
         pi_array=pi,mission='NICER',notes=notes)
     event_object.header['CRE_MODE'] = 'Initialized from fake arrays'
     data = {'event':event_object,'texp':texp,'n_events':len(events),

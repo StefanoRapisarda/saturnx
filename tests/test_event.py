@@ -83,6 +83,8 @@ class TestEventInit():
         assert events.notes['STEF1'] == 'This is a test note'
         assert events.header['CRE_MODE'] == 'Initialized from fake arrays'
         assert events.header['MISSION'] == 'NICER'
+        assert events.header['NACT_DET'] == 56
+        assert events.header['INAC_DET'] == []
 
     def test_wrong_arrays(self):
         '''
@@ -262,7 +264,9 @@ class TestReadEvent:
         assert event.header['CRE_MODE'] == 'Event created from fits file'
         assert event.header['EVT_NAME'] == 'NICER_cl.evt.gz'
         assert 'NACT_DET' in event.header.keys()
-        assert 'IDET_DET' in event.header.keys()
+        assert 'INAC_DET' in event.header.keys()
+        assert event.header['NACT_DET'] == 50
+        assert event.header['INAC_DET'] == [11,14,20,22,34,60]
 
         basic_keys = ['OBJECT','TELESCOP','INSTRUME','OBS_ID','RA_OBJ','DEC_OBJ',
                         'CREATOR','DATE','SOFTVER','CALDBVER','GCALFILE']

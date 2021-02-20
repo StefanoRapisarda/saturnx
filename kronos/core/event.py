@@ -1,32 +1,56 @@
-from kronos.utils.generic import clean_expr, is_number, my_cdate
-from kronos.utils.fits import get_basic_info
-from kronos.core.gti import Gti
 import os
-
 import pandas as pd
 import numpy as np
 
-import time
 from astropy.io.fits import getdata,getval
 
-from ..functions.nicer_functions import all_det
+from kronos.utils.generic import clean_expr, is_number, my_cdate
+from kronos.utils.fits import get_basic_info
+from kronos.functions.nicer_functions import all_det
+from kronos.core.gti import Gti
 
 def read_event(file_name,evt_ext_name='EVENTS'):
     '''
     Read a fits file and store meaningfull information in an Event object
+    
+    PARAMETERS
+    ----------
+    file_name: str
+        Full path of a FITS file 
+    evt_ext_name: str, optional
+        Name of the FITS file extension to read, default is EVENT
+
+    RETURNS
+    -------
+    event: kronos.core.Event
+        Event object
+
+    HISTORY
+    -------
+    2020 04 ##, Stefano Rapisarda (Uppsala)
+        Creation date 
+
+    NOTES
+    -----
+    2021 02 20, Stefano Rapisarda (Uppsala)
+        For NICER events, it is important to determine the number of
+        active detectors. This is done here and this information should
+        be propagated to further timing products (binned lightcurve and
+        power spectra)
     '''
     
+    # Checking file existance and size
     try:
         if os.stat(file_name).st_size == 0:
             print('Event FITS file is Empty')
     except OSError:
         print('File {} does not exist'.format(file_name))
-    mission =  getval(file_name,'telescop',1)
 
     # Reading data
     data = getdata(file_name,extname=evt_ext_name,header=False,memmap=True)
 
     # Initializing header
+    mission =  getval(file_name,'telescop',1)
     header = {}
     header['CRE_MODE'] = 'Event created from fits file'
     header['EVT_NAME'] = os.path.basename(file_name)
@@ -36,6 +60,7 @@ def read_event(file_name,evt_ext_name='EVENTS'):
     info = get_basic_info(file_name)
     header = {**header, **info}
 
+    # Initializing Event object
     if mission == 'NICER':
         times = data['TIME']
         try:
@@ -52,15 +77,16 @@ def read_event(file_name,evt_ext_name='EVENTS'):
             print(e)
             pi = np.zeros(len(times))+200
 
+        # Further info NICER specific
         n_act_det = len(np.unique(det_id))
         inact_det_list = np.setdiff1d(all_det, np.unique(det_id))
         header['NACT_DET'] = n_act_det
-        header['IDET_DET'] = inact_det_list
+        header['INAC_DET'] = list(inact_det_list)
 
         event = Event(time_array=times,det_array=det_id,pi_array=pi,
                        mission=mission,header=header)
     elif mission == 'SWIFT':
-        events = Event(time_array=data['TIME'],detx_array=data['DETX'],dety_array=data['DETY'],
+        event = Event(time_array=data['TIME'],detx_array=data['DETX'],dety_array=data['DETY'],
                        pi_array=data['PI'],grade_array=data['GRADE'],
                        mission=mission)   
 
@@ -69,6 +95,11 @@ def read_event(file_name,evt_ext_name='EVENTS'):
 
 class Event(pd.DataFrame):
     '''
+    Event object. Stores photon time arrival, energy
+
+    HISTORY
+    -------
+    2020 04 ##, Stefano Rapisarda (Uppsala), creation date
 
     NOTES
     -----
@@ -85,8 +116,19 @@ class Event(pd.DataFrame):
                 detx_array=None,dety_array=None,grade_array=None,
                 mission=None,header=None,notes=None):
         '''
-        Initialise time, pi, and detector arrays according to selected
+        Initialise time, pi, and detector arrays according to specified
         mission
+
+        NOTE
+        ----
+        2021 02 20, Stefano Rapisarda (Uppsala)
+            The reason why arrays are initialised with None and not 
+            directly with an empty array is because this allows to 
+            initialise Event object with only the time array.
+            Indeed, if you use empty numpy arrays, when you initialise
+            pandas dataframe with those arrays, python will check their
+            dimensions and return an error. 
+            !!! A column initialized with None will NOT be empty 
         '''
         
         if time_array is None:
@@ -113,20 +155,26 @@ class Event(pd.DataFrame):
                         'pi':pi_array}
             super().__init__(columns)  
 
-        if notes is None:
-            self.notes = {}
-        else: self.notes = notes
+        # Initialiasing header
         if header is None:
             self.header = {}
         else: self.header = header
         self.header['CRE_DATE'] = my_cdate()
         if not 'MISSION' in  self.header.keys():
             self.header['MISSION'] = mission 
-                            
+        if mission == 'NICER' and not det_array is None:
+            n_act_det = len(np.unique(self.det))
+            inact_det_list = np.setdiff1d(all_det, np.unique(det_array))
+            self.header['NACT_DET'] = n_act_det
+            self.header['INAC_DET'] = list(inact_det_list)
 
+        if notes is None:
+            self.notes = {}
+        else: self.notes = notes
+                            
     def filter(self,expr):
         '''
-        Evaluate a filtering expression and applies it to the events
+        Evaluates a filtering expression and applies it to events
         
         NOTES
         -----
@@ -250,6 +298,8 @@ class EventList(list):
     '''
     A list of Event with some superpower
 
+    2020 04 ##, Stefano Rapisarda (Uppsala), creation date
+
     TODO
     ----
     2021 02 19, Stefano Rapisarda (Uppsala)
@@ -268,6 +318,10 @@ class EventList(list):
         self[index] = event
 
     def join(self,mask=None):
+        '''
+        Joins Events in an EventList in a single Event
+        '''
+
         if mask is None:
             mask = np.ones(len(self),dtype=bool)
         else:
@@ -298,8 +352,8 @@ class EventList(list):
 
     def info(self):
         '''
-        Return a pandas DataFrame with the characteristics of each event
-        list
+        Returns a pandas DataFrame relevand information for each Event 
+        object in the list
         '''
 
         columns = ['texp','n_events','count_rate',

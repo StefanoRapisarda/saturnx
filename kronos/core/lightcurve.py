@@ -1,24 +1,30 @@
-import pandas as pd 
 import os
 import numpy as np
-import time
-
-from multiprocessing import Pool
+import pandas as pd 
+import pickle
 import matplotlib.pyplot as plt
 
-from ..functions.my_functions import my_cdate, my_rebin
+from astropy.io.fits import getdata,getval
 
-from astropy.io.fits import getdata,getheader,getval
+from multiprocessing import Pool
 
-import pickle
+from kronos.utils.time_series import my_rebin
+from kronos.utils.generic import my_cdate
 
 class Lightcurve(pd.DataFrame):
+    '''
+    Lightcurve object. It stores binned events in a range of energy
 
-    _metadata = ['_low_en','_high_en','_tres','header','notes','history']
+    HISTORY
+    -------
+    2020 04 ##, Stefano Rapisarda (Uppsala)
+    '''
 
-    def __init__(self, time_array=None, count_array=None,
-    low_en_value = None, high_en_value = None,
-    tres_value = None,header=None,notes=None,history=None):
+    _metadata = ['_low_en','_high_en','_tres','header','notes']
+
+    def __init__(self, time_array = None, count_array = None,
+        low_en_value = None, high_en_value = None,
+        tres_value = None, header = None, notes = None):
 
         if time_array is None:
             column_dict = {'time':np.array([]),'counts':np.array([])}      
