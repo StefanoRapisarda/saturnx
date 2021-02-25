@@ -6,6 +6,7 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from scipy.fft import fft,fftfreq
 
+from astropy.io.fits import getdata
 from ..functions.my_functions import my_cdate, my_rebin
 
 from datetime import datetime
@@ -71,17 +72,23 @@ class PowerSpectrum(pd.DataFrame):
     @property
     def a0(self):
         if len(self.power) == 0: return None
-        if (self._leahy_norm is None) and (self._rms_norm is None):
-            return np.sqrt(self.power.iloc[0])
-        elif not self._leahy_norm is None:
-            return self.power[0]/2.
+
+        if not self._leahy_norm is None:
+            a0 = 2/self._leahy_norm
+        elif (self.freq.iloc[0] == 0):
+            a0 =  self.power.iloc[0]/2
         else:
-            return None
+            a0 = None
+
+        return a0
 
     @property
     def cr(self):
-        if len(self.power) == 0: return None
-        return self.a0*self.df
+        if (not self.a0 is None):
+
+            return self.a0*self.df
+
+        else: return None
 
     def comp_frac_rms(self,low_freq=0,high_freq=np.inf,pos_only=False):
 
@@ -153,13 +160,13 @@ class PowerSpectrum(pd.DataFrame):
             print('The power spectrum is already either Leahy or RMS normalized')
             return self
         
-    def rms(self,bkg=0):
+    def rms(self,bkg_cr=0):
         changes = self.history.copy()
         if (self._leahy_norm is None) and (self._rms_norm is None):
-            norm = (2./self.a0)*self.cr/( (self.cr-bkg)**2 )
+            norm = (2./self.a0)*self.cr/( (self.cr-bkg_cr)**2 )
             changes['RMS_NORM'] = my_cdate()
         elif (self._rms_norm is None) and (not self._leahy_norm is None):
-            norm = self.cr/( (self.cr-bkg)**2 )
+            norm = self.cr/( (self.cr-bkg_cr)**2 )
             changes['RMS_NORM'] = my_cdate()
         elif not self._rms_norm is None:     
             print('The power spectrum is already RMS normalized')
@@ -208,6 +215,7 @@ class PowerSpectrum(pd.DataFrame):
     def plot(self,ax=False,xy=False,title=False,lfont=16,**kwargs):
         
         if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
+        if not 'marker' in kwargs.keys(): kwargs['marker']='o'
 
         if ax is False:
             fig, ax = plt.subplots(figsize=(6,6))
@@ -268,8 +276,8 @@ class PowerSpectrum(pd.DataFrame):
 
             history['CREATION_MODE'] = 'Power computed from LightcurveList'
             history['T_RES'] = lightcurve[0].tres
-            if 'SEG_DUR' in lightcurve[0].history.keys():
-                history['SEG_DUR'] = lightcurve[0].history['SEG_DUR']
+            if 'SEG_DUR' in lightcurve[0].meta_data.keys():
+                history['SEG_DUR'] = lightcurve[0].meta_data['SEG_DUR']
 
             powers = []
             for l in lightcurve:
@@ -277,7 +285,7 @@ class PowerSpectrum(pd.DataFrame):
 
                     power_history = history.copy()
                     for key in target_keys:
-                        if key in l.history.keys(): power_history[key]=l.history[key]
+                        if key in l.meta_data.keys(): power_history[key]=l.meta_data[key]
                     #assert isinstance(l,Lightcurve),'Object must be Lightcurve'
                     freq = fftfreq(len(l),np.double(l.tres))
                     #print(l.counts.shape,type(l.counts))
@@ -296,10 +304,10 @@ class PowerSpectrum(pd.DataFrame):
 
             history['CREATION_MODE'] = 'Power computed from Lightcurve'
             history['T_RES'] = lightcurve.tres
-            if 'SEG_DUR' in lightcurve.history.keys():
-                history['SEG_DUR'] = lightcurve.history['SEG_DUR']
+            if 'SEG_DUR' in lightcurve.meta_data.keys():
+                history['SEG_DUR'] = lightcurve.meta_data['SEG_DUR']
             for key in target_keys:
-                if key in lightcurve.history.keys(): history[key]=lightcurve.history[key]
+                if key in lightcurve.meta_data.keys(): history[key]=lightcurve.meta_data[key]
 
             if lightcurve.counts.sum() > 0:
                 #assert isinstance(lightcurve,Lightcurve),'Object myst be Lightcurve'
@@ -313,7 +321,16 @@ class PowerSpectrum(pd.DataFrame):
                 power = PowerSpectrum()
             
             return power 
-            
+
+    @staticmethod
+    def read_from_fits(fits_file, extname, freq_col, power_col, spower_col):
+
+        data = getdata(fits_file,extname=extname,meta_data=False,memmap=True)        
+        freq = data[freq_col]
+        power = data[power_col]
+        spower = data[spower_col]
+
+        return PowerSpectrum(freq,power,spower)   
        
     @property
     def weight(self):

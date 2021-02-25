@@ -1,3 +1,4 @@
+from kronos.core.lightcurve import Lightcurve
 import pytest
 import numpy as np
 
@@ -17,10 +18,26 @@ def fake_nicer_event(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):
     notes['STEF1'] = 'This is a test note'
     event_object = Event(time_array=events,det_array=dets,
         pi_array=pi,mission='NICER',notes=notes)
-    event_object.header['CRE_MODE'] = 'Initialized from fake arrays'
+    event_object.meta_data['EVT_CRE_MODE'] = 'Initialized from fake arrays'
     data = {'event':event_object,'texp':texp,'n_events':len(events),
             'tres':tres,'cr':cr,'n_bins':nbins,'low_ch':50,'high_ch':1000,
             'texp':texp}
+    return data
+
+
+@pytest.fixture(scope='class')
+def fake_white_noise_lc(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):
+    events = poi_events(tres=tres,nbins=nbins,cr=cr)
+    time_bin_edges = np.linspace(0,nbins*tres,nbins+1,dtype=np.double)
+    time_bins_center = np.linspace(0+tres/2.,nbins*tres-tres/2.,nbins,dtype=np.double)
+    hist, dummy = np.histogram(events,time_bin_edges)
+    notes = {}
+    notes['STEF1'] = 'This is a test note'    
+    lc = Lightcurve(time_bins_center,hist,
+                    low_en_value=0.5,high_en_value=10,
+                    notes=notes)
+    data = {'lc':lc,'std':np.std(hist),'n_events':len(events),
+            'cr':len(events)/tres/nbins,'tres':tres}
     return data
 
 @pytest.fixture(scope='class')

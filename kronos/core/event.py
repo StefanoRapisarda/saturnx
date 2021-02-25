@@ -5,11 +5,11 @@ import numpy as np
 from astropy.io.fits import getdata,getval
 
 from kronos.utils.generic import clean_expr, is_number, my_cdate
-from kronos.utils.fits import get_basic_info
+from kronos.utils.fits import get_basic_info, read_fits_keys
 from kronos.functions.nicer_functions import all_det
 from kronos.core.gti import Gti
 
-def read_event(file_name,evt_ext_name='EVENTS'):
+def read_event(file_name,evt_ext_name='EVENTS',keys_to_read=None):
     '''
     Read a fits file and store meaningfull information in an Event object
     
@@ -19,6 +19,11 @@ def read_event(file_name,evt_ext_name='EVENTS'):
         Full path of a FITS file 
     evt_ext_name: str, optional
         Name of the FITS file extension to read, default is EVENT
+    keys_to_read: str or list, optional
+        List or str specifying keys to read from the header of the 
+        specified extension. Default is None, in this case a set 
+        of standard keywords will be read. Keywords/Values are stores
+        in the dictionary Event.meta_data['INFO_FROM_HEADER']
 
     RETURNS
     -------
@@ -47,18 +52,25 @@ def read_event(file_name,evt_ext_name='EVENTS'):
         print('File {} does not exist'.format(file_name))
 
     # Reading data
-    data = getdata(file_name,extname=evt_ext_name,header=False,memmap=True)
+    data = getdata(file_name,extname=evt_ext_name,meta_data=False,memmap=True)
 
-    # Initializing header
+    # Initializing meta_data
     mission =  getval(file_name,'telescop',1)
-    header = {}
-    header['CRE_MODE'] = 'Event created from fits file'
-    header['EVT_NAME'] = os.path.basename(file_name)
-    header['DIR'] = os.path.dirname(file_name)
+    meta_data = {}
+    meta_data['EVT_CRE_MODE'] = 'Event created from fits file'
+    meta_data['EVT_FILE_NAME'] = os.path.basename(file_name)
+    meta_data['DIR'] = os.path.dirname(file_name)
 
     # Reading meaningfull information from event file
     info = get_basic_info(file_name)
-    header = {**header, **info}
+    if not keys_to_read is None:
+        if type(keys_to_read) in [str,list]: 
+            user_info = read_fits_keys(file_name,keys_to_read,evt_ext_name)
+        else:
+            raise TypeError('keys to read must be str or list')
+    else: user_info = {}
+    total_info = {**info,**user_info}
+    meta_data['INFO_FROM_HEADER'] = total_info
 
     # Initializing Event object
     if mission == 'NICER':
@@ -80,11 +92,11 @@ def read_event(file_name,evt_ext_name='EVENTS'):
         # Further info NICER specific
         n_act_det = len(np.unique(det_id))
         inact_det_list = np.setdiff1d(all_det, np.unique(det_id))
-        header['NACT_DET'] = n_act_det
-        header['INAC_DET'] = list(inact_det_list)
+        meta_data['N_ACT_DET'] = n_act_det
+        meta_data['N_INACT_DET'] = list(inact_det_list)
 
         event = Event(time_array=times,det_array=det_id,pi_array=pi,
-                       mission=mission,header=header)
+                       mission=mission,meta_data=meta_data)
     elif mission == 'SWIFT':
         event = Event(time_array=data['TIME'],detx_array=data['DETX'],dety_array=data['DETY'],
                        pi_array=data['PI'],grade_array=data['GRADE'],
@@ -110,11 +122,11 @@ class Event(pd.DataFrame):
         this syntax
     '''
 
-    _metadata = ['header','notes']
+    _metadata = ['meta_data','notes']
 
     def __init__(self,time_array=None,pi_array=None,det_array=None,
                 detx_array=None,dety_array=None,grade_array=None,
-                mission=None,header=None,notes=None):
+                mission=None,meta_data=None,notes=None):
         '''
         Initialise time, pi, and detector arrays according to specified
         mission
@@ -155,18 +167,18 @@ class Event(pd.DataFrame):
                         'pi':pi_array}
             super().__init__(columns)  
 
-        # Initialiasing header
-        if header is None:
-            self.header = {}
-        else: self.header = header
-        self.header['CRE_DATE'] = my_cdate()
-        if not 'MISSION' in  self.header.keys():
-            self.header['MISSION'] = mission 
+        # Initialiasing meta_data
+        if meta_data is None:
+            self.meta_data = {}
+        else: self.meta_data = meta_data
+        self.meta_data['EVT_CRE_DATE'] = my_cdate()
+        if not 'MISSION' in  self.meta_data.keys():
+            self.meta_data['MISSION'] = mission 
         if mission == 'NICER' and not det_array is None:
             n_act_det = len(np.unique(self.det))
             inact_det_list = np.setdiff1d(all_det, np.unique(det_array))
-            self.header['NACT_DET'] = n_act_det
-            self.header['INAC_DET'] = list(inact_det_list)
+            self.meta_data['N_ACT_DET'] = n_act_det
+            self.meta_data['INACT_DET_LIST'] = list(inact_det_list)
 
         if notes is None:
             self.notes = {}
@@ -207,11 +219,11 @@ class Event(pd.DataFrame):
         for col in list(self.columns):
             kwargs['{}_array'.format(col)] = self[col][mask]
         
-        # Copying and updating notes and header
-        kwargs['header'] = self.header
+        # Copying and updating notes and meta_data
+        kwargs['meta_data'] = self.meta_data
         kwargs['notes'] = self.notes
-        kwargs['header']['FIL_DATE'] = my_cdate()
-        kwargs['header']['FIL_EXPR'] = expr_ori
+        kwargs['meta_data']['FILTERING'] = my_cdate()
+        kwargs['meta_data']['FILT_EXPR'] = expr_ori
 
         # Initializing event object
         events = Event(**kwargs)
@@ -225,25 +237,28 @@ class Event(pd.DataFrame):
         '''
 
         events = []
-        header = self.header.copy()   
+        kwargs = {}
+        meta_data = self.meta_data.copy()   
         notes = self.notes.copy()
 
         if type(splitter) == type(Gti()):
             gti = splitter
 
-            header['SPLI_GTI'] = my_cdate()
-            header['N_GTIS'] = len(gti)
+            meta_data['SPLITTING_GTI'] = my_cdate()
+            meta_data['N_GTIS'] = len(gti)
 
             for gti_index,(start,stop) in enumerate(zip(gti.start,gti.stop)):
                 mask = (self.time>= start) & (self.time<stop)
                 kwargs = {}
                 for col in list(self.columns):
                     kwargs['{}_array'.format(col)] = self[col][mask]
-                
-                header_gti = header.copy()
-                header_gti['GTI_IND'] = gti_index            
-                kwargs['header'] = header_gti
+                    print(col)
+                print('---->',gti_index,self.columns,kwargs.keys())
+                meta_data_gti = meta_data.copy()
+                meta_data_gti['GTI_IND'] = gti_index            
+                kwargs['meta_data'] = meta_data_gti
                 kwargs['notes'] = notes
+                kwargs['mission'] = self.meta_data['MISSION']
 
                 events += [Event(**kwargs)]
 
@@ -258,8 +273,8 @@ class Event(pd.DataFrame):
                 time_seg = splitter
 
             n_segs = int(self.texp//time_seg)
-            header['SPLI_SEG'] = my_cdate()
-            header['N_SEGS'] = n_segs
+            meta_data['SPLITTING_SEG'] = my_cdate()
+            meta_data['N_SEGS'] = n_segs
 
             for i in range(n_segs):
                 start = i*time_seg
@@ -268,11 +283,11 @@ class Event(pd.DataFrame):
                 kwargs = {}
                 for col in list(self.columns):
                     kwargs['{}_array'.format(col)] = self[col][mask]
-                
-                header_seg = header.copy()
-                header_seg['SEG_IND'] = i            
-                kwargs['header'] = header_seg
+                meta_data_seg = meta_data.copy()
+                meta_data_seg['SEG_IND'] = i            
+                kwargs['meta_data'] = meta_data_seg
                 kwargs['notes'] = notes
+                kwargs['mission'] = self.meta_data['MISSION']
 
                 events += [Event(**kwargs)]
         
@@ -330,7 +345,7 @@ class EventList(list):
         df_list = []
         for i in range(len(self)):
             if mask[i]: 
-                df_list += [pd.DataFrame(self[i])]
+                df_list += [self[i]]
         
         df = pd.concat(df_list,ignore_index=True)
         
@@ -338,15 +353,17 @@ class EventList(list):
 
         kwargs = {}
         for col in list(self[first_valid_index].columns):
+            print('---->',col)
             kwargs['{}_array'.format(col)] = df[col]
 
         notes = {}
-        header = {}
-        header['CRE_MODE'] = 'Event created joining Events from EventList'
-        header['EVT_OBJS'] = len(self)
-        header['MSK_OBJS'] = mask.sum()
-        kwargs['header'] = header
+        meta_data = {}
+        meta_data['EVT_CRE_MODE'] = 'Event created joining Events from EventList'
+        meta_data['N_ORI_EVTS'] = len(self)
+        meta_data['N_MASKED_EVTS'] = sum(mask)
+        kwargs['meta_data'] = meta_data
         kwargs['notes'] = notes
+        kwargs['mission'] = self[first_valid_index].meta_data['MISSION']
 
         return Event(**kwargs)
 
@@ -365,7 +382,7 @@ class EventList(list):
                 'count_rate':event.cr,
                 'min_time':min(event.time),'max_time':max(event.time),
                 'min_pi':min(event.pi),'max_pi':max(event.pi),
-                'mission':event.header['MISSION']}
+                'mission':event.meta_data['MISSION']}
             info.loc[i] = pd.Series(line)
         
         return info

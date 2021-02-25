@@ -12,7 +12,7 @@ class TestEventInit():
     def test_empty_event(self):
         '''
         Test initializations of empry columns according to mission,
-        header, and notes dictionary
+        meta_data, and notes dictionary
         '''
 
         # NICER
@@ -26,9 +26,9 @@ class TestEventInit():
         assert nicer_events.det.empty
         assert len(nicer_events.det) == 0
         assert len(nicer_events.det.index) == 0
-        assert nicer_events.header['MISSION'] == 'NICER'
-        assert len(nicer_events.header) == 2
-        assert 'CRE_DATE' in nicer_events.header.keys()
+        assert nicer_events.meta_data['MISSION'] == 'NICER'
+        assert len(nicer_events.meta_data) == 2
+        assert 'EVT_CRE_DATE' in nicer_events.meta_data.keys()
         assert nicer_events.notes == {}
 
         # SWIFT
@@ -48,9 +48,9 @@ class TestEventInit():
         assert swift_events.grade.empty
         assert len(swift_events.grade) == 0
         assert len(swift_events.grade.index) == 0
-        assert swift_events.header['MISSION'] == 'SWIFT'
-        assert len(swift_events.header) == 2
-        assert 'CRE_DATE' in swift_events.header.keys()
+        assert swift_events.meta_data['MISSION'] == 'SWIFT'
+        assert len(swift_events.meta_data) == 2
+        assert 'EVT_CRE_DATE' in swift_events.meta_data.keys()
         assert swift_events.notes == {}
 
         # Generic mission
@@ -61,9 +61,9 @@ class TestEventInit():
         assert whatever_events.pi.empty
         assert len(whatever_events.pi) == 0
         assert len(whatever_events.pi.index) == 0
-        assert whatever_events.header['MISSION'] == None
-        assert len(whatever_events.header) == 2
-        assert 'CRE_DATE' in whatever_events.header.keys()
+        assert whatever_events.meta_data['MISSION'] == None
+        assert len(whatever_events.meta_data) == 2
+        assert 'EVT_CRE_DATE' in whatever_events.meta_data.keys()
         assert whatever_events.notes == {}
 
     def test_event(self,fake_nicer_event):
@@ -74,6 +74,9 @@ class TestEventInit():
         texp = fake_nicer_event['texp']
         events = fake_nicer_event['event']
         assert type(events) == type(Event())
+        assert 'time' in events.columns
+        assert 'pi' in events.columns
+        assert 'det' in events.columns
         assert events.texp == texp
         assert events.cr == nevents/texp
         assert len(events) == nevents
@@ -81,10 +84,10 @@ class TestEventInit():
             assert not events[col].empty
             assert len(events[col]) == nevents
         assert events.notes['STEF1'] == 'This is a test note'
-        assert events.header['CRE_MODE'] == 'Initialized from fake arrays'
-        assert events.header['MISSION'] == 'NICER'
-        assert events.header['NACT_DET'] == 56
-        assert events.header['INAC_DET'] == []
+        assert events.meta_data['EVT_CRE_MODE'] == 'Initialized from fake arrays'
+        assert events.meta_data['MISSION'] == 'NICER'
+        assert events.meta_data['N_ACT_DET'] == 56
+        assert events.meta_data['INACT_DET_LIST'] == []
 
     def test_wrong_arrays(self):
         '''
@@ -113,15 +116,15 @@ class TestEventFilter:
             '((pi>=80) xor (pi<=200))')
         
     def test_filtered_event_sintax(self,fake_nicer_event):
-        old_header = fake_nicer_event['event'].header.copy()
+        old_meta_data = fake_nicer_event['event'].meta_data.copy()
         old_notes = fake_nicer_event['event'].notes.copy()
         expr = '(time >= 5) & (time <= 8) & '\
             '(pi>=80) & (pi<=200)'
         new_event = fake_nicer_event['event'].filter(expr)
         assert new_event.notes == old_notes
-        assert 'FIL_DATE' in new_event.header.keys()
-        assert 'FIL_EXPR' in new_event.header.keys()
-        assert new_event.header['FIL_EXPR'] == expr
+        assert 'FILTERING' in new_event.meta_data.keys()
+        assert 'FILT_EXPR' in new_event.meta_data.keys()
+        assert new_event.meta_data['FILT_EXPR'] == expr
 
     def test_filtered_event_arrays(self,fake_nicer_event):
         old_events = fake_nicer_event['event']
@@ -155,16 +158,33 @@ class TestEventSplit:
 
     def test_gti_output(self,fake_nicer_event,fake_gti):
         split_event = fake_nicer_event['event'].split(fake_gti)
+        
+        # Type and size
         assert type(split_event) == type(EventList())
         assert len(split_event) == len(fake_gti)
+        for event in split_event:
+            assert type(event) == type(Event())
+        
+        # Columns
+        columns = fake_nicer_event['event'].columns
+        for col in ['time','pi','det']:
+            assert col in columns
+        for event in split_event:
+            for col in columns: assert col in event.columns
+
+        # Single Event features
         for i,(start,stop) in enumerate(zip(fake_gti.start,fake_gti.stop)):
-            assert type(split_event[i]) == type(Event())
-            assert split_event[i].header['MISSION'] == 'NICER'
+            assert 'time' in split_event[i].columns
+            assert 'det' in split_event[i].columns,f'Event {i}'
+            assert 'pi' in split_event[i].columns
+
             assert min(split_event[i].time) >= start
             assert max(split_event[i].time) <= stop
-            assert split_event[i].header['GTI_IND'] == i
-            assert split_event[i].header['N_GTIS'] == len(fake_gti)
-            assert 'SPLI_GTI' in split_event[i].header.keys()
+
+            assert split_event[i].meta_data['MISSION'] == 'NICER'
+            assert split_event[i].meta_data['GTI_IND'] == i
+            assert split_event[i].meta_data['N_GTIS'] == len(fake_gti)
+            assert 'SPLITTING_GTI' in split_event[i].meta_data.keys()
             assert split_event[i].notes == fake_nicer_event['event'].notes
 
     def test_seg_input(self,fake_nicer_event):
@@ -187,11 +207,11 @@ class TestEventSplit:
 
         for i, event in enumerate(split_event):
             assert type(event) == type(Event())
-            assert event.header['MISSION'] == 'NICER'
+            assert event.meta_data['MISSION'] == 'NICER'
             assert event.texp <= time_seg
-            assert event.header['SEG_IND'] == i
-            assert event.header['N_SEGS'] == exp_n_segs
-            assert 'SPLI_SEG' in event.header.keys()
+            assert event.meta_data['SEG_IND'] == i
+            assert event.meta_data['N_SEGS'] == exp_n_segs
+            assert 'SPLITTING_SEG' in event.meta_data.keys()
             assert event.notes == fake_nicer_event['event'].notes
            
 
@@ -211,16 +231,31 @@ class TestEventListInit:
         fake_gti = Gti([0,10,20,100],[10,20,100,1000],clean=False)        
         first_event = fake_nicer_event['event']
         event_list = first_event.split(fake_gti)
-        print('--->',len(event_list))
         assert len(event_list) == 4
         joined_event = event_list.join()
         assert type(joined_event) == type(Event())
         assert first_event.time.equals(joined_event.time) 
         assert first_event.pi.equals(joined_event.pi)
-        assert joined_event.header['CRE_MODE'] == 'Event created joining Events from EventList'
-        assert joined_event.header['EVT_OBJS'] == len(event_list)
-        assert joined_event.header['MSK_OBJS'] == len(event_list)
+        assert first_event.det.equals(joined_event.det)
+        assert joined_event.meta_data['EVT_CRE_MODE'] == 'Event created joining Events from EventList'
+        assert joined_event.meta_data['N_ORI_EVTS'] == len(event_list)
+        assert joined_event.meta_data['N_MASKED_EVTS'] == len(event_list)
         assert joined_event.notes == {}
+
+    def test_masked_join(self,fake_nicer_event):
+        fake_gti1 = Gti([0,10,20,100],[10,20,100,1000],clean=False)
+        fake_gti2 = Gti([0,20],[10,100])
+        first_event = fake_nicer_event['event']
+        event_list1 = first_event.split(fake_gti1)
+        event_list2 = first_event.split(fake_gti2)
+        assert 'det' in event_list1[0].columns
+        assert 'det' in event_list2[0].columns
+        joined_event1 = event_list1.join(mask=[1,0,1,0])
+        joined_event2 = event_list2.join()
+        assert joined_event2.columns.equals(joined_event2.columns)
+        assert joined_event1.time.equals(joined_event2.time) 
+        assert joined_event1.pi.equals(joined_event2.pi) 
+        assert joined_event1.det.equals(joined_event2.det)
 
     def test_info(self,fake_nicer_event,fake_gti):
         event_list = fake_nicer_event['event'].split(fake_gti)
@@ -238,7 +273,7 @@ class TestEventListInit:
             assert info['max_time'].iloc[i] == max(event_list[i].time) 
             assert info['min_pi'].iloc[i] == min(event_list[i].pi) 
             assert info['max_pi'].iloc[i] == max(event_list[i].pi)
-            assert info['mission'].iloc[i] == event_list[i].header['MISSION'] 
+            assert info['mission'].iloc[i] == event_list[i].meta_data['MISSION'] 
 
 class TestReadEvent:
     
@@ -246,11 +281,22 @@ class TestReadEvent:
         with pytest.raises(OSError):
             event = read_event('NICE_cl.evt.gz')
 
+    def test_user_info_multi(self):
+        file_name = 'tests/NICER_cl.evt.gz'
+        event = read_event(file_name,keys_to_read=['XTENSION','DATAMODE'])        
+        assert event.meta_data['INFO_FROM_HEADER']['XTENSION'] == 'BINTABLE'
+        assert event.meta_data['INFO_FROM_HEADER']['DATAMODE'] == 'PHOTON'
+
+    def test_user_info_single(self):
+        file_name = 'tests/NICER_cl.evt.gz'
+        event = read_event(file_name,keys_to_read='EXTNAME')        
+        assert event.meta_data['INFO_FROM_HEADER']['EXTNAME'] == 'EVENTS'        
+
     def test_event_reading(self):
         file_name = 'tests/NICER_cl.evt.gz'
         event = read_event(file_name)
         assert type(event) == type(Event())
-        assert event.header['MISSION'] == 'NICER'
+        assert event.meta_data['MISSION'] == 'NICER'
         assert event.notes == {}
         assert not event.time.empty
         assert not event.pi.empty
@@ -260,13 +306,13 @@ class TestReadEvent:
         assert event.texp
         assert event.cr
 
-        # Checking header
-        assert event.header['CRE_MODE'] == 'Event created from fits file'
-        assert event.header['EVT_NAME'] == 'NICER_cl.evt.gz'
-        assert 'NACT_DET' in event.header.keys()
-        assert 'INAC_DET' in event.header.keys()
-        assert event.header['NACT_DET'] == 50
-        assert event.header['INAC_DET'] == [11,14,20,22,34,60]
+        # Checking meta_data
+        assert event.meta_data['EVT_CRE_MODE'] == 'Event created from fits file'
+        assert event.meta_data['EVT_FILE_NAME'] == 'NICER_cl.evt.gz'
+        assert 'N_ACT_DET' in event.meta_data.keys()
+        assert 'N_INACT_DET' in event.meta_data.keys()
+        assert event.meta_data['N_ACT_DET'] == 50
+        assert event.meta_data['N_INACT_DET'] == [11,14,20,22,34,60]
 
         basic_keys = ['OBJECT','TELESCOP','INSTRUME','OBS_ID','RA_OBJ','DEC_OBJ',
                         'CREATOR','DATE','SOFTVER','CALDBVER','GCALFILE']
@@ -278,4 +324,4 @@ class TestReadEvent:
         keys = basic_keys + time_keys
 
         for key in keys:
-            assert key in event.header.keys()
+            assert key in event.meta_data['INFO_FROM_HEADER'].keys()

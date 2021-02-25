@@ -264,7 +264,7 @@ class FittingTab:
         poi = self._leahy.sub_poi(value=poi_level)
 
         if norm == 'RMS':
-            to_rebin = poi.rms(bkg=bkg)
+            to_rebin = poi.rms(bkg_cr=bkg)
         elif norm == 'Leahy':
             to_rebin = poi
 
