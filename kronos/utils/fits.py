@@ -43,6 +43,6 @@ def get_basic_info(fits_file):
                  'TIMEZERO','ONTIME','EXPOSURE','NAXIS2','TIMESYS']
     
     keys = basic_keys + time_keys
-    info = read_fits_keys(fits_file,keys,1)
+    info = read_fits_keys(fits_file,keys)
 
     return info

@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from numpy.lib.arraysetops import isin
 import pandas as pd 
 import pickle
 import math
@@ -10,6 +11,7 @@ from astropy.io.fits import getdata,getval
 from kronos.core.gti import Gti
 from kronos.core.event import Event
 from kronos.utils.time_series import my_rebin, rebin_arrays
+from kronos.utils.fits import read_fits_keys, get_basic_info
 from kronos.utils.generic import is_number, my_cdate
 
 class Lightcurve(pd.DataFrame):
@@ -164,20 +166,28 @@ class Lightcurve(pd.DataFrame):
    
     def split(self,time_seg=16):
 
-        meta_data = self.meta_data.copy()   
+        meta_data = self.meta_data.copy() 
 
         if type(time_seg) == type(Gti()):
             print('===> Splitting GTI')
+
+            splitting_keys = [key for key in meta_data.keys() if 'SPLITTING_GTI' in key]
+            if len(splitting_keys) == 0:
+                suffix = ''
+            else:
+                suffix = '_{}'.format(len(splitting_keys))  
+
             gti = time_seg
-            meta_data['SPLITTING_GTI'] = my_cdate()
-            meta_data['N_GTIS'] = len(gti)
+
+            meta_data['SPLITTING_GTI{}'.format(suffix)] = my_cdate()
+            meta_data['N_GTIS{}'.format(suffix)] = len(gti)
 
             lcs = []
             for gti_index,(start,stop) in enumerate(zip(gti.start,gti.stop)):
                 mask = (self.time>= start) & (self.time<stop)
                 time=self.time[mask]
                 meta_data_gti = meta_data.copy()
-                meta_data_gti['GTI_INDEX'] = gti_index
+                meta_data_gti['GTI_INDEX{}'.format(suffix)] = gti_index
                 counts = self.counts[mask]
                 lc = Lightcurve(time_array = time, count_array = counts,
                     low_en_value = self.low_en, high_en_value = self.high_en,
@@ -185,9 +195,14 @@ class Lightcurve(pd.DataFrame):
                 lcs += [lc]
 
         else:
-
-            #print('Splitting in time seg',self.texp)
             print('===> Splitting Segment')
+
+            splitting_keys = [key for key in meta_data.keys() if 'SPLITTING_SEG' in key]
+            if len(splitting_keys) == 0:
+                suffix = ''
+            else:
+                suffix = '_{}'.format(len(splitting_keys))  
+
             if type(time_seg) == str:
                 if is_number(time_seg): 
                     time_seg=eval(time_seg)
@@ -210,9 +225,9 @@ class Lightcurve(pd.DataFrame):
             n_segs = int(len(self)/seg_bins)           
             #n_segs = int(self.texp/time_seg)
 
-            meta_data['SPLITTING_SEG'] = my_cdate()
-            meta_data['SEG_DUR'] = time_seg
-            meta_data['N_SEGS'] = n_segs
+            meta_data['SPLITTING_SEG{}'.format(suffix)] = my_cdate()
+            meta_data['SEG_DUR{}'.format(suffix)] = time_seg
+            meta_data['N_SEGS{}'.format(suffix)] = n_segs
 
             indices = [i*seg_bins for i in range(1,n_segs+1)]
             # np.split performs faster then ad hoc loop
@@ -224,7 +239,7 @@ class Lightcurve(pd.DataFrame):
             lcs = []
             for seg_index,(time,counts) in enumerate(zip(time_array,count_array)):
                 seg_meta_data = meta_data.copy()
-                seg_meta_data['SEG_INDEX'] = seg_index
+                seg_meta_data['SEG_INDEX{}'.format(suffix)] = seg_index
                 lc = Lightcurve(time_array = time, count_array = counts,
                     low_en_value = self.low_en, high_en_value = self.high_en,
                     meta_data = seg_meta_data, notes = self.notes)
@@ -314,33 +329,44 @@ class Lightcurve(pd.DataFrame):
             if type(norm) == str: norm = eval(norm)
             y /= norm
         x = self.time-start
-        ax.plot(x,y,label='{}_{}'.format(self.low_en,self.high_en),**kwargs)
 
+        ax.plot(x,y,label='{}_{}'.format(self.low_en,self.high_en),**kwargs)
         ax.set_xlabel('Time [{} s]'.format(start),fontsize=lfont)
         ax.set_ylabel(ylabel,fontsize=lfont)
         ax.grid()
         ax.legend(title='[keV]')
 
     @staticmethod
-    def from_event(events,time_res=1.,user_start_time=None,user_dur=None,low_en=0.,high_en=np.inf):
+    def from_event(events,time_res=1.,user_start_time=None,user_dur=None,
+        low_en=0.,high_en=np.inf):
 
         if isinstance(time_res,str): time_res = eval(time_res)
+        if isinstance(user_start_time,str): user_start_time = eval(user_start_time)
+        if isinstance(user_dur,str): user_dur = eval(user_dur)
+        if isinstance(low_en,str): low_en = eval(low_en)
+        if isinstance(high_en,str): high_en = eval(high_en)
+
     
         if type(events) != type(Event()):
             raise TypeError('Input must be an Event object')
 
         meta_data = {}
-        meta_data['LC_CRE_DATE'] = my_cdate()
         meta_data['LC_CRE_MODE'] = 'Lightcurve computed from Event object'
         # Copying some info from the event file
-        keys_to_copy = ['EVT_FILE_NAME','DIR','MISSION','INFO_FROM_HEADER'
-                        'MISSION']
+        keys_to_copy = ['EVT_FILE_NAME','DIR','MISSION','INFO_FROM_HEADER']
         for key in keys_to_copy:
             if key in events.meta_data.keys():
                 meta_data[key] = events.meta_data[key]
 
-        if user_start_time is None: user_start_time = np.min(events.time)
-        if user_dur is None: user_dur = np.max(events.time)-user_start_time
+        if (user_start_time is None) or (user_start_time < np.min(events.time)):
+            user_start_time = np.min(events.time)
+        if user_dur is None: 
+            user_dur = np.max(events.time)-user_start_time
+        else:
+            if user_dur == 0:
+                raise ValueError('Lightcurve duration cannot be zero')
+            elif user_dur > np.max(events.time)-user_start_time:
+                print('Warning: Lightcurve duration larger than Event duration')
     
         # The following may look messy but it is to ensure that the lightcurve time
         # resolution is the one specified by the user.
@@ -380,33 +406,46 @@ class Lightcurve(pd.DataFrame):
         return lc
 
     @staticmethod
-    def read_from_fits(fits_file, extname='COUNTS'):
+    def read_from_fits(fits_file, ext='COUNTS', 
+        time_col='TIME', count_col='COUNTS',rate_col='RATE', 
+        keys_to_read=None):
         '''
         Reads lightcurve from FITS file 
         '''
 
-        assert os.path.isfile(fits_file),'FITS file does not exist'
-        mission = getval(fits_file,'telescop',1)
+        if not os.path.isfile(fits_file):
+            raise FileNotFoundError('FITS file does not exist')
+        mission = getval(fits_file,'telescop',ext)
 
         meta_data = {}
 
-        meta_data['LC_CRE_DATE'] = my_cdate()
         meta_data['LC_CRE_MODE'] = 'Gti created from fits file'
         meta_data['FILE_NAME'] = os.path.basename(fits_file)
         meta_data['DIR'] = os.path.dirname(fits_file)
+        meta_data['MISSION'] = mission
 
-        data = getdata(fits_file,extname=extname,meta_data=False,memmap=True)
-        col_names = data.columns.names
-
-        assert 'TIME' in col_names, 'FITS file does not have TIME column'
-        time = data['TIME']
-        if 'COUNTS' in col_names:
-            counts = data['COUNTS']
-        elif 'RATE' in col_names:
-            tres = np.round(np.median(np.ediff1d(time)),12)
-            counts = data['RATE']*tres
+        # Reading meaningfull information from event file
+        info = get_basic_info(fits_file)
+        if not keys_to_read is None:
+            if type(keys_to_read) in [str,list]: 
+                user_info = read_fits_keys(fits_file,keys_to_read,ext)
+            else:
+                raise TypeError('keys to read must be str or list')
+        else: user_info = {}
+        total_info = {**info,**user_info}
+        meta_data['INFO_FROM_HEADER'] = total_info
         
-        return Lightcurve(time_array=time,count_array=counts,
+        data = getdata(fits_file,extname=ext,meta_data=False,memmap=True)
+
+        time = data[time_col]
+        counts = None
+        rate = None
+        if count_col in data.columns.names:
+            counts = data[count_col]
+        elif rate_col in data.columns.names:
+            rate = data[rate_col]
+        
+        return Lightcurve(time_array=time,count_array=counts,rate_array=rate,
             meta_data = meta_data)
         
 
@@ -425,11 +464,18 @@ class Lightcurve(pd.DataFrame):
             return self.tot_counts/self.texp
 
     @property
-    def cr_std(self):
+    def count_std(self):
         if len(self.counts) == 0:
             return 0
         else:
             return self.counts.std()
+
+    @property
+    def cr_std(self):
+        if len(self.rate) == 0:
+            return 0
+        else:
+            return self.rate.std()    
 
     @property
     def texp(self):
@@ -485,29 +531,30 @@ class Lightcurve(pd.DataFrame):
         self._high_en = value
 
 
-
 class LightcurveList(list):
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        if not np.array(['kronos.core.lightcurve.Lightcurve'in str(i.__class__) for i in self]).all():
+        if not np.array([type(lc) == type(Lightcurve()) for lc in self]).all():
             raise TypeError('All the elements must be Lightcurve objects')
 
     def __setitem__(self, index, lc):
-        if not 'kronos.core.lightcurve.Lightcurve' in str(lc.__class__):
+        if type(lc) != type(Lightcurve()):
             raise TypeError('The item must be a Lightcurve object')
-        self[index] = lc
-
+        super(LightcurveList, self).__setitem__(index,lc)
 
     def join(self,mask=None):
         if mask is None:
             mask = np.ones(len(self),dtype=bool)
         else:
             assert len(mask) == len(self),'Mask must have the same size of LightcurveList'
+        
         df_list = []
         for i in range(len(self)):
             if mask[i]: 
                 df_list += [pd.DataFrame(self[i])]
+
+        first_valid_index = [i for i in range(len(self)) if mask[i]][0]
 
         cond1 = len(set([self[i].tres for i in range(len(self)) if mask[i]])) != 1
         if cond1:
@@ -515,14 +562,24 @@ class LightcurveList(list):
             raise ValueError('Cannot concatenate Lightcurves with different time res')
         
         df = pd.concat(df_list,ignore_index=True)
+
+        notes = {}
+        meta_data = {}
+        meta_data['LC_CRE_MODE'] = 'Lightcurve created joining Lightcurves from LightcurveList'
+        meta_data['N_ORI_LCS'] = len(self)
+        meta_data['N_MASKED_LCS'] = sum(mask)
+        if 'MISSION' in self[first_valid_index].meta_data.keys():
+            meta_data['MISSION'] = self[first_valid_index].meta_data['MISSION']
         
-        valid_index = [i for i in range(len(self)) if mask[i]][0]
-        return Lightcurve(df.time,df.counts,
-                          self[valid_index].low_en,self[valid_index].high_en,self[valid_index].tres)
+        return Lightcurve(time_array=df.time,count_array=df.counts,
+            low_en_value = self[first_valid_index].low_en, 
+            high_en_value = self[first_valid_index].high_en,
+            meta_data = meta_data, notes = notes)
 
     def fill_gaps(self):
         tres_array = np.array([lc.tres for lc in self])
-        assert np.all(tres_array==tres_array[0]),'Cannot fill gaps if Lightcurves have different time res'
+        if not np.all(tres_array==tres_array[0]):
+            raise ValueError('Cannot fill gaps if Lightcurves have different time res')
 
         new_lcs = []
         for i in range(len(self)):
@@ -536,7 +593,8 @@ class LightcurveList(list):
 
             if (lc.time.iloc[0]-prev_lc.time.iloc[-1]) >  tres:
                 filler = np.arange(prev_lc.time.iloc[-1]+tres,lc.time.iloc[0],tres)
-                filled_lc = Lightcurve(filler,np.zeros(len(filler)),self[0].low_en,self[0].high_en,tres)
+                filled_lc = Lightcurve(time_array = filler,count_array = np.zeros(len(filler)),
+                    low_en_value = self[0].low_en, high_en_value = self[0].high_en)
                 new_lcs += [filled_lc]
             new_lcs += [self[i]]
 
@@ -545,20 +603,21 @@ class LightcurveList(list):
 
     def split(self,time_seg=16):
 
-        if 'kronos.core.gti.Gti' in str(time_seg.__class__) :
+        if type(time_seg) == type(Gti()):
             gti = time_seg
             lc_list = []
             for l in self:
                 lc_list += [i for i in l.split(gti)]
             return LightcurveList(lc_list) 
-
-        else:          
+        else:  
+            if type(time_seg) == str: time_seg = eval(time_seg)        
             lc_list = []
             for l in self:
                 lc_list += [i for i in l.split(time_seg)]
             return LightcurveList(lc_list)        
 
-    def plot(self,ax=False,cr=True,title=False,lfont=16,**kwargs):
+    def plot(self,norm=None,ax=False,cr=True,title=False,lfont=16,
+        vlines=True,**kwargs):
 
         if not 'marker' in kwargs.keys(): kwargs['marker']='o'
         if not 'color' in kwargs.keys(): kwargs['color']='k'
@@ -571,32 +630,77 @@ class LightcurveList(list):
 
         start = np.array([t.time.iloc[0] for t in self]).min()
         for i in range(len(self)):
-            y = self[i].counts
-            if cr: y = self[i].cr
+            y = self[i].tot_counts
+            label = 'Counts'
+            if cr: 
+                y = self[i].cr
+                label = 'Count Rate [c/s]'
+            if not norm is None:
+                if type(norm) == str: norm = eval(norm)
+                y /= norm            
             x = (self[i].time.iloc[-1]+self[i].time.iloc[0])/2. - start
             ax.plot(x,y,**kwargs)
 
+            if i > 0 and vlines:
+                xline = (self[i-1].time.iloc[-1]-self[i].time.iloc[0])/2. - start
+                ax.vline(xline,color='orange',ls='--',lw=2)
+
         ax.set_xlabel('Time [{} s]'.format(start),fontsize=lfont)
-        ax.set_ylabel('Counts',fontsize=lfont)
-        if cr: ax.set_ylabel('Count rate [c/s]',fontsize=lfont)
+        ax.set_ylabel(label,fontsize=lfont)
         ax.grid()
 
+    def compare(self,ax=False,mask=None,norm=None,step=None):
+
+        if norm is None:
+            norm = 1
+        else:
+            if type(norm) == str: norm = eval(norm)
+                 
+        if mask is None:
+            mask = np.ones(len(self),dtype=bool)
+        else:
+            assert len(mask) == len(self),'Mask must have the same size of LightcurveList'
         
-    def compare(self,lcs='all'):
-        fig =plt.figure(figsize=(12,8))
+        if ax is False:
+            fig, ax =plt.subplots(figsize=(12,8))
+
         min_count = np.array([i.counts.min() for i in self]).min()
         max_count = np.array([i.counts.max() for i in self]).max()
-        step = (max_count-min_count)/len(self)
+        if step is None:
+            step = (max_count-min_count)/len(self)
+        else:
+            if type(step) == str: step = eval(step)
+
         for i in range(len(self)):
-            if type(lcs) == list:
-                if not i in lcs: continue
-            start = self[i].time.iloc[0]
-            plt.plot(self[i].time-start,self[i].counts+i*step,label=f'{i}')
-        plt.xlabel('Time [{} s]'.format(start))
-        plt.ylabel('Counts')
-        plt.legend()
-        plt.grid()
-        return fig
+            if mask[i]:
+                start = self[i].time.iloc[0]
+                ax.plot(self[i].time-start,self[i].counts/norm+i*step,label=f'{i}')
+        ax.set_xlabel('Time [{} s]'.format(start))
+        ax.set_ylabel('Counts')
+        ax.legend()
+        ax.grid()
+
+    def info(self):
+        '''
+        Returns a pandas DataFrame relevand information for each Lightcurve
+        object in the list
+        '''
+
+        columns = ['texp','tres','n_bins','counts','count_rate',
+                    'rms','frac_rms',
+                    'max_time','min_time',
+                    'min_en','max_en','mission']
+        info = pd.DataFrame(columns=columns)
+        for i,lc in enumerate(self):
+            line = {'texp':lc.texp,'tres':lc.tres,'n_bins':len(lc),
+                'counts':lc.tot_counts,'count_rate':lc.cr,
+                'rms':lc.rms,'frac_rms':lc.frac_rms,
+                'min_time':lc.time.iloc[0],'max_time':lc.time.iloc[-1],
+                'min_en':lc.low_en,'max_en':lc.high_en,
+                'mission':lc.meta_data['MISSION']}
+            info.loc[i] = pd.Series(line)
+
+        return info
 
     @property
     def tot_counts(self):
@@ -624,6 +728,17 @@ class LightcurveList(list):
                 return np.sum([i.cr*len(i) for i in self])/np.sum([len(i) for i in self])
 
     @property
+    def count_std(self):
+        if len(self) == 0:
+            return 0
+        else:
+            if len(set([i.texp for i in self])) == 1:
+                return np.mean([i.count_std for i in self])
+            else:
+                #print([i.cr_std for i in self],np.sum([len(i) for i in self]))
+                return np.sqrt( np.sum([i.count_std**2.*len(i) for i in self]) /np.sum([len(i) for i in self]) )    
+    
+    @property
     def cr_std(self):
         if len(self) == 0:
             return 0
@@ -633,9 +748,21 @@ class LightcurveList(list):
             else:
                 #print([i.cr_std for i in self],np.sum([len(i) for i in self]))
                 return np.sqrt( np.sum([i.cr_std**2.*len(i) for i in self]) /np.sum([len(i) for i in self]) )
+    
+    def mean(self,mask = None):
+        if mask is None:
+            mask = np.ones(len(self),dtype=bool)
+        else:
+            assert len(mask) == len(self),'Mask must have the same size of LightcurveList'
+        first_valid_index = [i for i in range(len(self)) if mask[i]][0]
 
-    @property    
-    def mean(self):
+        meta_data = {}
+        meta_data['LC_CRE_MODE'] = 'Mean of Lightcurves in LightcurveList'
+        meta_data['N_ORI_LCS'] = len(self)
+        meta_data['N_MASKED_LCS'] = sum(mask)
+        if 'MISSION' in self[first_valid_index].meta_data.keys():
+            meta_data['MISSION'] = self[first_valid_index].meta_data['MISSION']
+
         if len(self) == 0:
             return 0
         else:
@@ -643,10 +770,12 @@ class LightcurveList(list):
                 raise ValueError('Lightcurves have different dimensions')
             if len(set([i.tres for i in self])) != 1:
                 raise ValueError('Lightcurves have different time resolution')      
-            first_lc = self[0]  
+            first_lc = self[first_valid_index]  
             time = first_lc.time - first_lc.time.iloc[0] + first_lc.tres/2.
-            counts = np.vstack([i.counts.to_numpy() for i in self]).mean(axis=0)
-            return Lightcurve(time,counts,first_lc.low_en,first_lc.high_en)
+            counts = np.vstack([self[i].counts.to_numpy() for i in range(len(self)) if mask[i]]).mean(axis=0)
+            return Lightcurve(time_array = time, count_array = counts,
+                low_en_value = first_lc.low_en, high_en_value = first_lc.high_en,
+                meta_data = meta_data)
 
     def save(self,file_name='lightcurve_list.pkl',fold=os.getcwd()):
         try:
