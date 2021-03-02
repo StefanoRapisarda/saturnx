@@ -48,11 +48,14 @@ def fake_white_noise_lc(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):
     notes['STEF1'] = 'This is a test note'    
     meta_data = {}
     meta_data['MISSION'] = 'NICER'
-    lc = Lightcurve(time_bins_center,hist,
-                    low_en_value=0.5,high_en_value=10,
+    low_en, high_en = 0.5,10
+    lc = Lightcurve(time_array = time_bins_center,count_array = hist,
+                    low_en=0.5,high_en=10,
                     notes=notes, meta_data = meta_data)
     data = {'lc':lc,'std':np.std(hist),'n_events':len(events),
-            'cr':len(events)/tres/nbins,'tres':tres}
+            'n_bins':len(time_bins_center),
+            'cr':len(events)/tres/nbins,'tres':tres,
+            'low_en':low_en,'high_en':high_en}
     return data
 
 @pytest.fixture(scope='class')
