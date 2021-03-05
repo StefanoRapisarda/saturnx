@@ -36,6 +36,33 @@ class TestLightcurveInit:
         assert lc.rms == None
         assert lc.frac_rms == None
 
+    def test_empty_lc_str_energies1(self):
+        lc = Lightcurve()
+
+        lc.low_en = '0.5'
+        lc.high_en = '10.'
+
+        assert lc.low_en == 0.5
+        assert lc.high_en == 10.
+
+    def test_empty_lc_str_energies2(self):
+        lc = Lightcurve(low_en = '0.5',high_en = '10.')
+
+        assert lc.low_en == 0.5
+        assert lc.high_en == 10.    
+
+    def test_empty_lc_low_en_exp(self):
+        lc = Lightcurve()
+        lc.low_en = '(1./4)'
+        
+        assert lc.low_en == 0.25
+
+    def test_empty_lc_high_en_exp(self):
+        lc = Lightcurve()
+        lc.high_en = '(1./4)'
+        
+        assert lc.high_en == 0.25    
+
     def test_empty_lc_meta_data_notes(self,mocker):
         mocker.patch('kronos.core.lightcurve.my_cdate',
             return_value='test_current_date')
@@ -91,6 +118,14 @@ class TestLightcurveInit:
         assert len(lc.counts) == expected_bins
         assert len(lc.rate) == expected_bins
 
+    def test_lc_rate(self):
+        time = np.arange(0,100,0.1)
+        rate = np.ones(len(time))
+        lc = Lightcurve(time_array = time, rate_array = rate)
+
+        assert lc.tres == 0.1
+        assert np.array_equal(lc.counts,lc.rate*lc.tres)
+
     def test_full_lc_attributes(self,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
         expected_tres = fake_white_noise_lc['tres']
@@ -140,27 +175,123 @@ class TestLightcurveInit:
         assert type(lc.notes) == dict
         assert lc.notes['STEF1'] == 'This is a test note'
 
+    def test_negative_low_energy1(self):
+        lc = Lightcurve()
+        lc.low_en = -1
+
+        assert lc.low_en == 0
+
+    def test_negative_low_energy2(self):
+        lc = Lightcurve(low_en = -1)
+
+        assert lc.low_en == 0
+
 
 class TestLightcurveAdd:
 
-    def test_bad_input(self,fake_white_noise_lc):
-        lc1 = fake_white_noise_lc['lc']
-        lc2 = Lightcurve(np.linspace(0,100),np.linspace(0,100)) 
-        lc3 = Lightcurve(np.linspace(0,100,len(lc1)),
-                         np.linspace(0,100,len(lc1))) 
+    def test_diff_length_lc(self):
+        lc1 = Lightcurve(np.linspace(0,99))
+        lc2 = Lightcurve(np.linspace(0,49))
+
+        with pytest.raises(ValueError):
+            lc = lc1 + lc2
+
+    def test_diff_tres_lc(self):
+        lc1 = Lightcurve(np.linspace(0,99,100))
+        lc2 = Lightcurve(np.linspace(0,49,100))
+
+        with pytest.raises(ValueError):
+            lc = lc1 + lc2   
+
+    def test_string_input(self):
+        lc1 = Lightcurve(np.linspace(0,99))
+
         with pytest.raises(TypeError):
-            lc4 = lc1 + lc2
-        with pytest.raises(TypeError):
-            lc4 = lc1 + lc3
-        with pytest.raises(TypeError):
-            lc4 = lc1 + 'ciao'
+            lc = lc1 + 'abcd'   
+
+    def test_output_type(self):
+        time = np.linspace(0,99)
+        counts = np.ones(len(time))
+        lc1 = Lightcurve(time_array = time, count_array = counts)
+
+        lc = lc1 + lc1
+
+        assert type(lc) == type(Lightcurve())  
+
+    def test_output_meta_data(self,mocker):
+        mocker.patch('kronos.core.lightcurve.my_cdate',
+            return_value='test_current_date')
+        time = np.linspace(0,99)
+        counts = np.ones(len(time))
+        lc1 = Lightcurve(time_array = time, count_array = counts)
+        lc2 = Lightcurve(time_array = time, count_array = counts)
+        lc1.meta_data['TEST'] = 'Test of meta_data'
+
+        lc = lc1 + lc2
+
+        assert lc.meta_data['LC_CRE_DATE'] == 'test_current_date'
+        assert lc.meta_data['TEST'] == 'Test of meta_data'
+        assert lc.meta_data == lc1.meta_data
+        assert lc.meta_data != lc2.meta_data
+
+    def test_equal_time_array(self):
+        time = np.linspace(0,99)
+        counts = np.ones(len(time))
+        lc1 = Lightcurve(time_array = time, count_array = counts)
+
+        lc = lc1 + lc1
+
+        assert lc.time.equals(lc1.time)
+        assert np.array_equal(lc.counts,lc1.counts*2)
+
+    def test_different_time_array(self):
+        time1 = np.linspace(0,99)
+        time2 = np.linspace(0,99)+34.6
+        counts = np.ones(len(time1))
+        lc1 = Lightcurve(time_array = time1, count_array = counts)
+        lc2 = Lightcurve(time_array = time2, count_array = counts)
+        
+        lc = lc1 + lc2
+        
+        expected_time = np.arange(0,lc1.texp,lc1.tres)+lc1.tres/2
+        assert np.allclose(lc.time,expected_time)
+        assert np.array_equal(lc.counts,lc1.counts*2)
+
+    def test_energy_bands(self):
+        time = np.linspace(0,99)
+        counts = np.ones(len(time))
+        lc1 = Lightcurve(time_array = time, count_array = counts)
+        lc2 = Lightcurve(time_array = time, count_array = counts)
+        cases = [[None,None,None,None],
+                 [0.5,None,None,None],[None,2.0,None,None],
+                 [None,None,3.0,None],[None,None,None,10.0],
+                 [0.5,2.0,None,None],[None,2.0,3.0,None],
+                 [None,None,3.0,10.0],[0.5,None,3.0,None],
+                 [None,2.0,None,10.0],[0.5,None,None,10.0],
+                 [0.5,2.0,3.0,None],[None,2.0,3.0,10.],
+                 [0.5,None,3.0,10.],[0.5,2.0,None,10.],
+                 [0.5,2.0,3.,10.]]
+        
+        expected_en = [[None,None] for i in range(len(cases))]
+        expected_en[-1] = [0.5,10.]
+
+        for i in range(len(cases)):
+            lc1.low_en = cases[i][0]
+            lc1.high_en = cases[i][1]
+            lc2.low_en = cases[i][2]
+            lc2.high_en = cases[i][3]
+
+            lc = lc1 + lc2
+            assert lc.low_en == expected_en[i][0]
+            assert lc.high_en == expected_en[i][1]
 
     @pytest.mark.parametrize('value',[0,10,'10'],ids=['zero','ten','test_string'])
     def test_add_number(self,value,fake_white_noise_lc):
         lc1 = fake_white_noise_lc['lc']
+        
         if type(value) == str: value = eval(value)
         lc2 = lc1 + value
-        assert type(lc2) == type(Lightcurve())
+        
         assert len(lc1) == len(lc2)
         assert lc1.columns.equals(lc2.columns)
         assert lc1.tres == lc2.tres
@@ -171,12 +302,10 @@ class TestLightcurveAdd:
         assert np.array_equal(lc2.rate[0:3],((lc1.counts+value)/lc1.tres)[0:3]),\
             [lc2.rate[0],lc2.counts[0],
              lc1.rate[0],lc1.counts[0]]
-        assert lc1.meta_data == lc2.meta_data
-        assert lc1.notes == lc2.notes
         assert lc1.low_en == lc2.low_en
         assert lc1.high_en == lc2.high_en
 
-    def test_add_lc(self,fake_white_noise_lc):
+    def test_add_lcs(self,fake_white_noise_lc):
         lc1 = fake_white_noise_lc['lc']
         lc2 = lc1 + lc1
 
@@ -194,12 +323,12 @@ class TestLightcurveAdd:
 
 class TestLightcurveMul:
 
-    def test_bad_input(self,fake_white_noise_lc):
+    @pytest.mark.parametrize('wrong_inputs',['ciao',{},tuple([])],
+        ids = ['string','dict','tuple'])
+    def test_bad_input(self,wrong_inputs,fake_white_noise_lc):
         lc1 = fake_white_noise_lc['lc']
-        wrong_inputs = ['ciao',{},tuple([])]
-        for wrong_input in wrong_inputs:
-            with pytest.raises(TypeError):
-                lc2 = lc1*wrong_input
+        with pytest.raises(TypeError):
+            lc2 = lc1*wrong_inputs
 
     @pytest.mark.parametrize('value',
         [0,1,5,5.5,np.float(5.5),np.double(5.5),np.int(3),'123'],
@@ -283,7 +412,7 @@ class TestLightcurveTruediv:
     def test_div_bad_input(self,value,fake_white_noise_lc):
         lc1 = fake_white_noise_lc['lc']
         if value == 0:
-            with pytest.raises(TypeError):
+            with pytest.raises(ZeroDivisionError):
                 lc2 = lc1/value
 
     @pytest.mark.parametrize('value',[0,1,2,3,'4'],
@@ -581,7 +710,6 @@ class TestReadFromFits:
         for key,value in zip(keys_to_read,values):
             assert lcr.meta_data['INFO_FROM_HEADER'][key] == value
 
-        
     def test_read_fits_rate(self,tmp_path,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
 
@@ -709,6 +837,26 @@ class TestLightcurveSaveLoad:
         d = tmp_path/'sub'
         d.mkdir()
         lc.save(name,fold=d)
+        
+        lc2 = Lightcurve.load(name,d)
+
+        assert lc.time.equals(lc2.time)
+        assert lc.counts.equals(lc2.counts)
+        assert lc.rate.equals(lc2.rate)
+        assert lc.low_en == lc2.low_en
+        assert lc.high_en == lc2.high_en
+        assert lc.meta_data == lc2.meta_data
+        assert lc.notes == lc2.notes
+
+    @pytest.mark.parametrize('name',['lc','test_lc.pkl'],
+        ids = ['without_pkl','with_pkl'])
+    def test_save_load2(self,tmp_path,name,fake_white_noise_lc):
+        lc = fake_white_noise_lc['lc']
+
+        # Writing lc
+        d = tmp_path/'sub'
+        d.mkdir()
+        lc.save(d/name)
         
         lc2 = Lightcurve.load(d / name)
 
@@ -890,9 +1038,6 @@ class TestLightcurveListInfo:
             assert info['mission'].iloc[i] == lc_list[i].meta_data['MISSION']
 
 
-
-
-
 class TestLightcurveListAttributes:
 
     def test_tot_counts(self,fake_white_noise_lc):
@@ -941,102 +1086,4 @@ class TestLightcurveListAttributes:
         assert lc2.meta_data['N_ORI_LCS'] == len(lc_list)
         assert lc2.meta_data['N_MASKED_LCS'] == len(lc_list)
         assert lc2.meta_data['MISSION'] == 'NICER'
-
-class boh:
-    def setup_class(self):
-        self.le = 0.5
-        self.he = 10.
-
-        self.time_bins1 = 1000
-        self.t_res1 = 0.1
-        self.t_dur1 = self.time_bins1*self.t_res1
-
-        t1,c1 = timmer_koenig(self.t_dur1,self.t_res1,0.1,150,0.5)
-        lc1 = Lightcurve(t1,c1,self.le,self.he)
-        t2,c2 = timmer_koenig(self.t_dur1,self.t_res1,0.1,200,0.7)
-        lc2 = Lightcurve(t2,c2,self.le,self.he)
-        t3,c3 = timmer_koenig(self.t_dur1,self.t_res1,0.1,350,0.3)
-        lc3 = Lightcurve(t3,c3,self.le,self.he)
-
-        self.lcl1 = [lc1,lc2,lc3]
-        self.counts1 = [c1,c2,c3]
-
-        self.time_bins2 = 800
-        self.t_res2 = 0.8
-        self.t_dur2 = self.time_bins2*self.t_res2
-
-        t4,c4 = timmer_koenig(self.t_dur2,self.t_res2,0.1,150,0.5)
-        lc4 = Lightcurve(t4,c4,self.le,self.he)              
-        t5,c5 = timmer_koenig(self.t_dur2,self.t_res2,0.1,150,0.5)
-        lc5 = Lightcurve(t5,c5,self.le,self.he)  
-
-        self.lcl2 = [lc4,lc5]
-        self.counts2 = [c4,c5]
-
-    def test_init(self):
-
-        lcl = LightcurveList(self.lcl1+self.lcl2)
-
-        assert isinstance(lcl,LightcurveList)
-        assert len(lcl) == len(self.lcl1)+len(self.lcl2)
-
-    def test_bad_init(self):
-        with pytest.raises(TypeError, match=".* elements must be .*"):
-            lcl = LightcurveList(['ciao'])
-
-    def test_len(self):
-        lcl = LightcurveList(self.lcl1+self.lcl2)
-        assert len(lcl)==len(self.lcl1)+len(self.lcl2)
-
-    def test_iter(self):
-        lcl = LightcurveList(self.lcl1+self.lcl2)
-        i = 0
-        for lc in lcl:
-            assert isinstance(lc,Lightcurve)
-            pd.testing.assert_frame_equal(lc,(self.lcl1+self.lcl2)[i])
-            i += 1
-
-    def test_tot_counts(self):
-        lcl = LightcurveList(self.lcl1+self.lcl2)
-        assert lcl.tot_counts == np.array([i.tot_counts for i in (self.lcl1+self.lcl2)]).sum()
-
-    def test_texp(self):
-        lcl = LightcurveList(self.lcl1+self.lcl2)
-        assert lcl.texp == np.array([i.texp for i in (self.lcl1+self.lcl2)]).sum()   
-
-    def test_texp(self):
-        lcl = LightcurveList(self.lcl1+self.lcl2)
-        assert lcl.cr == np.array([i.cr for i in (self.lcl1+self.lcl2)]).mean()  
-
-    def test_bad_mean(self):
-        lcl = LightcurveList(self.lcl1+self.lcl2)
-        with pytest.raises(ValueError,match='Lightcurves have different dimensions'):
-            test = lcl.mean 
-            
-    def test_bad_mean(self):
-        lcl1 = LightcurveList(self.lcl1)
-        pd.testing.assert_series_equal(lcl1.mean.counts,pd.Series(np.vstack(self.counts1).mean(axis=0),name='counts'))
-        lcl2 = LightcurveList(self.lcl2)
-        pd.testing.assert_series_equal(lcl2.mean.counts,pd.Series(np.vstack(self.counts2).mean(axis=0),name='counts'))
-    
-    def test_join(self):
-        lcl = LightcurveList(self.lcl1)
-        lc = lcl.join()
-
-        assert isinstance(lc,Lightcurve)
-        assert isinstance(lc,pd.DataFrame)
-
-        assert np.isclose(lc.tres,self.t_res1,atol=self.t_res1/100.,rtol=0)
-        assert len(lc) == self.time_bins1*3
-
-    def test_join_fail(self):
-        lcl = LightcurveList(self.lcl1+self.lcl2)      
-        with pytest.raises(ValueError,match='Cannot concatenate Lightcurves with different time res'):
-            lc = lcl.join()  
-
-    #def test_split(self):
-    #    lcl = LightcurveList(self.lcl1+self.lcl2) 
-
-
-
         

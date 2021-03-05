@@ -75,6 +75,8 @@ def my_slice(k,nk,array,step,exp=1,average=True):
     2019 10 09, Stefano Rapisarda, 09/10/2019
     '''
 
+    if type(exp) == int: exp = float(exp)
+
     if k == 0:
         print('---->',type(array))
     if k == nk-1:
@@ -256,6 +258,164 @@ def my_rebin(x,y,xe=0,ye=0,rf=-30,remove_neg=False,average=True):
         
     print('Done!')
     return rx,ry,rxe,rye
+
+def rebin_xy(x,y=None,xe=None,ye=None,rf=-30,start_x=0,stop_x=np.inf,
+    mode='average'):
+    '''
+    PARAMETERS
+    ----------
+    mode: string (optional)
+        can be average or sum, it specified the way the rebinned y 
+        values are computed (default is average)
+
+    HISTORY
+    -------
+    Stefano Rapisarda, 2021 02 04 (SHAO), creation date
+    '''
+
+    if type(x) == pd.Series: x = x.to_numpy()
+    if type(x) == list: x = np.array(x)
+    rbx = np.array([])
+    rby = None
+    rbxe = None
+    rbye = None
+
+    if not y is None:
+        if type(y) == pd.Series: y = y.to_numpy()
+        if type(y) == list: y = np.array(y)
+        if len(x) != len(y):
+            raise ValueError('x and y must have the same dimension')
+        rby = np.array([])
+    if not xe is None:
+        if type(xe) == pd.Series: xe = xe.to_numpy()
+        if type(xe) == list: xe = np.array(xe)
+        if len(x) != len(xe):
+            raise ValueError('x and xe must have the same dimension')        
+        rbxe = np.array([])
+    if not ye is None:
+        if type(ye) == pd.Series: ye = ye.to_numpy()
+        if type(ye) == list: ye = np.array(ye)
+        if len(ye) != len(y):
+            raise ValueError('y and ye must have the same dimension') 
+        rbye = np.array([])
+
+    # Checking that x is monotonically increasing
+    if not np.all(np.diff(x) > 0):
+        raise ValueError('x must be monotonically increasing')
+
+    #print('Rebinning logarithmically (factor={}) ... '.format(rf))
+    
+    if rf < 0:
+
+        check = y<0
+        if check.any():
+            print('WARNING: There are negative powers')
+ 
+        # Checking x value of the first imput point
+        # If this is equal to zero (so if the zero frequency
+        # component is specidied), the first rebinned point
+        # will be equal to the first imput point
+        i = 0
+
+        # Determining starting index, if start x is specified
+        if start_x != 0:
+            closest = np.absolute(x-start_x).argmin()
+            if x[closest] > start_x:
+                i = closest
+            elif x[closest] < start_x:
+                i = closest - 1
+            
+        # Initializing rebin factor
+        factor = 10.**(1./np.absolute(rf))
+
+        while (x[i] < x[-1]) and (x[i] < stop_x):
+
+            step_rbx = 0
+            if not y is None: step_rby = 0
+            if not ye is None: step_rbye = 0
+            if not xe is None: step_rbxe = 0
+            steps = 0
+
+            # Stop of the single logarithmic bin
+            stop = x[i]*factor
+
+            #print('index',i)
+            #print('-'*10)
+
+            while x[i] <= stop:
+                #print(x[i],stop)
+
+                step_rbx += x[i]
+                if not y is None: step_rby += y[i]
+                if not ye is None: step_rbye += ye[i]**2
+                if not xe is None: step_rbxe += xe[i]**2
+                
+                steps += 1
+                i += 1
+                
+                if i >= len(x): break  
+            
+            #print('-'*10)
+
+            if steps != 0:
+                #print('Averaging {} points'.format(steps))
+                # Appending rebinned arrays
+                rbx = np.append(rbx,step_rbx/steps)
+                if not y is None:
+                    if mode == 'average':
+                        rby = np.append(rby,step_rby/steps)
+                    elif mode == 'sum':
+                        rby = np.append(rby,step_rby)
+                if not xe is None: rbxe = np.append(rbxe,np.sqrt(step_rbxe/steps))
+                if not ye is None: rbye = np.append(rbye,np.sqrt(step_rbye/steps))
+            else:
+                rbx = np.append(rbx,0)
+                if not y is None: rby = np.append(rby,0) 
+                if not ye is None: rbye = np.append(rbye,0) 
+                if not xe is None: rbxe = np.append(rbxe,0) 
+
+            #print()
+            if i >= len(x): break   
+
+    elif rf > 0:
+
+        if mode == 'average': average = True
+        if mode == 'sum': average = False
+        #In this case the rebin factor is the number of old
+        #bins that will be included in the new bins
+        #Computing the new number of bins
+        # As I am using numpy histogram, it requires the the
+        # bin edges
+
+        # Again this is to take care of the DC component
+        i = 0
+        if len(x[i:])%rf==0:
+            nb = int(len(x[i:])/rf)
+        else:
+            nb = len(x[i:])//rf + 1
+        #else:
+        #    nb = round(len(x[i:])/rf)+1
+
+        print('Linear rebinning, old res {}, new res {}'.format(x[5]-x[4],(x[5]-x[4])*rf))
+        iterable = [j for j in range(i,nb)]
+        pool = mp.Pool(mp.cpu_count())
+        
+        rx1d = partial(my_slice,nk=nb,array=x,step=rf)
+        rbx = np.asarray( pool.map( rx1d,iterable ) )
+        if not y is None:
+            ry1d = partial(my_slice,nk=nb,array=y,step=rf,average=average)
+            rby = np.asarray( pool.map( ry1d,iterable ) )
+        if not xe is None:
+            rxe1d = partial(my_slice,nk=nb,array=xe,step=rf,exp=2)
+            rbxe = np.sqrt(np.asarray( pool.map(rxe1d,iterable) ) )
+        if not ye is None:
+            rye1d = partial(my_slice,nk=nb,array=ye,step=rf,exp=2)
+            rbye = np.sqrt(np.asarray( pool.map(rye1d,iterable) ) )
+        pool.close()
+        
+    print('Done!')
+    return rbx,rby,rbxe,rbye
+
 
 def rebin_arrays(time_array,tres=None,rf=-30,
     arrays=[],bin_mode=[],exps=[]):

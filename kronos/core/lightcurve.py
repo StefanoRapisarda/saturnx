@@ -1,6 +1,4 @@
-import os
 import numpy as np
-from numpy.lib.arraysetops import isin
 import pandas as pd 
 import pickle
 import pathlib
@@ -141,6 +139,11 @@ class Lightcurve(pd.DataFrame):
                 self.counts = self.rate*self.tres
 
         # Energy range
+        if not low_en is None and type(low_en) == str: 
+            low_en = eval(low_en)
+        if not low_en is None and type(high_en) == str: 
+            high_en = eval(high_en)
+        if not low_en is None and low_en < 0: low_en = 0
         self._low_en = low_en
         self._high_en = high_en
 
@@ -157,9 +160,9 @@ class Lightcurve(pd.DataFrame):
     def __add__(self, other):
         if type(other) == type(Lightcurve()):
             if len(self) != len(other):
-                raise TypeError('You cannot add Lightcurves with different dimensions')
+                raise ValueError('You cannot add Lightcurves with different dimensions')
             if self.tres != other.tres:
-                raise TypeError('You cannot add Lightcurves with different time resolution')
+                raise ValueError('You cannot add Lightcurves with different time resolution')
         
             # Initialize time 
             if np.array_equal(self.time, other.time):
@@ -173,43 +176,12 @@ class Lightcurve(pd.DataFrame):
 
             # Initialize energy bands
             # ---------------------------------------------------------
-            if self.low_en is None:
-                if other.low_en is None:
-                    low_en = None
-                else:
-                    if type(other.low_en) == str: 
-                        low_en = eval(other.low_en)
-                    else:
-                        low_en = other.low_en
+            if self.low_en and self.high_en and other.low_en and other.high_en:
+                low_en = min([self.low_en,other.low_en])
+                high_en = max([self.high_en,other.high_en])
             else:
-                if other.low_en is None:
-                    if type(self.low_en) == str:
-                        low_en = eval(self.low_en)
-                    else:
-                        low_en = self.low_en
-                else:
-                    low_energies = [eval(en) if type(en)==str else en \
-                        for en in [self.low_en,other.low_en]]
-                    low_en = min(low_energies)
-
-            if self.high_en is None:
-                if other.high_en is None:
-                    high_en = None
-                else:
-                    if type(other.high_en) == str: 
-                        high_en = eval(other.high_en)
-                    else:
-                        high_en = other.high_en
-            else:
-                if other.high_en is None:
-                    if type(self.high_en) == str:
-                        high_en = eval(self.high_en)
-                    else:
-                        high_en = self.high_en
-                else:
-                    high_energies = [eval(en) if type(en)==str else en \
-                        for en in [self.high_en,other.high_en]]
-                    high_en = min(high_energies)
+                low_en = None
+                high_en = None
             # ---------------------------------------------------------
         
         else:  
@@ -222,7 +194,7 @@ class Lightcurve(pd.DataFrame):
             counts = self.counts + other
             low_en, high_en = self.low_en, self.high_en
 
-        return Lightcurve(time_array = time,count_array = counts,
+        return Lightcurve(time_array = time, count_array = counts,
             low_en = low_en, high_en = high_en,
             meta_data = self.meta_data, notes = self.notes)
 
@@ -245,9 +217,10 @@ class Lightcurve(pd.DataFrame):
                         raise TypeError('Array items must be numbers')
 
                 counts = self.counts*item
-                lcs += [Lightcurve(self.time,counts,
-                    self.low_en,self.high_en,
+                lcs += [Lightcurve(time_array = self.time, count_array = counts,
+                    low_en = self.low_en, high_en = self.high_en,
                     notes=self.notes,meta_data=self.meta_data)]
+            
             return LightcurveList(lcs)
 
         else:
@@ -282,7 +255,7 @@ class Lightcurve(pd.DataFrame):
             except Exception:
                 raise TypeError('Value must be a number')         
         if value == 0:
-            raise ValueError('Dude, you cannot divide by zero')
+            raise ZeroDivisionError('Dude, you cannot divide by zero')
         counts = self.counts/value
 
         return Lightcurve(time_array = self.time, count_array = counts,
@@ -617,6 +590,25 @@ class Lightcurve(pd.DataFrame):
         keys_to_read=None):
         '''
         Reads lightcurve from FITS file 
+
+        PARAMETERS
+        ----------
+        ext: string (optional)
+            FITS extension to read (default is COUNTS)
+        time_col: string (optional)
+            time column (default is TIME)
+        count_col: string (optional)
+            count column (default is COUNTS)
+        rate_col: string (optional)
+            rate column (default is RATE)
+        keys_to_read: string, list, or None (optional)
+            keys to be read from the header of the selected extension
+            (default is None). The program will anyway try to read 
+            certain keys (see get_basic_info)
+
+        RETURNS
+        -------
+        kronos.core.Lightcurve
         '''
 
         if not type(fits_file) in [type(pathlib.Path.cwd()),str]:
@@ -729,16 +721,18 @@ class Lightcurve(pd.DataFrame):
         if type(fold) != type(pathlib.Path.cwd()):
             raise TypeError('fold name must be either a string or a path')
         
-        file_name = fold / file_name
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name
+        
         try:
             self.to_pickle(file_name)
             print('LightcurveList saved in {}'.format(file_name))
         except Exception as e:
             print(e)
-            print('Could not save LightcurveList')
+            print('Could not save Lightcurve')
 
     @staticmethod
-    def load(file_name):
+    def load(file_name,fold=pathlib.Path.cwd()):
 
         if not type(file_name) in [type(pathlib.Path.cwd()),str]:
             raise TypeError('file_name must be a string or a Path')
@@ -747,13 +741,21 @@ class Lightcurve(pd.DataFrame):
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.pkl')
 
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        if type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+        
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name
+
         if not file_name.is_file():
             raise FileNotFoundError(f'{file_name} not found')
+        
         lc = pd.read_pickle(file_name)
         
         return lc
         
-
     @property
     def tot_counts(self):
         if self.counts.empty: return None
@@ -795,7 +797,7 @@ class Lightcurve(pd.DataFrame):
         if self.time.empty: return None
         if len(self.time) > 1:
             return np.round(len(self)*self.tres,
-                decimals=int(abs(math.log10(self.tres/1e+6))))
+                decimals=int(abs(math.log10(self.tres/1000))))
         elif len(self.time) == 0:
             return None
         else:
@@ -840,7 +842,10 @@ class Lightcurve(pd.DataFrame):
 
     @low_en.setter
     def low_en(self,value):
-        if value < 0: value = 0
+        if not value is None and type(value) == str: 
+            value = eval(value)
+        if not value is None and value < 0: 
+            value = 0
         self._low_en = value
 
     @property
@@ -849,7 +854,8 @@ class Lightcurve(pd.DataFrame):
 
     @high_en.setter
     def high_en(self,value):
-        # Constrains on high energy values here
+        if not value is None and type(value) == str: 
+            value = eval(value)
         self._high_en = value
 
 
@@ -1119,18 +1125,52 @@ class LightcurveList(list):
                 low_en = first_lc.low_en, high_en = first_lc.high_en,
                 meta_data = meta_data)
 
-    def save(self,file_name='lightcurve_list.pkl',fold=os.getcwd()):
+    def save(self,file_name='lightcurve_list.pkl',fold=pathlib.Path.cwd()):
+
+        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        if type(file_name) == str:
+            file_name = pathlib.Path(file_name)
+        if file_name.suffix == '':
+            file_name = file_name.with_suffix('.pkl')
+
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        if type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name
+        
         try:
-            with open(os.path.join(fold,file_name),'wb') as output:
+            with open(file_name,'wb') as output:
                 pickle.dump(self,output)
-            print('LightcurveList saved in {}'.format(os.path.join(fold,file_name)))
+            print('LightcurveList saved in {}'.format(file_name))
         except Exception as e:
             print(e)
             print('Could not save LightcurveList')
 
     @staticmethod
-    def load(file_name):
-        assert os.path.isfile(file_name),f'{file_name} not found'
+    def load(file_name,fold=pathlib.Path.cwd()):
+        
+        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        elif type(file_name) == str:
+            file_name = pathlib.Path(file_name)
+        if file_name.suffix == '':
+            file_name = file_name.with_suffix('.pkl')
+
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        if type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+        
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name
+
+        if not file_name.is_file():
+            raise FileNotFoundError(f'{file_name} not found')    
+        
         with open(file_name,'rb') as infile:
             lc_list = pickle.load(infile)
         return lc_list

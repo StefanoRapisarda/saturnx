@@ -1,35 +1,40 @@
+import os
 import numpy as np
 import pandas as pd
-from astropy.io import fits
+import pickle
+import pathlib
+import math
+from scipy.fft import fft,fftfreq
+
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from scipy.fft import fft,fftfreq
 
+from scipy.fftpack import fftfreq, fft
 from astropy.io.fits import getdata
-from ..functions.my_functions import my_cdate, my_rebin
 
-from datetime import datetime
-import pickle
-import os
+from kronos.core.lightcurve import Lightcurve, LightcurveList
+from kronos.utils.time_series import rebin_xy, rebin_arrays
+from kronos.utils.fits import read_fits_keys, get_basic_info
+from kronos.utils.generic import is_number, my_cdate
+
+
 
 class PowerSpectrum(pd.DataFrame):
 
     _metadata = ['_weight','_high_en','_low_en',
                  '_leahy_norm','_rms_norm','_poi_level',
-                 'notes','history']
+                 'notes','meta_data']
 
-    def __init__(self,freq_array=None,power_array=None,spower_array=None,
-                 weight_value=None,low_en_value=None,high_en_value=None,
-                 leahy_norm_value=None,rms_norm_value=None,poi_level_value=None,
+    def __init__(self,freq_array=np.array([]),power_array=None,spower_array=None,
+                 weight=1,low_en=None,high_en=None,
+                 leahy_norm=None,rms_norm=None,poi_level=None,
                  smart_index=True,
-                 notes={},history={}):
+                 notes=None,meta_data=None):
 
-        if freq_array is None and power_array is None:
-            super().__init__(columns=['freq','power'])
-        else:
-
-            assert len(freq_array) == len(power_array),'Frequency and Powers do not correspond '
+        # Initialisation  
+        column_dict = {'freq':freq_array,'power':power_array,'spower':spower_array}
+        if len(freq_array) != 0:
             n = len(freq_array)
             if n % 2 == 0:
                 index_array = np.concatenate(([i for i in range(int(n/2)+1)],
@@ -37,32 +42,41 @@ class PowerSpectrum(pd.DataFrame):
             else:
                 index_array = np.concatenate(([i for i in range(int((n-1)/2)+1)],
                                               [i for i in range(int(-(n-1)/2),0)]))                
-            if spower_array is None:
-                columns = {'freq':freq_array,'power':power_array}
-            else:
-                assert len(power_array) == len(spower_array),'Powers and errors do not correspond (len(power)={},len(spower)={})'.\
-                    format(len(power_array),len(spower_array))
-                columns = {'freq':freq_array,'power':power_array,'spower':spower_array}
             if smart_index:
-                super().__init__(columns,index=index_array)
-            else:
-                super().__init__(columns)
+                super().__init__(column_dict,index=index_array)
+        super().__init__(column_dict)
 
-        self._weight = weight_value
-        self._low_en = low_en_value
-        self._high_en = high_en_value
+        self._weight = weight
 
-        self._leahy_norm = leahy_norm_value
-        self._rms_norm = rms_norm_value
-        self._poi_level = poi_level_value
+        self._leahy_norm = leahy_norm
+        self._rms_norm = rms_norm
+        self._poi_level = poi_level
 
-        self.notes=notes
-        self.history=history
+        # Energy range
+        if not low_en is None and type(low_en) == str: 
+            low_en = eval(low_en)
+        if not low_en is None and type(high_en) == str: 
+            high_en = eval(high_en)
+        if not low_en is None and low_en < 0: low_en = 0
+        self._low_en = low_en
+        self._high_en = high_en
+
+        # Meta_data
+        if notes is None:
+            self.notes = {}
+        else: self.notes = notes
+
+        if meta_data is None:
+            self.meta_data = {}
+        else: self.meta_data = meta_data
+        self.meta_data['PW_CRE_DATE'] = my_cdate()
         
     @property
     def df(self):
         if len(self.freq) == 0: return None
-        return np.round(np.median(np.ediff1d(self.freq[self.index>0])),9)
+        df = np.median(np.ediff1d(self.freq[self.freq>0]))
+        df = np.round(df,abs(int(math.log10(df/1000))))
+        return df
 
     @property
     def nf(self):
@@ -71,12 +85,19 @@ class PowerSpectrum(pd.DataFrame):
 
     @property
     def a0(self):
-        if len(self.power) == 0: return None
+        if self.power.empty: return None
+        if self.power.iloc[0] == None: return None
 
-        if not self._leahy_norm is None:
+        if (self._leahy_norm is None) and (self.freq.iloc[0] == 0):
+            a0 = np.sqrt(self.power.iloc[0])
+        elif not self._leahy_norm is None:
             a0 = 2/self._leahy_norm
+        elif (self.freq.iloc[0] == 0) and self._rms_norm is None:
+            # if _leahy_norm is not None, the powerspectrum
+            # is Leahy normalized
+            a0 = self.power.iloc[0]/2
         elif (self.freq.iloc[0] == 0):
-            a0 =  self.power.iloc[0]/2
+            a0 = self.power.iloc[0]/self._rms_norm/2
         else:
             a0 = None
 
@@ -84,133 +105,219 @@ class PowerSpectrum(pd.DataFrame):
 
     @property
     def cr(self):
-        if (not self.a0 is None):
-
+        if not self.a0 is None:
             return self.a0*self.df
-
         else: return None
 
     def comp_frac_rms(self,low_freq=0,high_freq=np.inf,pos_only=False):
 
-        assert not self.rms_norm is None,'You need to first normalize the power by rms'
-        if np.isinf(high_freq) and not self.nf==None and len(self.freq%2==0):
-            mask = (self.freq > 0.) & (self.freq > low_freq) & (self.freq < self.nf) 
-            integral = self.power[self.freq>0].iloc[-1]*self.df/2.
-        else:
-            mask = (self.freq > 0.) & (self.freq > low_freq) & (self.freq < high_freq)
-            integral = 0.
+        if not self.power.any():
+            return None, None
+
+        if type(low_freq) == str: low_freq = eval(low_freq)
+        if type(high_freq) == str: high_freq = eval(high_freq)
+        if low_freq < 0: low_freq = 0
+        if high_freq > self.nf: high_freq = self.nf 
+        if low_freq > high_freq:
+            raise ValueError('low_freq must be lower than high_freq')
+
+        mask = (self.freq > low_freq) & (self.freq < high_freq)
         if pos_only:
             mask = mask & (self.power>0)
-        #mask = (self._freq >= low_freq) & (self._freq<high_freq)
-        integral += (self.power[mask]).sum()*self.df
-        rms = 100.*np.sqrt(integral)
-        if 'spower' in self.columns:
-            sintegral = np.sqrt( (self.spower[mask]**2).sum() )*self.df
-            srms = 50./np.sqrt(integral)*sintegral
+        nyq_power = np.double(self.power[self.freq == min(self.freq)])
+        if len(self)%2 != 0 or high_freq < self.nf: nyq_power = 0
+
+        if (self.leahy_norm is None) and (self.rms_norm is None):
+            rms2 = (2*np.sum(self.power[mask]) + nyq_power)/self.a0**2
+        elif self.rms_norm is None:
+            rms2 = (np.sum(self.power[mask]) + nyq_power/2)/self.a0
+        else:
+            rms2 = (np.sum(self.power[mask]) + nyq_power/2) * self.df
+
+        rms = np.sqrt(rms2)
+
+        if self.spower.any():
+            srms2_term1 = 1./4/rms
+            if (self.leahy_norm is None) and (self.rms_norm is None):
+                srms2_term2 = 4*np.sum(self.spower[mask]**2)
+            elif self.rms_norm is None:
+                srms2_term2 = self.a0**2 * np.sum(self.spower[mask]**2)/len(self)**4
+            else:
+                srms2_term2 = np.sum(self.spower[mask]**2) * self.df**2           
+            
+            srms2 = srms2_term1 * srms2_term2
+            srms = np.sqrt(srms2)
         else:
             srms = None
+
         return rms,srms
 
     def sub_poi(self,value=None,low_freq=0,high_freq=np.inf):
+        '''
+        Subtracts poisson level from the PowerSpectrum power
+
+        PARAMETERS
+        ----------
+        value: float, numpyp.array, list, pandas.Series, or None (optional)
+            value to be subtracted. If a list or an array with the same
+            length of power, all its elements are subtracted from power.
+            If None (default), value is estimated averaging power level
+            between low_freq and high_freq
+        low_freq: float (optional)
+            default is 0
+        high_freq: float (optional)
+            default is equal to the Nyquist frequency
+
+        RETURNS
+        -------
+        pw_poi: kronos.core.PowerSpectrum
+            PowerSpectrum with subtracted power and updated meta_data
+
+        '''
+        print(f'Subtracting {value} to power')
+
+        meta_data= self.meta_data.copy()
+        meta_data['SUBTRACTING_POI'] = my_cdate()
 
         if value is None:
-            mask = (self.freq>=low_freq) & (self.freq<high_freq)
+            if low_freq < 0: low_freq = 0
+            if low_freq > self.nf: low_freq = self.nf
+            if high_freq > self.nf: high_freq = self.nf
+            if low_freq > high_freq:
+                raise ValueError('low_freq must be lower than high_freq')
+            mask = (self.freq>=low_freq) & (self.freq<high_freq) * (self.freq>0)
             value = self.power[mask].mean()
-        
-        print(f'Subtracting {value} to power')
-        power = self.power-value
-        power.iloc[0] += value
-
-        changes = self.history.copy()
-        changes['POI_SUB']=my_cdate()
-        changes['POI_RANGE']=f'{low_freq}-{high_freq}'
+            meta_data['POI_RANGE'] = f'{low_freq}-{high_freq}'
+        elif type(value) in [list,np.ndarray,pd.Series]:
+            if len(value) != len(self):
+                raise ValueError('values must have the same dimension of power')
+    
+        # Keeping the original DC (a0) component
+        if type(value) in [list,np.ndarray]:
+            value[0] = 0
+        elif type(value) == pd.Series:
+            value.iloc[0] = 0        
+        power = np.subtract(self.power,value)
+        if not type(value) in [list,np.ndarray,pd.Series]:
+            power.iloc[0] += value
 
         if not 'spower' in self.columns :
-            return PowerSpectrum(freq_array=self.freq,power_array=power,
-                                weight_value = self._weight,low_en_value=self._low_en,high_en_value=self._high_en,
-                                leahy_norm_value=self._leahy_norm,rms_norm_value=self._rms_norm,poi_level_value=value,
-                                notes={},history=changes)
+            poi_pw = PowerSpectrum(freq_array = self.freq, power_array = power,
+                                weight = self._weight, low_en = self._low_en, high_en = self._high_en,
+                                leahy_norm = self._leahy_norm, rms_norm = self._rms_norm, poi_level = value,
+                                notes = {},meta_data = meta_data)
         else:
-            return PowerSpectrum(freq_array=self.freq,power_array=power,spower_array=self.spower,
-                                weight_value = self._weight,low_en_value=self._low_en,high_en_value=self._high_en,
-                                leahy_norm_value=self._leahy_norm,rms_norm_value=self._rms_norm,poi_level_value=value,
-                                notes={},history=changes)        
+            poi_pw = PowerSpectrum(freq_array = self.freq, power_array = power, spower_array = self.spower,
+                                weight = self._weight,low_en = self._low_en, high_en = self._high_en,
+                                leahy_norm = self._leahy_norm, rms_norm = self._rms_norm, poi_level = value,
+                                notes = {}, meta_data = meta_data)        
 
+        return poi_pw
 
+    def normalize(self,norm='leahy',bkg_cr=0):
 
-    def leahy(self):
-        if (self._leahy_norm is None) and (self._rms_norm is None):
-            norm = 2./self.a0
-            #print(np.sqrt(self._power[self._freq==0][0]), 'a0')
+        meta_data = self.meta_data.copy()
 
-            changes = self.history.copy()
-            changes['LEAHY_NORM']=my_cdate()
-
-            if not 'spower' in self.columns :
-                return PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,
-                                    weight_value = self._weight,low_en_value=self._low_en,high_en_value=self._high_en,
-                                    leahy_norm_value=norm,rms_norm_value=self._rms_norm,poi_level_value=self._poi_level,
-                                    notes={},history=changes)    
+        if norm == 'leahy':
+            if (self._leahy_norm is None) and (self._rms_norm is None):
+                norm = 2./self.a0
+                norm_leahy = norm
+                norm_rms = None
+                meta_data['NORMALIZING'] = my_cdate()
+                meta_data['NORM_MODE'] = 'Leahy'
             else:
-                return PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,spower_array=self.spower*norm,
-                                    weight_value = self._weight,low_en_value=self._low_en,high_en_value=self._high_en,
-                                    leahy_norm_value=norm,rms_norm_value=self._rms_norm,poi_level_value=self._poi_level,
-                                    notes={},history=changes)             
+                print('The power spectrum is already either Leahy or RMS normalized')
+                norm = 1
+        elif norm == 'rms':
+            if (self._leahy_norm is None) and (self._rms_norm is None):
+                norm_leahy = (2./self.a0)
+                norm_rms = self.cr/( (self.cr-bkg_cr)**2 )
+                norm = norm_leahy*norm_rms
+                meta_data['NORMALIZING'] = my_cdate()
+                meta_data['NORM_MODE'] = 'FRAC_RMS'
+            elif (self._rms_norm is None) and (not self._leahy_norm is None):
+                norm = self.cr/( (self.cr-bkg_cr)**2 )
+                norm_rms = norm
+                meta_data['NORMALIZING'] = my_cdate()
+                meta_data['NORM_MODE'] = 'FRAC_RMS'
+            elif not self._rms_norm is None:     
+                print('The power spectrum is already RMS normalized')  
         else:
-            print('The power spectrum is already either Leahy or RMS normalized')
-            return self
-        
-    def rms(self,bkg_cr=0):
-        changes = self.history.copy()
-        if (self._leahy_norm is None) and (self._rms_norm is None):
-            norm = (2./self.a0)*self.cr/( (self.cr-bkg_cr)**2 )
-            changes['RMS_NORM'] = my_cdate()
-        elif (self._rms_norm is None) and (not self._leahy_norm is None):
-            norm = self.cr/( (self.cr-bkg_cr)**2 )
-            changes['RMS_NORM'] = my_cdate()
-        elif not self._rms_norm is None:     
-            print('The power spectrum is already RMS normalized')
+            if type(norm) == str: norm = eval(norm)   
+            meta_data['NORMALIZING'] = my_cdate()
+            meta_data['NORM_MODE'] = 'number'
+            meta_data['NORM_VALUE'] = norm   
+            norm_leahy = None
+            norm_rms = None  
 
-        if not 'spower' in self.columns:
-            return PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,
-                                weight_value = self._weight,low_en_value=self._low_en,high_en_value=self._high_en,
-                                leahy_norm_value=self._leahy_norm,rms_norm_value=norm,poi_level_value=self._poi_level,
-                                notes={},history=changes)                                          
+
+        if not self.spower.any() :
+            power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,
+                                weight = self._weight,low_en=self._low_en,high_en=self._high_en,
+                                leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
+                                notes={},meta_data=meta_data)    
         else:
-            return PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,spower_array=self.spower*norm,
-                                weight_value = self._weight,low_en_value=self._low_en,high_en_value=self._high_en,
-                                leahy_norm_value=self._leahy_norm,rms_norm_value=norm,poi_level_value=self._poi_level,
-                                notes={},history=changes)                                                        
+            power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,spower_array=self.spower*norm,
+                                weight = self._weight,low_en=self._low_en,high_en=self._high_en,
+                                leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
+                                notes={},meta_data=meta_data)             
 
-
+        return power
+                                                   
     def rebin(self,factors=-30):
+
         if type(factors) != list: factors=[factors]
+        
         mask = self.freq > 0
-        binned_freq = self.freq[mask].to_numpy()
+        binned_freq = self.freq[mask]
+        
+        # Poisson level is reintroduced, the array is rebinned, and 
+        # the Poisson level is subtracted again
         if not self._poi_level is None:
             poi_level = self._poi_level
         else:
             poi_level = 0.
-        binned_power = self.power[mask].to_numpy()+poi_level
-        dc_power = self.power[0]
-        if 'spower' in self.columns:
+        if type(self._poi_level) in [list,np.ndarray,pd.Series]:
+            poi_level = self._poi_level[mask]
+        
+        binned_power = np.add(self.power[mask],poi_level)
+        binned_poi = poi_level
+        dc_power = self.power.iloc[0]
+
+        if self.spower.any():
             binned_spower = self.spower[mask]
             #print('Before:',len(binned_power),len(binned_spower))
             for f in factors:
-                binned_freq,binned_power,dummy,binned_spower=my_rebin(
+                binned_freq,binned_power,dummy,binned_spower=rebin_xy(
                     binned_freq,binned_power,ye=binned_spower,rf = f)
+                if type(binned_poi) in [list,np.ndarray,pd.Series]:
+                    d,binned_poi,d,d = rebin_xy(binned_freq,binned_poi,rf = f)
+
             #print('After:',len(binned_power),len(binned_spower))
-            return PowerSpectrum(np.append(0,binned_freq),np.append(dc_power,binned_power-poi_level),np.append(0,binned_spower),
-            weight_value=self.weight,low_en_value=self.low_en,high_en_value=self.high_en,smart_index=False,
-            leahy_norm_value=self._leahy_norm, rms_norm_value=self._rms_norm,poi_level_value=self._poi_level,
-            notes=self.notes,history=self.history)
+            pw = PowerSpectrum(freq_array = np.append(0,binned_freq),
+                power_array = np.append(dc_power,binned_power-binned_poi),
+                spower_array = np.append(0,binned_spower),
+                weight = self._weight, low_en = self._low_en, high_en = self._high_en,
+                smart_index = False,
+                leahy_norm = self._leahy_norm, rms_norm = self._rms_norm,
+                poi_level = binned_poi,
+                notes = self.notes, meta_data = self.meta_data)
         else:
             for f in factors:
-                binned_freq,binned_power,dummy,dummy=my_rebin(binned_freq,binned_power,rf = f)
-            return PowerSpectrum(np.append(0,binned_freq),np.append(dc_power,binned_power-poi_level),
-            weight_value=self._weight,low_en_value=self._low_en,high_en_value=self._high_en,smart_index=False,
-            leahy_norm_value=self._leahy_norm, rms_norm_value=self._rms_norm,poi_level_value=self._poi_level,
-            notes=self.notes,history=self.history)
+                binned_freq,binned_power,dummy,dummy=rebin_xy(
+                    binned_freq,binned_power,rf = f)
+                if type(binned_poi) in [list,np.ndarray,pd.Series]:
+                    d,binned_poi,d,d = rebin_xy(binned_freq,binned_poi,rf = f)
+
+            pw = PowerSpectrum(freq_array = np.append(0,binned_freq),
+                power_array = np.append(dc_power,binned_power-binned_poi),
+                weight = self._weight, low_en = self._low_en, high_en = self._high_en,
+                smart_index = False,
+                leahy_norm = self._leahy_norm, rms_norm = self._rms_norm,
+                poi_level = binned_poi,
+                notes = self.notes, meta_data = self.meta_data)
+
+        return pw
             
     def plot(self,ax=False,xy=False,title=False,lfont=16,**kwargs):
         
@@ -267,32 +374,30 @@ class PowerSpectrum(pd.DataFrame):
 
         # I want the information contained in these keyword to propagate
         # in the power spectrum
-        target_keys = ['N_GTIS','GTI_INDEX','N_SEGS','SEG_INDEX']
+        target_keys = ['N_GTIS','GTI_INDEX','N_SEGS','SEG_INDEX','MISSION']
 
-        history = {}
-        history['CREATION_DATE'] = my_cdate()
+        meta_data = {}
+        meta_data['PW_CRE_MODE'] = 'Power computed from Lightcurve'
 
-        if 'List' in str(lightcurve.__class__) or type(lightcurve) == list:
+        if type(lightcurve) == type(LightcurveList()):
 
-            history['CREATION_MODE'] = 'Power computed from LightcurveList'
-            history['T_RES'] = lightcurve[0].tres
+            meta_data['TIME_RES'] = lightcurve[0].tres
             if 'SEG_DUR' in lightcurve[0].meta_data.keys():
-                history['SEG_DUR'] = lightcurve[0].meta_data['SEG_DUR']
+                meta_data['SEG_DUR'] = lightcurve[0].meta_data['SEG_DUR']
 
             powers = []
             for l in lightcurve:
-                if l.counts.sum() > 0:
+                if (not l.tot_counts is None) and (l.tot_counts > 0):
 
-                    power_history = history.copy()
+                    power_meta_data = meta_data.copy()
                     for key in target_keys:
-                        if key in l.meta_data.keys(): power_history[key]=l.meta_data[key]
-                    #assert isinstance(l,Lightcurve),'Object must be Lightcurve'
+                        if key in l.meta_data.keys(): power_meta_data[key]=l.meta_data[key]
+
                     freq = fftfreq(len(l),np.double(l.tres))
-                    #print(l.counts.shape,type(l.counts))
-                    amp = fft(l.counts.to_numpy())
-                    powers += [PowerSpectrum(freq,np.multiply(amp, np.conj(amp)).real,
-                                low_en_value=l.low_en,high_en_value=l.high_en,weight_value=1,
-                                history=power_history)]
+                    amp = fft(l.counts)
+                    powers += [PowerSpectrum(freq_array = freq, power_array = np.multiply(amp, np.conj(amp)).real,
+                               low_en = l.low_en, high_en = l.high_en, weight = 1,
+                               meta_data = power_meta_data)]
 
             if len(powers) != 0:
                 return PowerList(powers)
@@ -300,27 +405,28 @@ class PowerSpectrum(pd.DataFrame):
                 print('WARNING: Empty PowerList')
                 return PowerList()
                 
-        else:
+        elif type(lightcurve) == type(Lightcurve()):
 
-            history['CREATION_MODE'] = 'Power computed from Lightcurve'
-            history['T_RES'] = lightcurve.tres
+            meta_data['TIME_RES'] = lightcurve.tres
             if 'SEG_DUR' in lightcurve.meta_data.keys():
-                history['SEG_DUR'] = lightcurve.meta_data['SEG_DUR']
+                meta_data['SEG_DUR'] = lightcurve.meta_data['SEG_DUR']
             for key in target_keys:
-                if key in lightcurve.meta_data.keys(): history[key]=lightcurve.meta_data[key]
+                if key in lightcurve.meta_data.keys(): meta_data[key]=lightcurve.meta_data[key]
 
-            if lightcurve.counts.sum() > 0:
-                #assert isinstance(lightcurve,Lightcurve),'Object myst be Lightcurve'
+            if (not lightcurve.counts is None) and (lightcurve.tot_counts > 0):
+                
                 freq = fftfreq(len(lightcurve),np.double(lightcurve.tres))
-                amp = fft(lightcurve.counts.to_numpy())
-                #print(len(freq),len(fft))
-                power = PowerSpectrum(freq,np.multiply(amp, np.conj(amp)).real,
-                                low_en_value=lightcurve.low_en,high_en_value=lightcurve.high_en,
-                                weight_value=1,history=history)
+                amp = fft(lightcurve.counts)
+                power = PowerSpectrum(freq_array = freq, power_array = np.multiply(amp, np.conj(amp)).real,
+                                low_en = lightcurve.low_en, high_en = lightcurve.high_en,
+                                weight = 1, meta_data = meta_data)
             else:
                 power = PowerSpectrum()
             
             return power 
+
+        else:
+            raise TypeError('You can compute Power Spectrum only from lightcurve')
 
     @staticmethod
     def read_from_fits(fits_file, extname, freq_col, power_col, spower_col):
@@ -419,17 +525,20 @@ class PowerList(list):
             power = num/den
             spower = power/np.sqrt(new_weight)
 
-            changes={}
-            changes['CREATION_DATE']=my_cdate()
-            changes['CREATION_MODE']='Average of Leahy power spectra'
-            changes['N_SPECTRA']=len(self)
-            changes['SEG_DUR'] = self[0].history['SEG_DUR']
-            changes['T_RES'] = self[0].history['T_RES']
+            meta_data={}
+            meta_data['PW_CRE_DATE'] = my_cdate()
+            meta_data['PW_CRE_MODE'] = 'Average of Leahy power spectra'
+            meta_data['N_PWA']=len(self)
+            meta_data['SEG_DUR'] = self[0].meta_data['SEG_DUR']
+            meta_data['TIME_RES'] = self[0].meta_data['TIME_RES']
 
-            return PowerSpectrum(self[0].freq,power,spower,weight_value=new_weight,
-                                leahy_norm_value = 1,
-                                low_en_value=self[0].low_en,high_en_value=self[0].high_en,
-                                history=changes)
+            return PowerSpectrum(time_array = self[0].freq,
+                                 power_array = power,
+                                 spower_array = spower,
+                                 weight = new_weight,
+                                 leahy_norm = 1,
+                                 low_en = self[0].low_en, high_en = self[0].high_en,
+                                 notes = {}, meta_data = meta_data)
         else:
             print('WARNING: PowerList is empty, returning empty PowerSpectrum')
             return PowerSpectrum()
