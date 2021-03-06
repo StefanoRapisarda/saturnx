@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 import pathlib
 import math
+from collections.abc import Iterable
 from scipy.fft import fft,fftfreq
 
 import matplotlib
@@ -11,7 +12,9 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 from scipy.fftpack import fftfreq, fft
-from astropy.io.fits import getdata
+
+from astropy.io import fits
+from astropy.io.fits import getdata, getval
 
 from kronos.core.lightcurve import Lightcurve, LightcurveList
 from kronos.utils.time_series import rebin_xy, rebin_arrays
@@ -81,7 +84,11 @@ class PowerSpectrum(pd.DataFrame):
     @property
     def nf(self):
         if len(self.freq) == 0: return None
-        return len(self)*self.df/2.
+        if np.all(self.freq >= 0):
+            nf = len(self)*self.df
+        else:
+            nf = len(self)*self.df/2.
+        return nf
 
     @property
     def a0(self):
@@ -174,7 +181,6 @@ class PowerSpectrum(pd.DataFrame):
             PowerSpectrum with subtracted power and updated meta_data
 
         '''
-        print(f'Subtracting {value} to power')
 
         meta_data= self.meta_data.copy()
         meta_data['SUBTRACTING_POI'] = my_cdate()
@@ -237,11 +243,14 @@ class PowerSpectrum(pd.DataFrame):
                 meta_data['NORM_MODE'] = 'FRAC_RMS'
             elif (self._rms_norm is None) and (not self._leahy_norm is None):
                 norm = self.cr/( (self.cr-bkg_cr)**2 )
+                norm_leahy = self.leahy_norm
                 norm_rms = norm
                 meta_data['NORMALIZING'] = my_cdate()
                 meta_data['NORM_MODE'] = 'FRAC_RMS'
             elif not self._rms_norm is None:     
-                print('The power spectrum is already RMS normalized')  
+                print('The power spectrum is already RMS normalized') 
+        elif norm is None:
+            return self 
         else:
             if type(norm) == str: norm = eval(norm)   
             meta_data['NORMALIZING'] = my_cdate()
@@ -252,11 +261,13 @@ class PowerSpectrum(pd.DataFrame):
 
 
         if not self.spower.any() :
+            print('Power without errors')
             power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,
                                 weight = self._weight,low_en=self._low_en,high_en=self._high_en,
                                 leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
                                 notes={},meta_data=meta_data)    
         else:
+            print('Power with errors')
             power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,spower_array=self.spower*norm,
                                 weight = self._weight,low_en=self._low_en,high_en=self._high_en,
                                 leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
@@ -267,6 +278,10 @@ class PowerSpectrum(pd.DataFrame):
     def rebin(self,factors=-30):
 
         if type(factors) != list: factors=[factors]
+
+        meta_data = self.meta_data.copy()
+        meta_data['REBINNING'] = my_cdate()
+        meta_data['REBIN_FACTOR'] = factors
         
         mask = self.freq > 0
         binned_freq = self.freq[mask]
@@ -301,7 +316,7 @@ class PowerSpectrum(pd.DataFrame):
                 smart_index = False,
                 leahy_norm = self._leahy_norm, rms_norm = self._rms_norm,
                 poi_level = binned_poi,
-                notes = self.notes, meta_data = self.meta_data)
+                notes = self.notes, meta_data = meta_data)
         else:
             for f in factors:
                 binned_freq,binned_power,dummy,dummy=rebin_xy(
@@ -315,7 +330,7 @@ class PowerSpectrum(pd.DataFrame):
                 smart_index = False,
                 leahy_norm = self._leahy_norm, rms_norm = self._rms_norm,
                 poi_level = binned_poi,
-                notes = self.notes, meta_data = self.meta_data)
+                notes = self.notes, meta_data = meta_data)
 
         return pw
             
@@ -332,7 +347,7 @@ class PowerSpectrum(pd.DataFrame):
 
         mask = self.freq > 0
 
-        if 'spower' in self.columns:
+        if self.spower.any():
             if xy:
                 ax.errorbar(self.freq[mask],self.power[mask]*self.freq[mask],
                                             self.spower[mask]*self.freq[mask],
@@ -394,7 +409,7 @@ class PowerSpectrum(pd.DataFrame):
                         if key in l.meta_data.keys(): power_meta_data[key]=l.meta_data[key]
 
                     freq = fftfreq(len(l),np.double(l.tres))
-                    amp = fft(l.counts)
+                    amp = fft(l.counts.to_numpy())
                     powers += [PowerSpectrum(freq_array = freq, power_array = np.multiply(amp, np.conj(amp)).real,
                                low_en = l.low_en, high_en = l.high_en, weight = 1,
                                meta_data = power_meta_data)]
@@ -429,14 +444,151 @@ class PowerSpectrum(pd.DataFrame):
             raise TypeError('You can compute Power Spectrum only from lightcurve')
 
     @staticmethod
-    def read_from_fits(fits_file, extname, freq_col, power_col, spower_col):
+    def read_fits(fits_file, ext='POWER_SPECTRUM', freq_col='FREQ', power_col='POWER', 
+        spower_col='POWER_ERR',keys_to_read=None):
 
-        data = getdata(fits_file,extname=extname,meta_data=False,memmap=True)        
+        if not type(fits_file) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        if type(fits_file) == str:
+            fits_file = pathlib.Path(fits_file)
+        if fits_file.suffix == '':
+            fits_file = fits_file.with_suffix('.fits')
+
+        if not fits_file.is_file():
+            raise FileNotFoundError('FITS file does not exist')
+
+        mission = None
+        try:
+            mission = getval(fits_file,'TELESCOP',ext)
+        except Exception as e:
+            print('Warning: TELESCOP not found while reading PowerSpectrum from fits')
+        try:
+            low_en = getval(fits_file,'LOW_EN',ext)
+        except:
+            low_en = None
+        try:
+            high_en = getval(fits_file,'HIGH_EN',ext)
+        except:
+            high_en = None        
+
+        meta_data = {}
+
+        meta_data['PW_CRE_MODE'] = 'Lightcurve read from fits file'
+        meta_data['FILE_NAME'] = str(fits_file.name)
+        meta_data['DIR'] = str(fits_file.parent)
+        meta_data['MISSION'] = mission 
+
+        # Reading meaningfull information from event file
+        info = get_basic_info(fits_file)
+        if not keys_to_read is None:
+            if type(keys_to_read) in [str,list]: 
+                user_info = read_fits_keys(fits_file,keys_to_read,ext)
+            else:
+                raise TypeError('keys to read must be str or list')
+        else: user_info = {}
+        total_info = {**info,**user_info}
+        meta_data['INFO_FROM_HEADER'] = total_info       
+
+        data = getdata(fits_file,extname=ext,meta_data=False,memmap=True)        
         freq = data[freq_col]
-        power = data[power_col]
-        spower = data[spower_col]
+        if power_col in data.columns.names:
+            power = data[power_col]
+        if spower_col in data.columns.names:
+            spower = data[spower_col]
 
-        return PowerSpectrum(freq,power,spower)   
+        return PowerSpectrum(freq_array = freq, power_array = power, spower_array = spower,
+            low_en = low_en, high_en = high_en, weight = 1,
+            meta_data = meta_data, notes = {})
+
+    def to_fits(self,file_name='power_spectrum.fits',fold=pathlib.Path.cwd()):
+
+        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        if type(file_name) == str:
+            file_name = pathlib.Path(file_name)
+        if file_name.suffix == '':
+            file_name = file_name.with_suffix('.fits')
+
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        elif type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+        
+        file_name = fold / file_name
+
+        cols = []
+        cols += [fits.Column(name='FREQ', format='D',array=self.freq.to_numpy())]
+        cols += [fits.Column(name='POWER', format='D',array=self.power.to_numpy())]
+        if self.spower.any(): 
+            cols += [fits.Column(name='POWER_ERR', format='D',array=self.rate.to_numpy())]
+        hdu = fits.BinTableHDU.from_columns(cols)
+        hdu.name = 'POWER_SPECTRUM'
+
+        for key,item in self.meta_data.items():
+            if key != 'INFO_FROM_HEADER':
+                hdu.header[key] = item
+            else:
+                for sub_key,sub_item in item.items():
+                    hdu.header[sub_key] = sub_item
+        hdu.header['LOW_EN'] = self.low_en
+        hdu.header['HIGH_EN'] = self.high_en
+
+        for key,item in self.notes.items():
+            new_key = 'NOTE_'+key
+            hdu.header[new_key] = item
+
+        phdu = fits.PrimaryHDU()
+        hdu_list = fits.HDUList([phdu,hdu])
+        hdu_list.writeto(file_name)
+
+    def save(self,file_name='power_spectrum.pkl',fold=pathlib.Path.cwd()):
+
+        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        if type(file_name) == str:
+            file_name = pathlib.Path(file_name)
+        if file_name.suffix == '':
+            file_name = file_name.with_suffix('.pkl')
+
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        if type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+        
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name
+        
+        try:
+            self.to_pickle(file_name)
+            print('PowerSpectrum saved in {}'.format(file_name))
+        except Exception as e:
+            print(e)
+            print('Could not save PowerSpectrum')
+
+    @staticmethod
+    def load(file_name,fold=pathlib.Path.cwd()):
+
+        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        elif type(file_name) == str:
+            file_name = pathlib.Path(file_name)
+        if file_name.suffix == '':
+            file_name = file_name.with_suffix('.pkl')
+
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        if type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+        
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name
+
+        if not file_name.is_file():
+            raise FileNotFoundError(f'{file_name} not found')
+        
+        lc = pd.read_pickle(file_name)
+        
+        return lc
        
     @property
     def weight(self):
@@ -491,15 +643,15 @@ class PowerList(list):
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        if not np.array(['kronos.core.power.PowerSpectrum' in str(i.__class__) for i in self]).all():
+        if not np.array([type(i) == type(PowerSpectrum()) for i in self]).all():
             raise TypeError('All the elements must be Power objects')
 
     def __setitem__(self, index, power):
-        if not 'kronos.core.power.PowerSpectrum' in str(power.__class__):
+        if not type(power) != type(PowerSpectrum()):
             raise TypeError('The item must be a Power object')
-        self[index] = power
+        super(PowerList, self).__setitem__(index,power)
 
-    def average_leahy(self, exc=[]):
+    def average(self, norm='leahy',exc=[]):
         '''
         Method for averaging Leahy powers in the list
         '''
@@ -508,6 +660,7 @@ class PowerList(list):
             num = []
             den = 0
             counter = 1
+            a0 = 0
             for i in range(len(self)):
                 if i in exc: 
                     counter += 1
@@ -517,13 +670,25 @@ class PowerList(list):
                 if i > 0:
                     assert self[i].freq.equals(self[i-counter].freq),'Frequency array do not correspond, impossible to average'
 
-                num += [self[i].leahy().power*self[i].weight]
+                a0 += self[i].a0*self[i].weight
+                num += [self[i].normalize(norm).power*self[i].weight]
                 den += self[i].weight
+            
+            print('---->',den)
             new_weight = den
             num = np.array(num).sum(axis=0)
+            a0 /= den
 
             power = num/den
             spower = power/np.sqrt(new_weight)
+
+            if norm is None:
+                power.iloc[0] = a0**2
+                leahy_norm = None
+                rms_norm = None
+            elif norm == 'leahy':
+                leahy_norm = 2./a0
+                rms_norm = None
 
             meta_data={}
             meta_data['PW_CRE_DATE'] = my_cdate()
@@ -532,29 +697,90 @@ class PowerList(list):
             meta_data['SEG_DUR'] = self[0].meta_data['SEG_DUR']
             meta_data['TIME_RES'] = self[0].meta_data['TIME_RES']
 
-            return PowerSpectrum(time_array = self[0].freq,
+            return PowerSpectrum(freq_array = self[0].freq,
                                  power_array = power,
                                  spower_array = spower,
                                  weight = new_weight,
-                                 leahy_norm = 1,
+                                 leahy_norm = leahy_norm, rms_norm = rms_norm,
                                  low_en = self[0].low_en, high_en = self[0].high_en,
                                  notes = {}, meta_data = meta_data)
         else:
             print('WARNING: PowerList is empty, returning empty PowerSpectrum')
             return PowerSpectrum()
 
-    def save(self,file_name='power_list.pkl',fold=os.getcwd()):
+    def info(self):
+        '''
+        Returns a pandas DataFrame relevand information for each PowerSpectrum
+        object in the list
+        '''
+
+        columns = ['df','nf','n_bins','a0','count_rate','frac_rms',
+                    'leahy_norm','rms_norm','weight',
+                    'min_en','max_en','mission']
+        info = pd.DataFrame(columns=columns)
+        for i,pw in enumerate(self):
+            if isinstance(pw.poi_level,Iterable):
+                poi_level = 'array'
+            else:
+                poi_level = pw.poi_level
+            line = {'df':pw.df,'nf':pw.nf,'n_bins':len(pw),
+                'a0':pw.a0,'count_rate':pw.a0,
+                'leahy_norm':pw.leahy_norm,'rms_norm':pw.rms_norm,
+                'weight':pw.weight,'poi_level':poi_level,
+                'frac_rms':pw.comp_frac_rms(),
+                'min_en':pw.low_en,'max_en':pw.high_en,
+                'mission':pw.meta_data['MISSION']}
+            info.loc[i] = pd.Series(line)
+
+        return info
+
+    def save(self,file_name='power_list.pkl',fold=pathlib.Path.cwd()):
+
+        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        if type(file_name) == str:
+            file_name = pathlib.Path(file_name)
+        if file_name.suffix == '':
+            file_name = file_name.with_suffix('.pkl')
+
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        if type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name      
+
         try:
-            with open(os.path.join(fold,file_name),'wb') as output:
+            with open(file_name,'wb') as output:
                 pickle.dump(self,output)
-            print('PowerList saved in {}'.format(os.path.join(fold,file_name)))
+            print('PowerList saved in {}'.format(file_name))
         except Exception as e:
             print(e)
             print('Could not save PowerList')
 
     @staticmethod
-    def load(file_name):
-        assert os.path.isfile(file_name),f'{file_name} not found'
+    def load(file_name,fold=pathlib.Path.cwd()):
+
+        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+            raise TypeError('file_name must be a string or a Path')
+        elif type(file_name) == str:
+            file_name = pathlib.Path(file_name)
+        if file_name.suffix == '':
+            file_name = file_name.with_suffix('.pkl')
+
+        if type(fold) == str:
+            fold = pathlib.Path(fold)
+        if type(fold) != type(pathlib.Path.cwd()):
+            raise TypeError('fold name must be either a string or a path')
+        
+        if not str(fold) in str(file_name):
+            file_name = fold / file_name
+
+        if not file_name.is_file():
+            raise FileNotFoundError(f'{file_name} not found')   
+
         with open(file_name,'rb') as infile:
             power_list = pickle.load(infile)
+        
         return power_list

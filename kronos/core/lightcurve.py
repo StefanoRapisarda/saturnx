@@ -198,6 +198,47 @@ class Lightcurve(pd.DataFrame):
             low_en = low_en, high_en = high_en,
             meta_data = self.meta_data, notes = self.notes)
 
+    def __sub__(self, other):
+        if type(other) == type(Lightcurve()):
+            if len(self) != len(other):
+                raise ValueError('You cannot add Lightcurves with different dimensions')
+            if self.tres != other.tres:
+                raise ValueError('You cannot add Lightcurves with different time resolution')
+        
+            # Initialize time 
+            if np.array_equal(self.time, other.time):
+                time = self.time
+            else:
+                # Defining a new time ax 
+                time = self.time - self.time.iloc[0] +self.tres/2
+
+            # Initialize counts
+            counts = self.counts - other.counts
+
+            # Initialize energy bands # implement with range
+            # ---------------------------------------------------------
+            if self.low_en and self.high_en and other.low_en and other.high_en:
+                low_en = min([self.low_en,other.low_en])
+                high_en = max([self.high_en,other.high_en])
+            else:
+                low_en = None
+                high_en = None
+            # ---------------------------------------------------------
+        
+        else:  
+            if type(other) == str:
+                if is_number(other): 
+                    other=eval(other)
+                else:
+                    raise TypeError('Cannot add string to Lightcurve')
+            time = self.time
+            counts = self.counts - other
+            low_en, high_en = self.low_en, self.high_en
+
+        return Lightcurve(time_array = time, count_array = counts,
+            low_en = low_en, high_en = high_en,
+            meta_data = self.meta_data, notes = self.notes)
+
     def __mul__(self,value):
         
         if type(value) in [list,np.ndarray,pd.Series]:
@@ -622,11 +663,10 @@ class Lightcurve(pd.DataFrame):
             raise FileNotFoundError('FITS file does not exist')
         
         mission = None
-        for key in ['TELESCOP','MISSION']:
-            try:
-                mission = getval(fits_file,key,ext)
-            except Exception as e:
-                print('Warning: Mission not found while reading Lightcurve from fits')
+        try:
+            mission = getval(fits_file,'TELESCOP',ext)
+        except Exception as e:
+            print('Warning: TELESCOP not found while reading Lightcurve from fits')
         try:
             low_en = getval(fits_file,'LOW_EN',ext)
         except:
@@ -726,7 +766,7 @@ class Lightcurve(pd.DataFrame):
         
         try:
             self.to_pickle(file_name)
-            print('LightcurveList saved in {}'.format(file_name))
+            print('Lightcurve saved in {}'.format(file_name))
         except Exception as e:
             print(e)
             print('Could not save Lightcurve')
@@ -820,8 +860,7 @@ class Lightcurve(pd.DataFrame):
 
     @property
     def rms(self):
-        if self.counts.empty: return None
-        if self.counts[0] is None: return None
+        if not self.counts.any(): return None
         if len(self.counts) == 0:
             return 0
         else:
@@ -829,8 +868,7 @@ class Lightcurve(pd.DataFrame):
 
     @property
     def frac_rms(self):
-        if self.counts.empty: return None
-        if self.counts[0] is None: return None
+        if not self.counts.any(): return None
         if len(self.counts) == 0:
             return 0
         else:
@@ -1173,5 +1211,6 @@ class LightcurveList(list):
         
         with open(file_name,'rb') as infile:
             lc_list = pickle.load(infile)
+        
         return lc_list
     

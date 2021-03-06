@@ -78,7 +78,8 @@ def my_slice(k,nk,array,step,exp=1,average=True):
     if type(exp) == int: exp = float(exp)
 
     if k == 0:
-        print('---->',type(array))
+        pass
+        #print('---->',type(array))
     if k == nk-1:
         slice = (array[k*step:]**exp)
     else:
@@ -366,8 +367,8 @@ def rebin_xy(x,y=None,xe=None,ye=None,rf=-30,start_x=0,stop_x=np.inf,
                         rby = np.append(rby,step_rby/steps)
                     elif mode == 'sum':
                         rby = np.append(rby,step_rby)
-                if not xe is None: rbxe = np.append(rbxe,np.sqrt(step_rbxe/steps))
-                if not ye is None: rbye = np.append(rbye,np.sqrt(step_rbye/steps))
+                if not xe is None: rbxe = np.append(rbxe,np.sqrt(step_rbxe)/steps)
+                if not ye is None: rbye = np.append(rbye,np.sqrt(step_rbye)/steps)
             else:
                 rbx = np.append(rbx,0)
                 if not y is None: rby = np.append(rby,0) 

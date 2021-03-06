@@ -521,7 +521,7 @@ class TestSubPoi:
 
 class TestRebin:
 
-    def test_rebin_one_arrays(self,fake_white_noise_lc):
+    def test_linear_rebin_one_arrays(self,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
         power = PowerSpectrum.from_lc(lc)
         rebin = power.rebin(1)
@@ -533,6 +533,71 @@ class TestRebin:
         assert len(power[mask]) == len(rebin)
         assert np.array_equal(power.power[mask],rebin.power)
         assert np.array_equal(power.freq[mask],rebin.freq)
+
+    def test_linear_rebin_one_attributes(self,fake_white_noise_lc):
+        lc = fake_white_noise_lc['lc']
+        power = PowerSpectrum.from_lc(lc)
+        rebin = power.rebin(1)
+        mask = power.freq >= 0
+
+        assert type(rebin) == type(PowerSpectrum())
+        assert type(rebin.power) == pd.Series
+
+        assert rebin.df == power.df
+        assert rebin.nf == power.nf
+        assert rebin.a0 == power.a0
+        assert rebin.cr == power.cr
+
+        assert rebin.leahy_norm == None
+        assert rebin.rms_norm == None
+        assert rebin.poi_level == 0
+        assert rebin.low_en == power.low_en
+        assert rebin.high_en == power.high_en
+        assert rebin.weight == power.weight 
+
+    @pytest.mark.parametrize('rf',[-1,1,4,-5,[1,2,-3]],
+        ids = ['-1','1','4','-5','list'])
+    def test_linear_rebin_one_meta_data(self,rf,mocker,fake_white_noise_lc):
+        lc = fake_white_noise_lc['lc']
+        power = PowerSpectrum.from_lc(lc)
+        mocker.patch('kronos.core.power.my_cdate',return_value='Test creation date')
+        rebin = power.rebin(rf)
+
+        if type(rf) == list: 
+            expected_rf = rf
+        else:
+            expected_rf = [rf]
+        assert rebin.meta_data['REBINNING'] == 'Test creation date'
+        assert rebin.meta_data['REBIN_FACTOR'] == expected_rf
+
+    def test_linear_rebin_two_arrays(self,fake_white_noise_lc):
+        lc = fake_white_noise_lc['lc']
+        power = PowerSpectrum.from_lc(lc)
+        rebin = power.rebin(2)
+        mask = power.freq >= 0
+
+        assert type(rebin) == type(PowerSpectrum())
+        assert type(rebin.power) == pd.Series
+
+        assert len(power[mask])//2 + 1 == len(rebin)
+
+
+class TestPowerList:
+
+    @pytest.mark.parametrize('bad_inputs',
+        [[1,45,''],[PowerSpectrum(),{}],[tuple([])]])
+    def test_bad_inputs(self,bad_inputs):
+        with pytest.raises(TypeError):
+            power_list = PowerList(bad_inputs)
+
+    def test_averate_leahy_all(self,mocker,fake_white_noise_lc):
+            lc = fake_white_noise_lc['lc']
+            lc_split = lc.split(10)
+            power_list = PowerSpectrum.from_lc(lc_split)
+            power = power_list.average_leahy() 
+            mask = power.freq>0 
+
+            assert np.round(power.power[mask].mean()) == 2
 
 class BohPower:
 
@@ -771,7 +836,7 @@ class BohPower:
         assert power.rms_norm is None
         assert power.history['FILE_NAME'] == 'power_spectrum.pkl'
 
-class TestPowerList:
+class fde:
 
     def setup_class(self):
         self.time_bins = 1000

@@ -24,42 +24,7 @@ def plt_color(cmap_name='tab10',hex=False):
     return ccolors
 
 
-def clean_gti(start,stop):
-    '''
-    Re-arrange GTIs in order of starting time and merges
-    overlapping GTIs
-    '''
 
-    start = np.asarray(start)
-    stop  = np.asarray(stop)
-
-    sorting_indices = np.argsort(start)
-    sorted_start = start[sorting_indices]
-    sorted_stop = stop[sorting_indices]
-    
-    clean_start = [sorted_start[0]]
-    clean_stop = [sorted_stop[0]]
-    #print('clean_start',clean_start,'clean_stop',clean_stop)
-    flag=False
-    for i in range(1,len(start)):
-        #print('iteration',i)
-        # Case A
-        #print('sorted_start',sorted_start[i],'clean_stop',clean_stop[-1])
-        if sorted_start[i] <= clean_stop[-1]:
-            flag = True
-            if sorted_stop[i] <= clean_stop[-1]:
-                #print('CaseA1')
-                continue
-            else:
-                #print('CaseA2')
-                clean_stop[-1] = sorted_stop[i]
-        # Case B
-        elif sorted_start[i] > clean_stop[-1]:
-            clean_start += [sorted_start[i]]
-            clean_stop  += [sorted_stop[i]]
-
-    if flag: print('Some of the GTIs were overlapping')
-    return np.array(clean_start),np.array(clean_stop) 
 
 def get_nn_var(expr,user_char_set=''):
     '''
