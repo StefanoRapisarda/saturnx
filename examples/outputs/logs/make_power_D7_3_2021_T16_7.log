@@ -1,0 +1,32 @@
+INFO: 2021-03-07 16:07:53: ************************************************************************
+INFO: 2021-03-07 16:07:53: ************************        read_lc         ************************
+INFO: 2021-03-07 16:07:53: ************************************************************************
+INFO: 2021-03-07 16:07:53: Reading HXMT lightcurve FITS file
+INFO: 2021-03-07 16:07:53: Creating analysis folder...
+INFO: 2021-03-07 16:07:53: Reading FITS file
+WARNING: 2021-03-07 16:07:53: Could not read key SOFTVER in ext COUNTS of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:07:53: Could not read key CALDBVER in ext COUNTS of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:07:53: Could not read key GCALFILE in ext COUNTS of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:07:53: Could not read key MJDREF in ext COUNTS of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:07:53: Could not read key LEAPINIT in ext COUNTS of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+INFO: 2021-03-07 16:07:53: NumExpr defaulting to 8 threads.
+INFO: 2021-03-07 16:07:53: Done!
+INFO: 2021-03-07 16:07:53: 
+INFO: 2021-03-07 16:07:53: Obs ID: HE
+INFO: 2021-03-07 16:07:53: Settings:
+INFO: 2021-03-07 16:07:53: ------------------------------------------------------------
+INFO: 2021-03-07 16:07:53: Selected energy band: 19.3-250.6 keV
+INFO: 2021-03-07 16:07:53: Selected time resolution: 0.00390625 s
+INFO: 2021-03-07 16:07:53: Log file name: /Volumes/Samsung_T5/kronos/examples/outputs/logs/make_power_D7_3_2021_T16_7
+INFO: 2021-03-07 16:07:53: ------------------------------------------------------------
+INFO: 2021-03-07 16:07:53: 
+INFO: 2021-03-07 16:07:53: Reading GTI from event file
+INFO: 2021-03-07 16:07:53: Done!
+INFO: 2021-03-07 16:07:53: Saving Lightcurve in the event folder
+INFO: 2021-03-07 16:07:54: Done!
+INFO: 2021-03-07 16:07:54: Saving Gti in the event folder
+INFO: 2021-03-07 16:07:54: Done!
+INFO: 2021-03-07 16:07:54: Splitting lightcurve according to GTI
+INFO: 2021-03-07 16:07:54: Done!
+INFO: 2021-03-07 16:07:54: Saving Lightcurve list in the event folder
+INFO: 2021-03-07 16:07:55: Done!

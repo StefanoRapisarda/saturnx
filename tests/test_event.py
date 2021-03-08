@@ -279,22 +279,22 @@ class TestReadEvent:
     
     def test_missing_file(self):
         with pytest.raises(OSError):
-            event = read_event('NICE_cl.evt.gz')
+            event = Event.read_fits('NICE_cl.evt.gz')
 
     def test_user_info_multi(self):
         file_name = 'tests/NICER_cl.evt.gz'
-        event = read_event(file_name,keys_to_read=['XTENSION','DATAMODE'])        
+        event = Event.read_fits(file_name,keys_to_read=['XTENSION','DATAMODE'])        
         assert event.meta_data['INFO_FROM_HEADER']['XTENSION'] == 'BINTABLE'
         assert event.meta_data['INFO_FROM_HEADER']['DATAMODE'] == 'PHOTON'
 
     def test_user_info_single(self):
         file_name = 'tests/NICER_cl.evt.gz'
-        event = read_event(file_name,keys_to_read='EXTNAME')        
+        event = Event.read_fits(file_name,keys_to_read='EXTNAME')        
         assert event.meta_data['INFO_FROM_HEADER']['EXTNAME'] == 'EVENTS'        
 
     def test_event_reading(self):
         file_name = 'tests/NICER_cl.evt.gz'
-        event = read_event(file_name)
+        event = Event.read_fits(file_name)
         assert type(event) == type(Event())
         assert event.meta_data['MISSION'] == 'NICER'
         assert event.notes == {}

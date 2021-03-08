@@ -9,102 +9,6 @@ from kronos.utils.fits import get_basic_info, read_fits_keys
 from kronos.functions.nicer_functions import all_det
 from kronos.core.gti import Gti
 
-def read_event(file_name,evt_ext_name='EVENTS',keys_to_read=None):
-    '''
-    Read a fits file and store meaningfull information in an Event object
-    
-    PARAMETERS
-    ----------
-    file_name: str
-        Full path of a FITS file 
-    evt_ext_name: str, optional
-        Name of the FITS file extension to read, default is EVENT
-    keys_to_read: str or list, optional
-        List or str specifying keys to read from the header of the 
-        specified extension. Default is None, in this case a set 
-        of standard keywords will be read. Keywords/Values are stores
-        in the dictionary Event.meta_data['INFO_FROM_HEADER']
-
-    RETURNS
-    -------
-    event: kronos.core.Event
-        Event object
-
-    HISTORY
-    -------
-    2020 04 ##, Stefano Rapisarda (Uppsala)
-        Creation date 
-
-    NOTES
-    -----
-    2021 02 20, Stefano Rapisarda (Uppsala)
-        For NICER events, it is important to determine the number of
-        active detectors. This is done here and this information should
-        be propagated to further timing products (binned lightcurve and
-        power spectra)
-    '''
-    
-    # Checking file existance and size
-    try:
-        if os.stat(file_name).st_size == 0:
-            print('Event FITS file is Empty')
-    except OSError:
-        print('File {} does not exist'.format(file_name))
-
-    # Reading data
-    data = getdata(file_name,extname=evt_ext_name,meta_data=False,memmap=True)
-
-    # Initializing meta_data
-    mission =  getval(file_name,'telescop',1)
-    meta_data = {}
-    meta_data['EVT_CRE_MODE'] = 'Event created from fits file'
-    meta_data['EVT_FILE_NAME'] = os.path.basename(file_name)
-    meta_data['DIR'] = os.path.dirname(file_name)
-
-    # Reading meaningfull information from event file
-    info = get_basic_info(file_name)
-    if not keys_to_read is None:
-        if type(keys_to_read) in [str,list]: 
-            user_info = read_fits_keys(file_name,keys_to_read,evt_ext_name)
-        else:
-            raise TypeError('keys to read must be str or list')
-    else: user_info = {}
-    total_info = {**info,**user_info}
-    meta_data['INFO_FROM_HEADER'] = total_info
-
-    # Initializing Event object
-    if mission == 'NICER':
-        times = data['TIME']
-        try:
-            det_id = data['DET_ID']
-        except Exception as e:
-            print('Could not find DET_ID column')
-            print(e)
-            det_id = np.zeros(len(times))
-        times = data['TIME']
-        try:
-            pi = data['PI']
-        except Exception as e:
-            print('Could not find PI column')
-            print(e)
-            pi = np.zeros(len(times))+200
-
-        # Further info NICER specific
-        n_act_det = len(np.unique(det_id))
-        inact_det_list = np.setdiff1d(all_det, np.unique(det_id))
-        meta_data['N_ACT_DET'] = n_act_det
-        meta_data['N_INACT_DET'] = list(inact_det_list)
-
-        event = Event(time_array=times,det_array=det_id,pi_array=pi,
-                       mission=mission,meta_data=meta_data)
-    elif mission == 'SWIFT':
-        event = Event(time_array=data['TIME'],detx_array=data['DETX'],dety_array=data['DETY'],
-                       pi_array=data['PI'],grade_array=data['GRADE'],
-                       mission=mission)   
-
-    return event
-
-
 class Event(pd.DataFrame):
     '''
     Event object. Stores photon time arrival, energy
@@ -252,10 +156,8 @@ class Event(pd.DataFrame):
                 kwargs = {}
                 for col in list(self.columns):
                     kwargs['{}_array'.format(col)] = self[col][mask]
-                    print(col)
-                print('---->',gti_index,self.columns,kwargs.keys())
                 meta_data_gti = meta_data.copy()
-                meta_data_gti['GTI_IND'] = gti_index            
+                meta_data_gti['GTI_INDEX'] = gti_index            
                 kwargs['meta_data'] = meta_data_gti
                 kwargs['notes'] = notes
                 kwargs['mission'] = self.meta_data['MISSION']
@@ -284,7 +186,7 @@ class Event(pd.DataFrame):
                 for col in list(self.columns):
                     kwargs['{}_array'.format(col)] = self[col][mask]
                 meta_data_seg = meta_data.copy()
-                meta_data_seg['SEG_IND'] = i            
+                meta_data_seg['SEG_INDEX'] = i            
                 kwargs['meta_data'] = meta_data_seg
                 kwargs['notes'] = notes
                 kwargs['mission'] = self.meta_data['MISSION']
@@ -296,6 +198,102 @@ class Event(pd.DataFrame):
                 'or time segment')
 
         return EventList(events)
+
+    @staticmethod
+    def read_fits(file_name,ext='EVENTS',keys_to_read=None):
+        '''
+        Read a fits file and store meaningfull information in an Event object
+        
+        PARAMETERS
+        ----------
+        file_name: str
+            Full path of a FITS file 
+        evt_ext_name: str, optional
+            Name of the FITS file extension to read, default is EVENT
+        keys_to_read: str or list, optional
+            List or str specifying keys to read from the header of the 
+            specified extension. Default is None, in this case a set 
+            of standard keywords will be read. Keywords/Values are stores
+            in the dictionary Event.meta_data['INFO_FROM_HEADER']
+
+        RETURNS
+        -------
+        event: kronos.core.Event
+            Event object
+
+        HISTORY
+        -------
+        2020 04 ##, Stefano Rapisarda (Uppsala)
+            Creation date 
+
+        NOTES
+        -----
+        2021 02 20, Stefano Rapisarda (Uppsala)
+            For NICER events, it is important to determine the number of
+            active detectors. This is done here and this information should
+            be propagated to further timing products (binned lightcurve and
+            power spectra)
+        '''
+        
+        # Checking file existance and size
+        try:
+            if os.stat(file_name).st_size == 0:
+                print('Event FITS file is Empty')
+        except OSError:
+            print('File {} does not exist'.format(file_name))
+
+        # Reading data
+        data = getdata(file_name,extname=ext,meta_data=False,memmap=True)
+
+        # Initializing meta_data
+        mission =  getval(file_name,'TELESCOP',1)
+        meta_data = {}
+        meta_data['EVT_CRE_MODE'] = 'Event created from fits file'
+        meta_data['EVT_FILE_NAME'] = os.path.basename(file_name)
+        meta_data['DIR'] = os.path.dirname(file_name)
+
+        # Reading meaningfull information from event file
+        info = get_basic_info(file_name,ext=ext)
+        if not keys_to_read is None:
+            if type(keys_to_read) in [str,list]: 
+                user_info = read_fits_keys(file_name,keys_to_read,ext=ext)
+            else:
+                raise TypeError('keys to read must be str or list')
+        else: user_info = {}
+        total_info = {**info,**user_info}
+        meta_data['INFO_FROM_HEADER'] = total_info
+
+        # Initializing Event object
+        if mission == 'NICER':
+            times = data['TIME']
+            try:
+                det_id = data['DET_ID']
+            except Exception as e:
+                print('Could not find DET_ID column')
+                print(e)
+                det_id = np.zeros(len(times))
+            times = data['TIME']
+            try:
+                pi = data['PI']
+            except Exception as e:
+                print('Could not find PI column')
+                print(e)
+                pi = np.zeros(len(times))+200
+
+            # Further info NICER specific
+            n_act_det = len(np.unique(det_id))
+            inact_det_list = np.setdiff1d(all_det, np.unique(det_id))
+            meta_data['N_ACT_DET'] = n_act_det
+            meta_data['N_INACT_DET'] = list(inact_det_list)
+
+            event = Event(time_array=times,det_array=det_id,pi_array=pi,
+                        mission=mission,meta_data=meta_data)
+        elif mission == 'SWIFT':
+            event = Event(time_array=data['TIME'],detx_array=data['DETX'],dety_array=data['DETY'],
+                        pi_array=data['PI'],grade_array=data['GRADE'],
+                        mission=mission)   
+
+        return event
 
     @property
     def texp(self):
@@ -353,7 +351,6 @@ class EventList(list):
 
         kwargs = {}
         for col in list(self[first_valid_index].columns):
-            print('---->',col)
             kwargs['{}_array'.format(col)] = df[col]
 
         notes = {}

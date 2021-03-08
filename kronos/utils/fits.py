@@ -1,5 +1,5 @@
 import os
-import warnings
+import logging
 from astropy.io.fits import getval
 
 def read_fits_keys(file_name,keys,ext=0):
@@ -20,14 +20,13 @@ def read_fits_keys(file_name,keys,ext=0):
         try:
             value = getval(file_name,key,ext)
         except Exception as e:
-            print(e)
-            warnings.warn(f'Could not read key {key} in ext {ext} of {file_name}')
+            logging.warning(f'Could not read key {key} in ext {ext} of {file_name}')
             value = 'None'
         info[key] = value
     return info
 
 
-def get_basic_info(fits_file):
+def get_basic_info(fits_file,ext=0):
     '''
     Return a dictionary with basic informations collected 
     from a fits_file (supposed to be event file)
@@ -43,6 +42,6 @@ def get_basic_info(fits_file):
                  'TIMEZERO','ONTIME','EXPOSURE','NAXIS2','TIMESYS']
     
     keys = basic_keys + time_keys
-    info = read_fits_keys(fits_file,keys)
+    info = read_fits_keys(fits_file,keys,ext=ext)
 
     return info

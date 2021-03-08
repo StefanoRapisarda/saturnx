@@ -3,13 +3,14 @@ import pandas as pd
 import pickle
 import pathlib
 import math
+import logging
 import matplotlib.pyplot as plt
 
 from astropy.io.fits import getdata,getval
 from astropy.io import fits
 
 from kronos.core.gti import Gti
-from kronos.core.event import Event
+from kronos.core.event import Event, EventList
 from kronos.utils.time_series import my_rebin, rebin_arrays
 from kronos.utils.fits import read_fits_keys, get_basic_info
 from kronos.utils.generic import is_number, my_cdate
@@ -531,7 +532,7 @@ class Lightcurve(pd.DataFrame):
         ax.legend(title='[keV]')
 
     @staticmethod
-    def from_event(events,time_res=1.,user_start_time=None,user_dur=None,
+    def from_event(events,time_res=1.,user_start_time=0,user_dur=None,
         low_en=0.,high_en=np.inf):
         '''
         Computes a binned lightcurve from an Event object
@@ -563,67 +564,88 @@ class Lightcurve(pd.DataFrame):
         if isinstance(time_res,str): time_res = eval(time_res)
         if isinstance(user_start_time,str): user_start_time = eval(user_start_time)
         if isinstance(user_dur,str): user_dur = eval(user_dur)
-        if isinstance(low_en,str): low_en = eval(low_en)
-        if isinstance(high_en,str): high_en = eval(high_en)
-
     
-        if type(events) != type(Event()):
-            raise TypeError('Input must be an Event object')
+        if not type(events) in [type(Event()),type(EventList())]:
+            raise TypeError('Input must be an Event or an EventList object')
 
-        meta_data = {}
-        meta_data['LC_CRE_MODE'] = 'Lightcurve computed from Event object'
-        # Copying some info from the event file
-        keys_to_copy = ['EVT_FILE_NAME','DIR','MISSION','INFO_FROM_HEADER']
-        for key in keys_to_copy:
-            if key in events.meta_data.keys():
-                meta_data[key] = events.meta_data[key]
-
-        if (user_start_time is None) or (user_start_time < np.min(events.time)):
-            user_start_time = np.min(events.time)
-        if user_dur is None: 
-            user_dur = np.max(events.time)-user_start_time
+        if type(events) == type(Event()):
+            event_list = EventList([events])
         else:
-            if user_dur == 0:
-                raise ValueError('Lightcurve duration cannot be zero')
-            elif user_dur > np.max(events.time)-user_start_time:
-                print('Warning: Lightcurve duration larger than Event duration')
-    
-        # The following may look messy but it is to ensure that the lightcurve time
-        # resolution is the one specified by the user.
-        # Events partially covered by a bin are excluded
-        length = user_dur
-        n_bins = int(length/time_res)
-    
-        start_time = user_start_time
-        stop_time = start_time + n_bins*time_res
+            event_list = events
 
-        # In this way the resolution is exactly the one specified by the user
-        time_bins_edges = np.linspace(start_time-time_res/2.,stop_time+time_res/2.,n_bins+1,dtype=np.double)
-        time_bins_center = np.linspace(start_time,stop_time,n_bins,dtype=np.double)
+        lc_list = []
+        for ev in event_list:
 
-        # Conversion FROM energy TO channels
-        mission = events.meta_data['MISSION']
-        if mission == 'NICER': 
-            factor=100.
-        elif mission == 'SWIFT':
-            factor=100.
-        else: 
-            factor=1.
-        low_ch = low_en*factor
-        high_ch = high_en*factor
+            meta_data = {}
+            if len(event_list) == 1:
+                meta_data['LC_CRE_MODE'] = 'Lightcurve computed from Event object'
+            else:
+                meta_data['LC_CRE_MODE'] = 'Lightcurve computed from EventList object'
+            # Copying some info from the event file
+            keys_to_copy = ['EVT_FILE_NAME','DIR','MISSION','INFO_FROM_HEADER',
+                'GTI_SPLITTING','N_GTIS','GTI_INDEX',
+                'SEG_SPLITTING','N_SEGS','SEG_INDEX',
+                'N_ACT_DET','INACT_DET_LIST',
+                'FILTERING','FILT_EXPR']
+            for key in keys_to_copy:
+                if key in ev.meta_data.keys():
+                    meta_data[key] = ev.meta_data[key]
 
-        # Selecting events according to energy
-        mask = (events.pi >= low_ch) & (events.pi < high_ch)
-        filt_time = events.time[mask]
-                
-        # Computing lightcurve
-        counts,dummy = np.histogram(filt_time, bins=time_bins_edges)
+            local_user_start_time = user_start_time
+            local_user_dur = user_dur
+            if local_user_start_time <= np.min(ev.time):
+                local_user_start_time = np.min(ev.time)
+            if local_user_dur is None: 
+                local_user_dur = np.max(ev.time)-local_user_start_time
+            else:
+                if local_user_dur == 0:
+                    raise ValueError('Lightcurve duration cannot be zero')
+                elif local_user_dur > np.max(ev.time)-local_user_start_time:
+                    logging.warning('Lightcurve duration larger than Event duration')
+        
+            # The following may look messy but it is to ensure that the lightcurve time
+            # resolution is the one specified by the user.
+            # Events partially covered by a bin are excluded
+            n_bins = int(local_user_dur/time_res)
+            print('n_bins',local_user_dur,time_res,n_bins)
+        
+            start_time = local_user_start_time
+            stop_time = start_time + n_bins*time_res
 
-        lc = Lightcurve(time_array = time_bins_center, count_array = counts,
-            low_en = low_en, high_en = high_en,
-            meta_data = meta_data, notes = {})
+            # In this way the resolution is exactly the one specified by the user
+            time_bins_edges = np.linspace(start_time-time_res/2.,stop_time+time_res/2.,n_bins+2,dtype=np.double)
+            time_bins_center = np.linspace(start_time,stop_time,n_bins+1,dtype=np.double)
 
-        return lc
+            # Conversion FROM energy TO channels
+            mission = ev.meta_data['MISSION']
+            if mission == 'NICER': 
+                factor=100.
+            elif mission == 'SWIFT':
+                factor=100.
+            else: 
+                factor=1.
+            low_ch = low_en*factor
+            high_ch = high_en*factor
+
+            # Selecting events according to energy
+            mask = (ev.pi >= low_ch) & (ev.pi < high_ch)
+            filt_time = ev.time[mask]
+                    
+            # Computing lightcurve
+            counts,dummy = np.histogram(filt_time, bins=time_bins_edges)
+
+            lc = Lightcurve(time_array = time_bins_center, count_array = counts,
+                low_en = low_en, high_en = high_en,
+                meta_data = meta_data, notes = {})
+
+            lc_list += [lc]
+
+        if len(lc_list) == 0:
+            return Lightcurve()
+        elif len(lc_list) == 1:
+            return lc_list[0]
+        else:
+            return LightcurveList(lc_list)
 
     @staticmethod
     def read_fits(fits_file, ext='COUNTS', 
@@ -684,7 +706,7 @@ class Lightcurve(pd.DataFrame):
         meta_data['MISSION'] = mission
 
         # Reading meaningfull information from event file
-        info = get_basic_info(fits_file)
+        info = get_basic_info(fits_file,ext=ext)
         if not keys_to_read is None:
             if type(keys_to_read) in [str,list]: 
                 user_info = read_fits_keys(fits_file,keys_to_read,ext)
@@ -836,8 +858,7 @@ class Lightcurve(pd.DataFrame):
     def texp(self):
         if self.time.empty: return None
         if len(self.time) > 1:
-            return np.round(len(self)*self.tres,
-                decimals=int(abs(math.log10(self.tres/1000))))
+            return (len(self)-1)*self.tres
         elif len(self.time) == 0:
             return None
         else:
@@ -851,7 +872,6 @@ class Lightcurve(pd.DataFrame):
         if len(self.time) > 1:
             #return self.time.iloc[2]-self.time.iloc[1]
             tres = np.median(np.ediff1d(self.time))
-            tres = np.round(tres,int(abs(math.log10(tres/1e+6))))
             return tres
         elif len(self.time) == 0:
             return None
@@ -1070,7 +1090,7 @@ class LightcurveList(list):
 
         columns = ['texp','tres','n_bins','counts','count_rate',
                     'rms','frac_rms',
-                    'max_time','min_time',
+                    'min_time','max_time',
                     'min_en','max_en','mission']
         info = pd.DataFrame(columns=columns)
         for i,lc in enumerate(self):

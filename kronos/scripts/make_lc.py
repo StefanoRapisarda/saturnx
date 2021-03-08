@@ -1,16 +1,15 @@
 import os
-import sys
-from datetime import datetime
+import pathlib
 import logging
 
-from ..functions.my_functions import initialize_logger,make_logger,my_cdate
-from ..core.event import read_event,Event,EventList
-from ..core.gti import read_gti, Gti, GtiList
-from ..core.lightcurve import Lightcurve,LightcurveList
+from kronos.utils.logging import make_logger
+from kronos.core.event import Event,EventList
+from kronos.core.gti import Gti,GtiList
+from kronos.core.lightcurve import Lightcurve,LightcurveList
 
 def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
-            split_event = False,destination=os.getcwd(),
-            output_suffix='',log_name=None):
+            split_event = False,destination=pathlib.Path.cwd(),
+            output_suffix='',override=False,log_name=None):
     '''
     It makes a lightcurve list from a NICER event file
 
@@ -32,14 +31,16 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
         low energy in keV (default=0.5)
     high_en: float
         high energy in keV (default=10.)
-    split_event: boolean
+    split_event: boolean (optional)
         if True, it splits the event file into GTIs. GTIs are read
         from the event_file itself (default=False)
-    destination: string
+    destination: pathlib.Path (optional)
         full path of the output folder (default=current folder) 
     output_suffix: string
         string to attache at the end of the output file (default='')
-    log_name: string or None
+    override: boolean (optional)
+        if True, files are rewritten (default is False)
+    log_name: string or None (optional)
         name of the log file (defaule=None)
 
     RETURNS
@@ -52,7 +53,7 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
         The result of this is always a Lightcurve list containing 
         lightcurves per GTI. If split_event is True, the event file
         is split according to GTI and then lightcurves are computed 
-        on every event segment. If slit_event is False, Lightcurve is
+        on every event segment. If split_event is False, Lightcurve is
         computed on the full event file and then split according to
         GTI. The former should be less time consuming
 
@@ -61,7 +62,12 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
     2020 01 01, Stefano Rapisarda (Uppsala), creation date
     2021 02 03, Stefano Rapisarda (Uppsala)
         Cleaned up
+    2021 03 06, Stefano Rapisarda (Uppsala)
+        Updated path to pathlib.Path
     '''
+
+    if type(destination) == str:
+        destination = pathlib.Path(destination)
 
     # Logging
     if log_name is None:
@@ -74,23 +80,25 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
     # Making folders
     # -----------------------------------------------------------------
     logging.info('Creating analysis folder...')
-    an = os.path.join(destination,'analysis')
-    if not os.path.isdir(an):
+    an = destination/'analysis'
+    if not an.is_dir():
         os.mkdir(an)
 
-    if not os.path.isfile(event_file):
+    if type(event_file) == str:
+        event_file = pathlib.Path(event_file)
+    if not event_file.is_file():
         logging.info('Event file does not exist')
         return 0
 
-    if not 'mpu' in event_file:
+    if not 'mpu' in str(event_file):
         logging.info('This is not a NICER event file.')
         return 0
     else:
-        obs_id = os.path.basename(event_file).split('_')[0].\
+        obs_id = str(event_file.name).split('_')[0].\
             replace('ni','')
 
-    obs_id_dir = os.path.join(an,obs_id)
-    if not os.path.isdir(obs_id_dir):
+    obs_id_dir = an/obs_id
+    if not obs_id_dir.is_dir():
         os.mkdir(obs_id_dir)
         logging.info('Creating obs_ID folder...')
     # -----------------------------------------------------------------
@@ -117,21 +125,20 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
     else:
         lc_list_name = 'lc_list_E{}_{}_T{}.pkl'.\
             format(low_en,high_en,tres)    
-    gti_name = 'gti.gti'
+    gti_name = 'gti_E{}_{}.gti'.format(low_en,high_en)
 
-    lc_list_file = os.path.join(obs_id_dir,lc_list_name)
-    gti_file = os.path.join(obs_id_dir,gti_name)
+    lc_list_file = obs_id_dir/lc_list_name
     # -----------------------------------------------------------------
     
     # Computing lightcurve
     # -----------------------------------------------------------------
-    if os.path.isfile(lc_list_file):
+    if lc_list_file.is_file() and not override:
         logging.info('Lightcurve list file {} already exists.'.\
             format(lc_list_name))
     else:
         logging.info('Reading event file')
         try:
-            events = read_event(event_file)
+            events = Event.read_fits(event_file)
             logging.info('Done!')
         except Exception as e:
             logging.info('Could not open event file.')
@@ -140,7 +147,7 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
 
         logging.info('Reading GTI from event file')
         try:
-            gti = read_gti(event_file)
+            gti = Gti.read_fits(event_file)
             logging.info('Done!')
             logging.info('N. GTIs: {}'.format(len(gti)))
         except Exception as e:
@@ -149,7 +156,7 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
             return 0   
 
         if split_event:
-            logging.info('Splitting event according to GTIs')
+            logging.info('Splitting events according to GTIs')
             try:
                 event_list = events.split(gti)
                 logging.info('Done!')
@@ -161,24 +168,15 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
         logging.info('Computing lightcurve list')
         try:
             if split_event:
-                lcs = LightcurveList(
-                [Lightcurve.from_event(e,time_res=tres,low_en=low_en,high_en=high_en)
-                for e in event_list])     
-                # When you split events according to GTI, GTI information
-                # is lost when creating the lightcurve, so I need to 
-                # manually specify it
-                for i,lc in enumerate(lcs):
-                    lc.history['GTI_SPLITTING'] = my_cdate()
-                    lc.history['SPLITTING_NOTE'] = 'Event Splitting'
-                    lc.history['N_GTIS'] = len(lcs)  
-                    lc.history['GTI_INDEX'] = i
+                lcs = Lightcurve.from_event(event_list,time_res=tres,
+                    low_en=low_en,high_en=high_en)     
             else:
                 lightcurve = Lightcurve.from_event(events,time_res=tres,low_en=low_en,high_en=high_en)
                 logging.info('Done!')
                 lcs = lightcurve.split(gti)
             logging.info('Done!')
         except Exception as e:
-            logging.info('Could not compute lightcurve')
+            logging.info('Could not compute lightcurve list')
             logging.info(e)
             return 0 
 
@@ -192,7 +190,7 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
         logging.info('Done!')
 
         logging.info('Saving Gti in the event folder')
-        gti.to_pickle(gti_file)
+        gti.save(gti_name,fold=obs_id_dir)
         logging.info('Done!') 
         
     # -----------------------------------------------------------------       

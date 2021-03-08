@@ -389,7 +389,11 @@ class PowerSpectrum(pd.DataFrame):
 
         # I want the information contained in these keyword to propagate
         # in the power spectrum
-        target_keys = ['N_GTIS','GTI_INDEX','N_SEGS','SEG_INDEX','MISSION']
+        target_keys = ['EVT_FILE_NAME','DIR','MISSION','INFO_FROM_HEADER',
+                'GTI_SPLITTING','N_GTIS','GTI_INDEX',
+                'SEG_SPLITTING','N_SEGS','SEG_INDEX',
+                'N_ACT_DET','INACT_DET_LIST',
+                'FILTERING','FILT_EXPR']
 
         meta_data = {}
         meta_data['PW_CRE_MODE'] = 'Power computed from Lightcurve'
@@ -668,13 +672,13 @@ class PowerList(list):
                 else:
                     counter = 1
                 if i > 0:
-                    assert self[i].freq.equals(self[i-counter].freq),'Frequency array do not correspond, impossible to average'
+                    assert self[i].freq.equals(self[i-counter].freq),\
+                        'Frequency array do not correspond, impossible to average'
 
                 a0 += self[i].a0*self[i].weight
                 num += [self[i].normalize(norm).power*self[i].weight]
                 den += self[i].weight
             
-            print('---->',den)
             new_weight = den
             num = np.array(num).sum(axis=0)
             a0 /= den
@@ -696,6 +700,7 @@ class PowerList(list):
             meta_data['N_PWA']=len(self)
             meta_data['SEG_DUR'] = self[0].meta_data['SEG_DUR']
             meta_data['TIME_RES'] = self[0].meta_data['TIME_RES']
+            meta_data['INFO_FROM_HEADER'] = self[0].meta_data['INFO_FROM_HEADER']
 
             return PowerSpectrum(freq_array = self[0].freq,
                                  power_array = power,
@@ -714,7 +719,8 @@ class PowerList(list):
         object in the list
         '''
 
-        columns = ['df','nf','n_bins','a0','count_rate','frac_rms',
+        columns = ['df','nf','n_bins','a0','count_rate',
+                    'frac_rms','frac_rms_err',
                     'leahy_norm','rms_norm','weight',
                     'min_en','max_en','mission']
         info = pd.DataFrame(columns=columns)
@@ -724,10 +730,10 @@ class PowerList(list):
             else:
                 poi_level = pw.poi_level
             line = {'df':pw.df,'nf':pw.nf,'n_bins':len(pw),
-                'a0':pw.a0,'count_rate':pw.a0,
+                'a0':pw.a0,'count_rate':pw.cr,
                 'leahy_norm':pw.leahy_norm,'rms_norm':pw.rms_norm,
                 'weight':pw.weight,'poi_level':poi_level,
-                'frac_rms':pw.comp_frac_rms(),
+                'frac_rms':pw.comp_frac_rms()[0],'frac_rms_err':pw.comp_frac_rms()[1],
                 'min_en':pw.low_en,'max_en':pw.high_en,
                 'mission':pw.meta_data['MISSION']}
             info.loc[i] = pd.Series(line)

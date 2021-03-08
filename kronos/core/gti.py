@@ -42,32 +42,7 @@ def clean_gti(start,stop):
             clean_stop  += [sorted_stop[i]]
 
     if flag: print('Some of the GTIs were overlapping')
-    return np.array(clean_start),np.array(clean_stop) 
-
-def read_gti(file_name,clean=True,extname=None):
-    '''
-    Read GTI (start and stop time) from a fits file
-    '''
-
-    assert os.path.isfile(file_name),'file_name does not exist'
-    mission =  getval(file_name,'telescop',1)
-
-    meta_data = {}
-
-    meta_data['CREATION_DATE'] = my_cdate()
-    meta_data['CREATION_MODE'] = 'Gti created from fits file'
-    meta_data['FILE_NAME'] = os.path.basename(file_name)
-    meta_data['DIR'] = os.path.dirname(file_name)
-
-    if extname is None:
-        extname = 'GTI'
-        if mission == 'NICER' or mission == 'SWIFT': extname='GTI'
-        if mission == 'HXMT': extname='GTI0'
-    
-    data = getdata(file_name,extname=extname,header=False,memmap=True)
-    start,stop = data['START'],data['STOP']
-            
-    return Gti(start_array=start,stop_array=stop,meta_data=meta_data)  
+    return np.array(clean_start),np.array(clean_stop)  
 
 def comp_gap(start,stop):
     '''
@@ -147,6 +122,32 @@ class Gti(pd.DataFrame):
         meta_data = self.meta_data
         meta_data['filtering'] = f'!={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)  
+
+    @staticmethod
+    def read_fits(file_name,extname=None):
+        '''
+        Read GTI (start and stop time) from a fits file
+        '''
+
+        assert os.path.isfile(file_name),'file_name does not exist'
+        mission =  getval(file_name,'telescop',1)
+
+        meta_data = {}
+
+        meta_data['CREATION_DATE'] = my_cdate()
+        meta_data['CREATION_MODE'] = 'Gti created from fits file'
+        meta_data['FILE_NAME'] = os.path.basename(file_name)
+        meta_data['DIR'] = os.path.dirname(file_name)
+
+        if extname is None:
+            extname = 'GTI'
+            if mission == 'NICER' or mission == 'SWIFT': extname='GTI'
+            if mission == 'HXMT': extname='GTI0'
+        
+        data = getdata(file_name,extname=extname,header=False,memmap=True)
+        start,stop = data['START'],data['STOP']
+                
+        return Gti(start_array=start,stop_array=stop,meta_data=meta_data) 
 
     def save(self,file_name='gti.pkl',fold=pathlib.Path.cwd()):
 

@@ -1,16 +1,21 @@
 import os
 import logging
+import pathlib
 from astropy.io.fits import getval
 
-from ..functions.my_functions import initialize_logger, make_logger
-from ..core.lightcurve import Lightcurve
-from ..core.gti import read_gti
+from kronos.utils.logging import make_logger
+from kronos.core.lightcurve import Lightcurve
+from kronos.core.gti import Gti
 
-def read_lc(fits_file, destination=os.getcwd(),mission='HXMT',
-    log_name=None):
+def read_lc(fits_file, ext='COUNTS',destination=pathlib.Path.cwd(),
+    mission='HXMT',output_suffix='',log_name=None):
     '''
     Reads a binned lightcurve in a FITS file and stores it in a 
-    lightcurve list
+    lightcurve list.
+
+    This is supposed to work as make_lc, but instead of making it 
+    reading an Event object (or FITS file), it reads an already
+    computed one from a FITS file
 
     NOTES
     -----
@@ -18,6 +23,9 @@ def read_lc(fits_file, destination=os.getcwd(),mission='HXMT',
         Lightcurves are supposed to be created with ftool and are 
         supposed to be stored in the same folder of raw data
     '''
+
+    if type(destination) == str:
+        destination = pathlib.Path(destination)
 
     if log_name is None:
         log_name = make_logger('make_power',outdir=destination)
@@ -31,25 +39,29 @@ def read_lc(fits_file, destination=os.getcwd(),mission='HXMT',
     # Making folders
     # -----------------------------------------------------------------
     logging.info('Creating analysis folder...')
-    an = os.path.join(destination,'analysis')
-    if not os.path.isdir(an):
+    an = destination/'analysis'
+    if not an.is_dir():
         os.mkdir(an)
 
-    if not os.path.isfile(fits_file):
+    if type(fits_file) == str: fits_file = pathlib.Path(fits_file)
+    if not fits_file.is_file():
         logging.info('FITS file does not exist')
-        if not external_log: move_log()
         return 0
 
-    rmission = getval(fits_file,'telescop',1)
+    rmission = getval(fits_file,'telescop',ext)
     if rmission != mission:
         logging.info(f'This is not a {mission} FITS file')
-        if not external_log: move_log()
         return 0
+    
+    if mission == 'HXMT':
+        obs_id = getval(fits_file,'EXP_ID',ext)
+    elif mission == 'NICER':
+        obs_id = getval(fits_file,'OBS_ID',ext)
     else:
-        obs_id = os.path.basename(fits_file).split('_')[0]
+        obs_id = str(fits_file.name).split('_')[0]
 
-    obs_id_dir = os.path.join(an,obs_id)
-    if not os.path.isdir(obs_id_dir):
+    obs_id_dir = an/obs_id
+    if not obs_id_dir.is_dir():
         os.mkdir(obs_id_dir)
         logging.info('Creating obs_ID folder...')
     # -----------------------------------------------------------------
@@ -57,13 +69,14 @@ def read_lc(fits_file, destination=os.getcwd(),mission='HXMT',
     # Defining PI mission-dependent mul. and correction factors 
     # -----------------------------------------------------------------
     if mission == 'HXMT':
-        if 'HE' in fits_file:
+        instrument = obs_id = getval(fits_file,'INSTRUME',ext)
+        if instrument == 'HE':
             factor = 370./256
             corr = 15
-        elif 'ME' in fits_file:
+        elif instrument == 'ME':
             factor = 60./1024
             corr = 3
-        elif 'LE' in fits_file:
+        elif instrument == 'LE':
             factor = 13./1536
             corr = 0.1
     elif mission == 'NICER' or 'SWIFT':
@@ -87,6 +100,20 @@ def read_lc(fits_file, destination=os.getcwd(),mission='HXMT',
         high_en = None
     # -----------------------------------------------------------------
 
+    # Computing lightcurve
+    # -----------------------------------------------------------------
+    logging.info('Reading FITS file')
+    try:
+        lc = Lightcurve.read_fits(fits_file,ext=ext)
+        lc.low_en = low_en
+        lc.high_en = high_en
+        logging.info('Done!')
+    except Exception as e:
+        logging.info('Could not read FITS file')
+        logging.info(e)
+        return 0
+    # -----------------------------------------------------------------
+
     # Printing info
     # -----------------------------------------------------------------
     logging.info('')
@@ -102,60 +129,50 @@ def read_lc(fits_file, destination=os.getcwd(),mission='HXMT',
 
     # Initializing output names
     # -----------------------------------------------------------------
-    lc_name = 'lc_E{}_{}_T{}.pkl'.format(low_en,high_en,lc.tres) 
-    lc_list_name = 'lc_list_E{}_{}_T{}.pkl'.format(low_en,high_en,lc.tres)       
-    gti_name = 'gti_E{}_{}_T{}.gti'.format(low_en,high_en,lc.tres) 
+    if output_suffix != '':
+        lc_name = 'lc_E{}_{}_T{}_{}.pkl'.\
+            format(low_en,high_en,lc.tres,output_suffix) 
+        lc_list_name = 'lc_list_E{}_{}_T{}_{}.pkl'.\
+            format(low_en,high_en,lc.tres,output_suffix)       
+        gti_name = 'gti_E{}_{}_T{}_{}.gti'.\
+            format(low_en,high_en,lc.tres,output_suffix)    
+    else:
+        lc_name = 'lc_E{}_{}_T{}.pkl'.format(low_en,high_en,lc.tres) 
+        lc_list_name = 'lc_list_E{}_{}_T{}.pkl'.format(low_en,high_en,lc.tres)       
+        gti_name = 'gti_E{}_{}.gti'.format(low_en,high_en) 
     # -----------------------------------------------------------------
 
-    if os.path.isfile(os.path.join(obs_id_dir,lc_list_name)):
-        logging.info('Lightcurve list file {} already exists.'.\
-            format(lc_list_name))
-    else:
-        # Computing lightcurve
-        # -------------------------------------------------------------
-        logging.info('Reading FITS file')
-        try:
-            lc = Lightcurve.read_from_fits(fits_file)
-            lc.low_en = low_en
-            lc.high_en = high_en
-            logging.info('Done!')
-        except Exception as e:
-            logging.info('Could not read FITS file')
-            logging.info(e)
-            return 0
-        # -------------------------------------------------------------
-
-        logging.info('Reading GTI from event file')
-        try:
-            gti = read_gti(fits_file)
-            logging.info('Done!')
-        except Exception as e:
-            logging.info('Could not read GTI.')
-            logging.info(e)
-            return 0   
-
-        logging.info('Saving Lightcurve in the event folder')
-        lc.to_pickle(os.path.join(obs_id_dir,lc_name))
+    logging.info('Reading GTI from event file')
+    try:
+        gti = Gti.read_fits(fits_file)
         logging.info('Done!')
+    except Exception as e:
+        logging.info('Could not read GTI.')
+        logging.info(e)
+        return 0   
 
-        logging.info('Saving Gti in the event folder')
-        gti.to_pickle(os.path.join(obs_id_dir,gti_name))
-        logging.info('Done!')   
+    logging.info('Saving Lightcurve in the event folder')
+    lc.save(lc_name,obs_id_dir)
+    logging.info('Done!')
 
-        # Computing lightcurve list
-        # -------------------------------------------------------------
-        logging.info('Splitting lightcurve according to GTI')
-        try:
-            lcs = lc.split(gti)
-            logging.info('Done!')
-        except Exception as e:
-            logging.info('Could not split lightcurve')
-            logging.info(e)
-            return 0
-        # -------------------------------------------------------------
+    logging.info('Saving Gti in the event folder')
+    gti.save(gti_name,obs_id_dir)
+    logging.info('Done!')   
 
-        logging.info('Saving Lightcurve list in the event folder')
-        lcs.save(lc_list_name,obs_id_dir)
+    # Computing lightcurve list
+    # -----------------------------------------------------------------
+    logging.info('Splitting lightcurve according to GTI')
+    try:
+        lcs = lc.split(gti)
         logging.info('Done!')
+    except Exception as e:
+        logging.info('Could not split lightcurve')
+        logging.info(e)
+        return 0
+    # -----------------------------------------------------------------
+
+    logging.info('Saving Lightcurve list in the event folder')
+    lcs.save(lc_list_name,obs_id_dir)
+    logging.info('Done!')
      
     return 1           

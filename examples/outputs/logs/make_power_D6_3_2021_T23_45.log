@@ -1,0 +1,23 @@
+INFO: 2021-03-06 23:45:36: ************************************************************************
+INFO: 2021-03-06 23:45:36: ************************       make_power       ************************
+INFO: 2021-03-06 23:45:36: ************************************************************************
+INFO: 2021-03-06 23:45:36: 
+INFO: 2021-03-06 23:45:36: Settings:
+INFO: 2021-03-06 23:45:36: ------------------------------------------------------------
+INFO: 2021-03-06 23:45:36: Lightcurve list file: lc_list_E0.5_10.0_T0.0078125_gti.pkl
+INFO: 2021-03-06 23:45:36: Selected time segment: 128.0 s
+INFO: 2021-03-06 23:45:36: Log file name: /Volumes/Samsung_T5/kronos/examples/outputs/logs/make_power_D6_3_2021_T23_45
+INFO: 2021-03-06 23:45:36: ------------------------------------------------------------
+INFO: 2021-03-06 23:45:36: 
+INFO: 2021-03-06 23:45:36: Processing lightcurve: /Volumes/Samsung_T5/kronos/examples/outputs/analysis/0100320101/lc_list_E0.5_10.0_T0.0078125_gti.pkl
+INFO: 2021-03-06 23:45:36: Splitting lightcurve list according to segments
+INFO: 2021-03-06 23:45:36: NumExpr defaulting to 8 threads.
+INFO: 2021-03-06 23:45:36: Done!
+INFO: 2021-03-06 23:45:36: Saving LightcurveList in the event folder
+INFO: 2021-03-06 23:45:36: Computing power spectrum list
+INFO: 2021-03-06 23:45:36: Done!
+INFO: 2021-03-06 23:45:36: Saving power list
+INFO: 2021-03-06 23:45:36: Done!
+INFO: 2021-03-06 23:45:36: Computing average power
+INFO: 2021-03-06 23:45:36: Could not average power
+INFO: 2021-03-06 23:45:36: Frequency array do not correspond, impossible to average

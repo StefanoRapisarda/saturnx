@@ -1,0 +1,36 @@
+INFO: 2021-03-06 23:13:27: ************************************************************************
+INFO: 2021-03-06 23:13:27: ************************        make_lc         ************************
+INFO: 2021-03-06 23:13:27: ************************************************************************
+INFO: 2021-03-06 23:13:27: Creating analysis folder...
+INFO: 2021-03-06 23:13:27: 
+INFO: 2021-03-06 23:13:27: Obs ID: 0100320101
+INFO: 2021-03-06 23:13:27: Settings:
+INFO: 2021-03-06 23:13:27: ------------------------------------------------------------
+INFO: 2021-03-06 23:13:27: Selected energy band: 0.5-10.0 keV
+INFO: 2021-03-06 23:13:27: Selected time resolution: 0.0078125 s
+INFO: 2021-03-06 23:13:27: Split events: yes
+INFO: 2021-03-06 23:13:27: Log file name: /Volumes/Samsung_T5/kronos/examples/outputs/logs/make_lc_D6_3_2021_T23_13
+INFO: 2021-03-06 23:13:27: ------------------------------------------------------------
+INFO: 2021-03-06 23:13:27: 
+INFO: 2021-03-06 23:13:27: Reading event file
+WARNING: 2021-03-06 23:13:40: Could not read key MJDREF in ext EVENTS of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-03-06 23:13:47: Done!
+INFO: 2021-03-06 23:13:47: Reading GTI from event file
+INFO: 2021-03-06 23:13:49: Done!
+INFO: 2021-03-06 23:13:49: N. GTIs: 4
+INFO: 2021-03-06 23:13:49: Splitting events according to GTIs
+INFO: 2021-03-06 23:13:49: NumExpr defaulting to 8 threads.
+INFO: 2021-03-06 23:13:49: Done!
+INFO: 2021-03-06 23:13:49: Computing lightcurve list
+INFO: 2021-03-06 23:13:49: Done!
+INFO: 2021-03-06 23:13:49: Saving Lightcurve in the event folder
+INFO: 2021-03-06 23:13:49: Done!
+INFO: 2021-03-06 23:13:50: Saving Gti in the event folder
+INFO: 2021-03-06 23:13:50: Done!
+DEBUG: 2021-03-06 23:14:51: pickle loaded: /Volumes/Samsung_T5/kronos/kronos/__init__.py
+DEBUG: 2021-03-06 23:14:52: diff parser start
+DEBUG: 2021-03-06 23:14:52: line_lengths old: 2; new: 2
+DEBUG: 2021-03-06 23:14:52: -> code[equal] old[1:1] new[1:1]
+DEBUG: 2021-03-06 23:14:52: parse_part from 1 to 2 (to 1 in part parser)
+DEBUG: 2021-03-06 23:14:52: -> code[replace] old[2:2] new[2:2]
+DEBUG: 2021-03-06 23:14:52: diff parser end

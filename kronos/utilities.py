@@ -9,9 +9,14 @@ import os
 
 from datetime import datetime
 
-def print_history(cls):
-    for key, value in cls.history.items():
-        print('{}: {}'.format(key,value))
+def print_meta_data(cls):
+    for key, value in cls.meta_data.items():
+        if type(value) == dict:
+            print('{}:'.format('key'))
+            for key2,value2 in value.items():
+                print('--- {}: {}'.format(key2,value2))
+        else:
+            print('{}: {}'.format(key,value))
 
 def my_cdate():
     now = datetime.utcnow()

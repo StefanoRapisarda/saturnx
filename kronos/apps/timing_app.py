@@ -1,15 +1,17 @@
 import os
-from os.path import split
+import sys
+from typing import overload
 import numpy as np
 import glob
 import logging
+import pathlib
 from datetime import datetime
 
 import tkinter as tk
-import sys
+
 sys.path.append('/Volumes/Samsung_T5/kronos')
 from kronos.gui.windows import MakePowerWin, LogWindow
-from kronos.functions.my_functions import initialize_logger,make_logger
+from kronos.utils.logging import make_logger
 
 from kronos.scripts.make_lc import make_nicer_lc
 from kronos.scripts.make_power import make_power
@@ -19,14 +21,15 @@ class TimingApp:
     def __init__(self):
 
         self.ui = MakePowerWin()
-        self.ui._comp_button['command'] = self._compute
+        self.ui.geometry("930x1000")
+        self.ui._timing_tab._comp_button['command'] = self._compute
         #self.ui._button1['command'] = self._compute_power
         #self.ui._button2['command'] = self._compute_lightcurve
 
     def _compute(self):
-        if self.ui._comp_lc.get(): self._compute_lightcurve()
-        if self.ui._read_lc.get(): self._read_lightcurve()
-        if self.ui._comp_pow.get(): self._compute_power()
+        if self.ui._timing_tab._comp_lc.get(): self._compute_lightcurve()
+        if self.ui._timing_tab._read_lc.get(): self._read_lightcurve()
+        if self.ui._timing_tab._comp_pow.get(): self._compute_power()
 
     def _read_lightcurve(self):
         '''
@@ -40,19 +43,21 @@ class TimingApp:
 
         # Reading box parameters
         # -------------------------------------------------------------
-        self.ui._read_boxes()
+        self.ui._timing_tab._read_boxes()
+
         mission = self.ui._mission.get().strip()
-        ext = self.ui._event_ext.get().strip()
+
+        ext = self.ui._timing_tab._event_ext.get().strip()
         if ext[0] == '.': ext = ext[1:]
 
-        indir = self.ui._input_dir.get()
-        outdir = self.ui._output_dir.get()
+        indir = self.ui._timing_tab._input_dir.get()
+        outdir = os.path.join(self.ui._timing_tab._output_dir.get(),'analysis')
         # -------------------------------------------------------------
 
         log_name = make_logger('read_lc',outdir,self.ui._logs)
  
-        logging.info('COMMENTS:')
-        logging.info(self.ui._comments)
+        #logging.info('COMMENTS:')
+        #logging.info(self.ui._comments)
 
         for i,obs_id in enumerate(self.ui._obs_ids):
 
@@ -62,13 +67,13 @@ class TimingApp:
             if mission == 'NICER':
                 root_dir = os.path.join(indir,obs_id,'xti/event_cl')
                 fits_files = glob.glob('{}/*{}*.{}*'.format(
-                root_dir,self.ui._event_str.get().strip(),ext))     
+                root_dir,self.ui._timing_tab._event_str.get().strip(),ext))     
             elif mission == 'RXTE':
                 root_dir = os.path.join(indir,'pca')
             elif mission == 'HXMT':
                 root_dir = os.path.join(indir,obs_id)
                 fits_files = glob.glob('{}/*{}*.{}*'.format(
-                root_dir,self.ui._event_str.get().strip(),ext))
+                root_dir,self.ui._timing_tab._event_str.get().strip(),ext))
 
             if len(fits_files)==1:
                 fits_file = fits_files[0]
@@ -81,44 +86,63 @@ class TimingApp:
                 msg = 'There are no event file selected for'\
                     ' obs ID {}. Skipping.'.format(obs_id)
                 logging.info(msg)
-                continue  
+                continue 
 
-            test = read_lc(fits_file,destination=outdir,
-            mission=mission,log_name=log_name)
+            # If energy bands are selected, checking if the FITS file 
+            # name has the energy bands in its name
+            if len(self.ui._en_bands) != 0:
+                en_bands = [[(e.split('-')[0]),(e.split('-')[1])]\
+                    for e in self.ui._en_bands] 
+                flag = False
+                for en_band in en_bands:
+                    low_en = en_band[0]
+                    high_en = en_band[1]
+                    if (low_en in fits_file and high_en in fits_file):
+                        flag = True
+                if not flag:
+                    msg = 'FITS file does not contain selected energy bands'\
+                        ' for obs ID {}. Skipping.'.format(obs_id)
+                    continue
+                        
+            result = read_lc(fits_file,destination=outdir,
+                mission=mission,log_name=log_name)
 
-            if not test:
+            if not result:
                 logging.info('Something went wrong with obs ID {}'.\
                     format(obs_id))
         
         logging.info('Everything done!')
         logging.shutdown()   
 
-
     def _compute_lightcurve(self):
 
         # Reading box parameters
-        self.ui._read_boxes()
+        self.ui._timing_tab._read_boxes()
 
         # Opening log window
         # The Text windger in the opened box will be self.ui._logs
         self.ui._new_window(LogWindow)
 
         # Reading mission, energy bands, time resolution, and options
+        # -------------------------------------------------------------
         mission = self.ui._mission.get().strip()
         en_bands = [[float(e.split('-')[0]),float(e.split('-')[1])]\
                     for e in self.ui._en_bands]
         tres = [np.double(m.split(',')[0].split(':')[1])\
                 for m in self.ui._fmodes]
         split_event= self.ui._split_event.get()  
+        # -------------------------------------------------------------
+
+        override = self.ui._timing_tab._override.get()
 
         # Reading input and output dirs
-        indir = self.ui._input_dir.get()
-        outdir = self.ui._output_dir.get()
+        indir = self.ui._timing_tab._input_dir.get()
+        outdir = os.path.join(self.ui._timing_tab._output_dir.get(),'analysis')
 
         log_name = make_logger('compute_lc',outdir,self.ui._logs) 
 
-        logging.info('COMMENTS:')
-        logging.info(self.ui._comments)
+        #logging.info('COMMENTS:')
+        #logging.info(self.ui._comments)
 
         logging.info('Computing Lightcurve') 
         
@@ -172,8 +196,8 @@ class TimingApp:
                     test = script(event_file,tres=tres[i],
                         low_en=low_en, high_en=high_en,
                         split_event=split_event,destination=outdir,
-                        output_suffix=self.ui._output_suffix.get().strip(),
-                        log_name=log_name)
+                        output_suffix=self.ui._timing_tab._output_suffix.get().strip(),
+                        override=override,log_name=log_name)
 
                     if not test:
                         logging.info('Something went wrong with obs ID {}'.\
@@ -200,14 +224,16 @@ class TimingApp:
         outdir = self.ui._output_dir.get()
         # -------------------------------------------------------------
 
+        override = self.ui._timing_tab._override.get()
+
         # Opening log window
         # The Text windger in the opened box will be self.ui._logs
         self.ui._new_window(LogWindow)
 
         log_name = make_logger('compute_power',outdir,self.ui._logs) 
 
-        logging.info('COMMENTS:')
-        logging.info(self.ui._comments)
+        #logging.info('COMMENTS:')
+        #logging.info(self.ui._comments)
 
         logging.info('Computing power') 
         for i,obs_id in enumerate(self.ui._obs_ids):
@@ -252,7 +278,7 @@ class TimingApp:
                         continue       
 
                     test = make_power(lc_list_file,destination=wf,
-                        tseg=tseg[i],log_name=log_name)
+                        tseg=tseg[i],log_name=log_name,override=override)
 
                     if not test:
                         logging.info('Something went wrong with obs ID {}'.\
