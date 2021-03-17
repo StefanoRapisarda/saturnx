@@ -74,22 +74,17 @@ class TimingTab:
             - Comments;
             - Buttons to trigger function and stop operations. 
         '''
-        
-        s = ttk.Style()
-        s.configure('Black.TLabelframe.Label',
-                    font=('times', 16, 'bold'))
-        self._head_style = 'Black.TLabelframe'
 
         # Main Boxes
         # -------------------------------------------------------------
         label = 'Timing settings (press key after modifying any of '\
                 'the fields)'
         self._upper_box = ttk.LabelFrame(frame,text=label,
-                                   style=self._head_style)
+                                   style=self._parent._head_style)
         self._upper_box.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
 
         mid_box = ttk.LabelFrame(frame,text='Other settings',
-                                 style=self._head_style)
+                                 style=self._parent._head_style)
         mid_box.grid(column=0,row=2,padx=5,pady=5,sticky='nswe')  
 
         #mid_box2 = ttk.LabelFrame(frame,text='Comments',
@@ -97,11 +92,11 @@ class TimingTab:
         #mid_box2.grid(column=0,row=3,padx=5,pady=5,sticky='nswe')      
 
         mid_box2 = ttk.LabelFrame(frame,text='Data to reduce',
-                                  style=self._head_style)
+                                  style=self._parent._head_style)
         mid_box2.grid(column=0,row=3,padx=5,pady=5,sticky='nswe')   
 
         mid_box3 = ttk.LabelFrame(frame,text='Reduced products directory',
-                                  style=self._head_style)
+                                  style=self._parent._head_style)
         mid_box3.grid(column=0,row=4,padx=5,pady=5,sticky='nswe')             
 
         low_box = tk.Frame(frame)
@@ -204,7 +199,7 @@ class TimingTab:
 
         # Mode panel      
         self._fourier_mode_box = tk.Listbox(modes_box,
-            selectmode='multiple',height=5,width=28)
+            selectmode='multiple',height=4,width=28)
         self._fourier_mode_box.grid(column=1,row=0,padx=5,pady=5,
                                  sticky='nswe',rowspan=2)
         # -------------------------------------------------------------
@@ -376,7 +371,7 @@ class TimingTab:
         box4 = ttk.LabelFrame(right_frame,labelwidget=label_frame)
         box4.grid(column=0,row=0,padx=5,pady=5,rowspan=3,sticky='nswe')
         self._en_band_box = tk.Listbox(box4, selectmode='multiple',
-                                       height=5,width=28)
+                                       height=4,width=28)
         self._en_band_box.grid(column=0,row=0,padx=5,pady=5,
                                sticky='nswe')
 
@@ -586,10 +581,9 @@ class TimingTab:
               title='Select the folder containing obs ID directories')
         self._input_dir.set(indir)
 
-        missions = ['RXTE','NICER','Swift','NuStar','HXMT']
-        for mission in missions:
+        for mission in self._parent._missions:
             if mission.upper() in indir.upper():
-                self._mission.set(mission)
+                self._parent._mission.set(mission)
                 break
 
     def _sel_output_dir(self):
@@ -606,11 +600,11 @@ class TimingTab:
         '''
 
         # Reading (selected) obs IDs
-        sel = self._obs_id_box.curselection()
+        sel = self._parent._obs_id_box.curselection()
         if len(sel) == 0:
-            self._parent._obs_ids = sorted(self._obs_id_box.get(0,tk.END))
+            self._parent._obs_ids = sorted(self._parent._obs_id_box.get(0,tk.END))
         else:
-            self._parent._obs_ids = sorted([self._obs_id_box.get(s) for s in sel])
+            self._parent._obs_ids = sorted([self._parent._obs_id_box.get(s) for s in sel])
         #print('Obs Ids')
         #print(self._obs_ids)
 
@@ -683,16 +677,30 @@ class FittingTab:
 
         # Frames
         # -------------------------------------------------------------
-        self._frame1 = ttk.LabelFrame(frame,text='Plot buttons',
-            style=self._parent._head_style)
+        # Panel with settings
+        self._frame1 = tk.Frame(frame)
+        #self._frame1 = ttk.LabelFrame(frame,text='Plot buttons',
+        #    style=self._parent._head_style)
         self._frame1.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
 
-        self._frame2 = ttk.LabelFrame(frame,text='To Fit',
-            style=self._parent._head_style)
+        # Panel with plotting area
+        #label_frame = tk.Frame(frame)
+        #label_frame.grid(column=0,row=0,sticky='nswe')
+        #label = tk.Label(label_frame,text='To Fit',
+        #    fg='black',font='times 16 bold')
+        #label.grid(column=0,row=0,sticky='nswe')
+        #fit_button = ttk.Button(label_frame,width=60,text='FIT',
+        #    command=self._fit)
+        #fit_button.grid(column=0,row=0,sticky='nswe')
+
+        #self._frame2 = ttk.LabelFrame(frame,labelwidget=label_frame)
+        self._frame2 = tk.Frame(frame)
         self._frame2.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
 
-        frame3 = ttk.LabelFrame(frame,text='Reduced products directory',
-                                  style=self._parent._head_style)
+        # Panel with input directory
+        #frame3 = ttk.LabelFrame(frame,text='Reduced products directory',
+        #                          style=self._parent._head_style)
+        frame3 = tk.Frame(frame)
         frame3.grid(column=0,row=4,padx=5,pady=5,sticky='nswe')  
 
         #self._frame3 = ttk.LabelFrame(self._parent,text='Comments',
@@ -715,10 +723,11 @@ class FittingTab:
         row2.grid(column=0,row=1,sticky='nswe')
 
         # File scrollbox
+        # -------------------------------------------------------------
         box11 = ttk.LabelFrame(row1,text='File')
         box11.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
         box11.tag = 1
-        self._file = tk.StringVar()
+        self._file = tk.StringVar() # <--- PowerSpectrum or PowerList file
         self._file.set(' ')
         # The number of GTIs should be updated depending on the
         # selected file
@@ -727,19 +736,21 @@ class FittingTab:
             self._file.set(self._parent._pickle_files[0])
         self._file_menu = ttk.OptionMenu(box11, self._file, \
             *self._parent._pickle_files)
-        self._file_menu.config(width=27)
+        self._file_menu.config(width=23)
         self._file_menu.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
-
+        # -------------------------------------------------------------
 
         # GTI index box
+        # -------------------------------------------------------------
         box12 = ttk.LabelFrame(row1,text='GTI selection')  
         box12.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')
         # This will be initialized whhen self._file is changed
         self._gti_sel_string = tk.StringVar()
         self._gti_sel_string.set('')
-        gti_entry = tk.Entry(box12, textvariable=self._gti_sel_string)
+        gti_entry = tk.Entry(box12, textvariable=self._gti_sel_string,width=13)
         gti_entry.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
         gti_entry.to_change = 1
+        # -------------------------------------------------------------
 
 
         # PLOT button
@@ -751,12 +762,12 @@ class FittingTab:
         plot_button = ttk.Button(row1,text='PLOT',
             command=lambda:self._plot())
         plot_button.grid(column=2,row=0,padx=5,pady=5,sticky='nswe')
-        #plot_button = ttk.Button(plot_frame,text='RESET',
-        #    command=self._reset_plot)
-        #plot_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
-
+        plot_button = ttk.Button(row1,text='FIT',
+            command=self._fit)
+        plot_button.grid(column=3,row=0,padx=5,pady=5,sticky='nswe')
 
         # Poisson buttons
+        # -------------------------------------------------------------
         box21 = ttk.LabelFrame(row2, text='Poisson level')
         box21.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
 
@@ -784,9 +795,10 @@ class FittingTab:
             command=lambda: self._update_plot('','',''))
         sub_poi_button.grid(column=0,row=1,columnspan=5,padx=5,pady=5,
             sticky='nswe')
+        # -------------------------------------------------------------
 
-        
         # Rebin buttons
+        # -------------------------------------------------------------
         box22 = ttk.LabelFrame(row2, text='Rebinning')
         box22.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')  
         self._rebin_factor = tk.StringVar()
@@ -797,8 +809,10 @@ class FittingTab:
         rebin_button = tk.Button(box22,text='Rebin',
             command=lambda: self._update_plot('','',''))
         rebin_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
-        
+        # -------------------------------------------------------------
+
         # Normalization
+        # -------------------------------------------------------------
         box23 = ttk.LabelFrame(row2, text='Normalization')
         box23.grid(column=2,row=0,padx=5,pady=5,sticky='nswe') 
 
@@ -820,41 +834,54 @@ class FittingTab:
         self._bkg.set(0)
         bkg_entry = tk.Entry(box23,textvariable=self._bkg,width=10)
         bkg_entry.grid(column=1,row=1,padx=5,pady=5,sticky='nswe')
+        # -------------------------------------------------------------
 
     def _update_label(self,var,indx,mode):
-        selection = self._file.get()
-        print('selecting',selection)
+        '''
+        Updates the label of the File Option menu and the GTI entry
 
-        data_file = os.path.join(self._output_dir2.get(),\
-                                'analysis',\
-                                self._parent._obs_id,
-                                selection)
+        It checks all the children of the button frame (frame1). It 
+        looks for children that have the attribute tag (File Option 
+        Menu label) and to_change (GTI entry).
+        If the file is a power_list, the label is updated with the 
+        number of GTIs and available GTIs, if it is a Power Spectrum
+        the label is the default and the GTI option is disabled
+        '''
 
-        if 'LIST' in selection.upper():
-            self._power_list = PowerList.load(data_file)
-            n_gti = self._power_list[0].meta_data['N_GTIS']
-            for child in self._frame1.winfo_children():
-                for gchild in child.winfo_children():
+        if self._parent._current_tab == 'Fitting':
 
-                    for ggchild in gchild.winfo_children():
-                        if hasattr(ggchild,'to_change') and ggchild['state']=='disabled':
-                            ggchild.configure(state='normal')                  
+            selection = self._file.get()
+            print('selecting',selection)
 
-                    if hasattr(gchild,'tag'):
-                        gchild.configure(text='File (GTIs ({}): 0-{})'.\
-                            format(n_gti,n_gti-1))
+            data_file = os.path.join(self._output_dir2.get(),
+                                    self._parent._obs_id,
+                                    selection)
 
-        else:
-            self._power = PowerSpectrum.load(data_file)
-            for child in self._frame1.winfo_children():
-                for gchild in child.winfo_children():
+            if 'LIST' in selection.upper():
+                self._power_list = PowerList.load(data_file)
+                n_gti = self._power_list[0].meta_data['N_GTIS']
+                for child in self._frame1.winfo_children():
+                    for gchild in child.winfo_children():
 
-                    for ggchild in gchild.winfo_children():
-                        if hasattr(ggchild,'to_change'):
-                            ggchild.configure(state='disabled')
+                        for ggchild in gchild.winfo_children():
+                            if hasattr(ggchild,'to_change') and ggchild['state']=='disabled':
+                                ggchild.configure(state='normal')                  
 
-                    if hasattr(gchild,'tag'):
-                        gchild.configure(text='File')
+                        if hasattr(gchild,'tag'):
+                            gchild.configure(text='File (GTIs ({}): 0-{})'.\
+                                format(n_gti,n_gti-1))
+
+            else:
+                self._power = PowerSpectrum.load(data_file)
+                for child in self._frame1.winfo_children():
+                    for gchild in child.winfo_children():
+
+                        for ggchild in gchild.winfo_children():
+                            if hasattr(ggchild,'to_change'):
+                                ggchild.configure(state='disabled')
+
+                        if hasattr(gchild,'tag'):
+                            gchild.configure(text='File')
 
     def _update_file_menu(self):
         # Reset var and delete all old options
@@ -892,7 +919,7 @@ class FittingTab:
             self._leahy = self._power.normalize('leahy')
 
         self._to_plot = self._leahy.rebin(-30)
-        self._to_plot.plot(ax=self._ax,lfont=14)
+        self._to_plot.plot(ax=self._ax,lfont=14,marker='')
         self._canvas.draw()
         self._canvas.mpl_connect('motion_notify_event',self._update_cursor)
 
@@ -943,9 +970,9 @@ class FittingTab:
         self._to_plot = rebin
         self._ax.clear()
         if self._xy_flag.get():
-            self._to_plot.plot(ax=self._ax,xy=True,lfont=14)
+            self._to_plot.plot(ax=self._ax,xy=True,lfont=14,marker='')
         else:
-            self._to_plot.plot(ax=self._ax,lfont=14)
+            self._to_plot.plot(ax=self._ax,lfont=14,marker='')
         self._canvas.draw()
 
     def _reset_plot(self):
@@ -964,7 +991,7 @@ class FittingTab:
 
     def _init_plot_area(self,frame):
 
-        self._fig = Figure(figsize=(6.2,4),dpi=100) 
+        self._fig = Figure(figsize=(6.3,4.8),dpi=100) 
         self._ax = self._fig.add_subplot() 
 
         self._canvas = FigureCanvasTkAgg(self._fig, master = frame)
@@ -986,36 +1013,40 @@ class FittingTab:
         self._y_pos = tk.Label(coor_frame,text=' ')
         self._y_pos.grid(column=3,row=0,pady=5,padx=5,sticky='nswe')
 
-        fit_button = tk.Button(frame,text='FIT',command = self._fit,
-        height=2)
-        fit_button.grid(column=0,row=2,pady=5,sticky='nswe')
+        #fit_button = tk.Button(frame,text='FIT',command = self._fit,
+        #height=2)
+        #fit_button.grid(column=0,row=2,pady=5,sticky='nswe')
 
     def _init_output_dir(self,frame):
         frame.grid_columnconfigure(0,weight=1)
-        self._parent._output_dir2 = tk.StringVar()
-        out_entry = tk.Entry(frame,textvariable=self._parent._output_dir2)
+        self._output_dir2 = tk.StringVar()
+        out_entry = tk.Entry(frame,textvariable=self._output_dir2)
         out_entry.grid(column=0,row=0,sticky='nswe')
         out_button = ttk.Button(frame,text='SET',command=self._sel_output_dir)
         out_button.grid(column=1,row=0,sticky='nswe')
         load_obs_id_button2 = ttk.Button(frame,text='Load IDs.',
-            command=lambda: self._parent._load_obs_ids(self._parent._output_dir2.get()))
+            command=lambda: self._parent._load_obs_ids(self._output_dir2.get()))
         load_obs_id_button2.grid(column=2,row=0,sticky='nswe') 
 
     def _sel_output_dir(self):
         outdir = filedialog.askdirectory(initialdir=os.getcwd(),
               title='Select folder for data products')
-        self._parent._output_dir2.set(outdir)       
+        self._output_dir2.set(outdir)    
+        for mission in self._parent._missions:
+            if mission.upper() in outdir.upper():
+                self._parent._mission.set(mission)  
+        self._parent._click_on_obs_id('dummy')
 
     def _update_cursor(self,event):
         self._x_pos.configure(text=str(np.round(event.xdata,6)))
         self._y_pos.configure(text=str(np.round(event.ydata,6)))
 
     def _fit(self):
-        self._new_child_window(self._fit_window)
+        self._new_window(self._fit_window)
 
     def _new_window(self, newWindow):
         self.new = tk.Toplevel(self._parent)
-        newWindow(self.new, self._parent)  
+        newWindow(self.new, self, self._parent)  
 
     def _new_child_window(self, newWindow):
         new = tk.Toplevel(self._parent)

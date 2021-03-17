@@ -1,6 +1,9 @@
 import numpy as np
 from datetime import datetime
 
+import matplotlib
+import matplotlib.pyplot as plt
+
 def print_meta_data(cls):
     for key, value in cls.meta_data.items():
         if type(value) == dict:
@@ -43,4 +46,41 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
+def chunks(in_obj,n_chunks):  
+    '''
+    This small function was designed for plotting purposes
+    It splits a new list or an existing one in n_chunks
+
+    PARAMETERS
+    ----------
+    in_obj: integer or list
+        If in_obj is an interger, a list of integer between 0 and 
+        in_obj-1 will be splitted in n_chunks.
+        If in_obj is a list, the list will be splitted in n_chunks.
+    n_chunks: integer
+        Number of chunks
+
+    HISTORY
+    -------
+    Stefano Rapisarda, 2019 06 21 (Shanghai), creation date
+    '''
+
+    if type(in_obj) == type([]) or type(in_obj) == type(np.array([])):
+        n = len(in_obj)
+        array = in_obj
+    elif type(in_obj) == type(1):
+        n = in_obj
+        array = list(range(in_obj))
+    else:
+        logging.error('Wrong object type')
+        return
+
+    if n%n_chunks == 0:
+        sub = [[array[i+n_chunks*j] for i in range(n_chunks)] for j in range(int(n/n_chunks))]
+    else:
+        sub = [[array[i+n_chunks*j] for i in range(n_chunks)] for j in range(int(n/n_chunks))]+\
+              [[array[n+i-n%n_chunks] for i in range(n%n_chunks)]]
+
+    return sub
 

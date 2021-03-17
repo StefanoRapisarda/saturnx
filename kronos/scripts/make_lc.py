@@ -7,7 +7,7 @@ from kronos.core.event import Event,EventList
 from kronos.core.gti import Gti,GtiList
 from kronos.core.lightcurve import Lightcurve,LightcurveList
 
-def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
+def make_nicer_lc(event_file,tres=1.,en_bands=[[0.5,10.]],
             split_event = False,destination=pathlib.Path.cwd(),
             output_suffix='',override=False,log_name=None):
     '''
@@ -25,12 +25,10 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
     ----------
     event_file: string
         full path of a NICER event file
-    tres: float
+    tres: float (optional)
         time resolution (default=1)
-    low_en: float
-        low energy in keV (default=0.5)
-    high_en: float
-        high energy in keV (default=10.)
+    en_bands: list (optional)
+        list of energy bands (default is [[0.5,10]])
     split_event: boolean (optional)
         if True, it splits the event file into GTIs. GTIs are read
         from the event_file itself (default=False)
@@ -64,6 +62,9 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
         Cleaned up
     2021 03 06, Stefano Rapisarda (Uppsala)
         Updated path to pathlib.Path
+    2021 03 15, Stefano Rapisarda (Uppsala)
+        Instead of working on a single energy band, not it works on a
+        list of them, in this way it opens the Event object only once
     '''
 
     if type(destination) == str:
@@ -74,7 +75,7 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
         log_name = make_logger('make_lc',outdir=destination)
 
     logging.info('*'*72)
-    logging.info('{:24}{:^24}{:24}'.format('*'*24,'make_lc','*'*24))
+    logging.info('{:24}{:^24}{:24}'.format('*'*24,'make_nicer_lc','*'*24))
     logging.info('*'*72)
 
     # Making folders
@@ -119,23 +120,38 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
 
     # Output names
     # -----------------------------------------------------------------
-    if output_suffix != '':
-        lc_list_name = 'lc_list_E{}_{}_T{}_{}.pkl'.\
-            format(low_en,high_en,tres,output_suffix)
-    else:
-        lc_list_name = 'lc_list_E{}_{}_T{}.pkl'.\
-            format(low_en,high_en,tres)    
-    gti_name = 'gti_E{}_{}.gti'.format(low_en,high_en)
+    lc_list_names = []
+    gti_names = []
+    lc_list_files = []
+    for en_band in en_bands:
+        low_en = en_band[0]
+        high_en = en_band[1]
+        if output_suffix != '':
+            lc_list_name = 'lc_list_E{}_{}_T{}_{}.pkl'.\
+                format(low_en,high_en,tres,output_suffix)
+        else:
+            lc_list_name = 'lc_list_E{}_{}_T{}.pkl'.\
+                format(low_en,high_en,tres)    
+        gti_name = 'gti_E{}_{}.gti'.format(low_en,high_en)
 
-    lc_list_file = obs_id_dir/lc_list_name
+        lc_list_file = obs_id_dir/lc_list_name
+
+        lc_list_names += [lc_list_name]
+        gti_names += [gti_name]
+        lc_list_files += [lc_list_file]
     # -----------------------------------------------------------------
-    
+
+    # Checking file existance
+    no_lc_files = False
+    for lc_list_file,lc_list_name in zip(lc_list_files,lc_list_names):
+        if not lc_list_file.is_file():
+            logging.info('Lightcurve list file {} already exists.'.\
+                format(lc_list_name))            
+            no_lc_files = True
+
     # Computing lightcurve
     # -----------------------------------------------------------------
-    if lc_list_file.is_file() and not override:
-        logging.info('Lightcurve list file {} already exists.'.\
-            format(lc_list_name))
-    else:
+    if no_lc_files or override:
         logging.info('Reading event file')
         try:
             events = Event.read_fits(event_file)
@@ -163,35 +179,40 @@ def make_nicer_lc(event_file,tres=1.,low_en=0.5,high_en=10.,
             except Exception as e:
                 logging.info('Could not split event file.')
                 logging.info(e)
-                return 0     
+                return 0   
 
-        logging.info('Computing lightcurve list')
-        try:
-            if split_event:
-                lcs = Lightcurve.from_event(event_list,time_res=tres,
-                    low_en=low_en,high_en=high_en)     
-            else:
-                lightcurve = Lightcurve.from_event(events,time_res=tres,low_en=low_en,high_en=high_en)
+        for i,en_band in enumerate(en_bands):
+            low_en = en_band[0]
+            high_en = en_band[1]  
+
+            logging.info('Computing lightcurve list')
+            logging.info('Energy band {}-{} keV'.format(low_en,high_en))
+            try:
+                if split_event:
+                    lcs = Lightcurve.from_event(event_list,time_res=tres,
+                        low_en=low_en,high_en=high_en)     
+                else:
+                    lightcurve = Lightcurve.from_event(events,time_res=tres,low_en=low_en,high_en=high_en)
+                    logging.info('Done!')
+                    lcs = lightcurve.split(gti)
                 logging.info('Done!')
-                lcs = lightcurve.split(gti)
+            except Exception as e:
+                logging.info('Could not compute lightcurve list')
+                logging.info(e)
+                return 0 
+
+            if len(lcs)==0:
+                logging.warning('Lightcurve list (after gti split) is empty!')
+                return 1
+
+            # Saving Lightcurve list and gti
+            logging.info('Saving Lightcurve in the event folder')
+            lcs.save(lc_list_names[i],fold=obs_id_dir)
             logging.info('Done!')
-        except Exception as e:
-            logging.info('Could not compute lightcurve list')
-            logging.info(e)
-            return 0 
 
-        if len(lcs)==0:
-            logging.warning('Lightcurve list (after gti split) is empty!')
-            return 1
-
-        # Saving Lightcurve list and gti
-        logging.info('Saving Lightcurve in the event folder')
-        lcs.save(lc_list_name,fold=obs_id_dir)
-        logging.info('Done!')
-
-        logging.info('Saving Gti in the event folder')
-        gti.save(gti_name,fold=obs_id_dir)
-        logging.info('Done!') 
+            logging.info('Saving Gti in the event folder')
+            gti.save(gti_names[i],fold=obs_id_dir)
+            logging.info('Done!') 
         
     # -----------------------------------------------------------------       
 

@@ -50,7 +50,7 @@ class GuiHandler(logging.StreamHandler):
         except Exception:
             self.handleError(record)
 
-def initialize_logger(log_name=False,level=logging.DEBUG,text_widget=None):
+def initialize_logger(log_name=False,level=logging.INFO,text_widget=None):
     '''
     Initialize logging options to pring log messages on the screen
     and on a file (if log_name is specified)
@@ -105,6 +105,7 @@ def make_logger(process_name,outdir=pathlib.Path.cwd(),log_widget=None):
     2021 02 03, Stefano Rapisarda (Uppsala), creation date
     '''
 
+    if type(outdir) == str: outdir = pathlib.Path(outdir)
     log_dir = outdir/'logs'
     if not log_dir.is_dir():
         print('Creating log folder...')

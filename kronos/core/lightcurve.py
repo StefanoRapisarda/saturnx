@@ -134,9 +134,9 @@ class Lightcurve(pd.DataFrame):
         # Rate or count rate initialization
         # Assuming only one of the two is not None and preferring counts
         if len(time_array) != 0:
-            if not count_array is None:
+            if self.counts.any():
                 self.rate = self.counts/self.tres
-            elif not rate_array is None:
+            elif self.rate.any():
                 self.counts = self.rate*self.tres
 
         # Energy range
@@ -568,7 +568,9 @@ class Lightcurve(pd.DataFrame):
         if not type(events) in [type(Event()),type(EventList())]:
             raise TypeError('Input must be an Event or an EventList object')
 
+        event_flag = False
         if type(events) == type(Event()):
+            event_flag = True
             event_list = EventList([events])
         else:
             event_list = events
@@ -613,8 +615,8 @@ class Lightcurve(pd.DataFrame):
             stop_time = start_time + n_bins*time_res
 
             # In this way the resolution is exactly the one specified by the user
-            time_bins_edges = np.linspace(start_time-time_res/2.,stop_time+time_res/2.,n_bins+2,dtype=np.double)
-            time_bins_center = np.linspace(start_time,stop_time,n_bins+1,dtype=np.double)
+            time_bins_edges = np.linspace(start_time-time_res/2.,stop_time+time_res/2.,n_bins+1,dtype=np.double)
+            time_bins_center = np.linspace(start_time,stop_time,n_bins,dtype=np.double)
 
             # Conversion FROM energy TO channels
             mission = ev.meta_data['MISSION']
@@ -642,7 +644,7 @@ class Lightcurve(pd.DataFrame):
 
         if len(lc_list) == 0:
             return Lightcurve()
-        elif len(lc_list) == 1:
+        elif event_flag:
             return lc_list[0]
         else:
             return LightcurveList(lc_list)
@@ -723,8 +725,17 @@ class Lightcurve(pd.DataFrame):
         rate = None
         if count_col in data.columns.names:
             counts = data[count_col]
+            print('Reading COUNT column')
+        elif count_col.lower().capitalize() in data.columns.names:
+            counts = data[count_col.lower().capitalize()]
+            print('Reading Count column')            
         elif rate_col in data.columns.names:
+            print('Reading RATE column')
             rate = data[rate_col]
+            print(rate)
+        elif rate_col.lower().capitalize() in data.columns.names:
+            rate = data[rate_col.lower().capitalize()]
+            print('Reading Rate column')  
         
         return Lightcurve(time_array=time,count_array=counts,rate_array=rate,
             low_en=low_en,high_en=high_en,
@@ -812,7 +823,7 @@ class Lightcurve(pd.DataFrame):
             file_name = fold / file_name
 
         if not file_name.is_file():
-            raise FileNotFoundError(f'{file_name} not found')
+            raise FileNotFoundError(f'{file_name} not found'.format(file_name))
         
         lc = pd.read_pickle(file_name)
         
@@ -858,7 +869,7 @@ class Lightcurve(pd.DataFrame):
     def texp(self):
         if self.time.empty: return None
         if len(self.time) > 1:
-            return (len(self)-1)*self.tres
+            return len(self)*self.tres
         elif len(self.time) == 0:
             return None
         else:
@@ -1015,7 +1026,7 @@ class LightcurveList(list):
             return LightcurveList(lc_list)        
 
     def plot(self,norm=None,ax=False,cr=True,title=False,lfont=16,
-        vlines=True,**kwargs):
+        vlines=False,ndet=True,**kwargs):
 
         if not 'marker' in kwargs.keys(): kwargs['marker']='o'
         if not 'color' in kwargs.keys(): kwargs['color']='k'
@@ -1026,22 +1037,26 @@ class LightcurveList(list):
         if (not title is False) and (not ax is False):
             ax.set_title(title)
 
-        start = np.array([t.time.iloc[0] for t in self]).min()
+        start = int(np.min([np.min(t.time) for t in self]))
         for i in range(len(self)):
             y = self[i].tot_counts
             label = 'Counts'
             if cr: 
                 y = self[i].cr
                 label = 'Count Rate [c/s]'
+            if ndet:
+                y = self[i].cr/float(self[i].meta_data['N_ACT_DET'])
+                label = 'Count Rate per det [c/s/n_det]'
             if not norm is None:
                 if type(norm) == str: norm = eval(norm)
-                y /= norm            
-            x = (self[i].time.iloc[-1]+self[i].time.iloc[0])/2. - start
+                y /= norm  
+            mid_time = (self[i].time.iloc[-1]+self[i].time.iloc[0])/2.          
+            x = mid_time - start
             ax.plot(x,y,**kwargs)
 
             if i > 0 and vlines:
-                xline = (self[i-1].time.iloc[-1]-self[i].time.iloc[0])/2. - start
-                ax.vline(xline,color='orange',ls='--',lw=2)
+                xline = (self[i].time.iloc[0]+self[i-1].time.iloc[-1])/2. - start
+                ax.axvline(xline,color='brown',ls='--',lw=2)
 
         ax.set_xlabel('Time [{} s]'.format(start),fontsize=lfont)
         ax.set_ylabel(label,fontsize=lfont)
@@ -1227,7 +1242,7 @@ class LightcurveList(list):
             file_name = fold / file_name
 
         if not file_name.is_file():
-            raise FileNotFoundError(f'{file_name} not found')    
+            raise FileNotFoundError(f'{file_name} not found'.format(file_name))    
         
         with open(file_name,'rb') as infile:
             lc_list = pickle.load(infile)

@@ -21,7 +21,7 @@ class TimingApp:
     def __init__(self):
 
         self.ui = MakePowerWin()
-        self.ui.geometry("930x1000")
+        self.ui.geometry("925x835")
         self.ui._timing_tab._comp_button['command'] = self._compute
         #self.ui._button1['command'] = self._compute_power
         #self.ui._button2['command'] = self._compute_lightcurve
@@ -130,14 +130,14 @@ class TimingApp:
                     for e in self.ui._en_bands]
         tres = [np.double(m.split(',')[0].split(':')[1])\
                 for m in self.ui._fmodes]
-        split_event= self.ui._split_event.get()  
+        split_event= self.ui._timing_tab._split_event.get()  
         # -------------------------------------------------------------
 
         override = self.ui._timing_tab._override.get()
 
         # Reading input and output dirs
         indir = self.ui._timing_tab._input_dir.get()
-        outdir = os.path.join(self.ui._timing_tab._output_dir.get(),'analysis')
+        outdir = os.path.join(self.ui._timing_tab._output_dir.get())
 
         log_name = make_logger('compute_lc',outdir,self.ui._logs) 
 
@@ -156,8 +156,8 @@ class TimingApp:
                 root_dir = os.path.join(indir,obs_id,'xti/event_cl')
                 event_files = glob.glob('{}/*{}*.{}*'.format(
                 root_dir,
-                self.ui._event_str.get().strip(),
-                self.ui._event_ext.get().strip()
+                self.ui._timing_tab._event_str.get().strip(),
+                self.ui._timing_tab._event_ext.get().strip()
                 ))      
             elif mission == 'RXTE':
                 root_dir = os.path.join(indir,'pca')
@@ -165,8 +165,8 @@ class TimingApp:
                 root_dir = os.path.join(indir,obs_id)
                 event_files = glob.glob('{}/*{}*.{}*'.format(
                 root_dir,
-                self.ui._event_str.get().strip(),
-                self.ui._event_ext.get().strip()
+                self.ui._timing_tab._event_str.get().strip(),
+                self.ui._timing_tab._event_ext.get().strip()
                 ))
 
             # Checking there is a single event
@@ -183,27 +183,21 @@ class TimingApp:
                 logging.info(msg)
                 continue 
 
-            for e in range(len(en_bands)):
-                low_en = en_bands[e][0]
-                high_en = en_bands[e][1]
-                logging.info('Computing energy {}'.\
-                             format(self.ui._en_bands[e]))
 
-                for i in range(len(tres)):
-                    logging.info('Computing fmode {}'.\
-                                  format(self.ui._fmodes[i]))
+            for i in range(len(tres)):
+                logging.info('Computing fmode {}'.\
+                                format(self.ui._fmodes[i]))
 
-                    test = script(event_file,tres=tres[i],
-                        low_en=low_en, high_en=high_en,
-                        split_event=split_event,destination=outdir,
-                        output_suffix=self.ui._timing_tab._output_suffix.get().strip(),
-                        override=override,log_name=log_name)
+                test = script(event_file,tres=tres[i],
+                    en_bands=en_bands,
+                    split_event=split_event,destination=outdir,
+                    output_suffix=self.ui._timing_tab._output_suffix.get().strip(),
+                    override=override,log_name=log_name)
 
-                    if not test:
-                        logging.info('Something went wrong with obs ID {}'.\
-                            format(obs_id))
-                        logging.info('e: {}-{} keV, tres: {}'.\
-                            format(low_en,high_en,tres))
+                if not test:
+                    logging.info('Something went wrong with obs ID {}'.\
+                        format(obs_id))
+                    logging.info('tres: {}'.format(tres))
         
         logging.info('Everything done!')   
         logging.shutdown()         
@@ -212,7 +206,7 @@ class TimingApp:
 
         # Reading box parameters
         # -------------------------------------------------------------
-        self.ui._read_boxes()
+        self.ui._timing_tab._read_boxes()
         mission = self.ui._mission.get().strip()
         en_bands = [[float(e.split('-')[0]),float(e.split('-')[1])]\
                     for e in self.ui._en_bands]
@@ -220,8 +214,8 @@ class TimingApp:
                 for m in self.ui._fmodes]
         tseg = [np.double(m.split(',')[1].split(':')[1])\
                 for m in self.ui._fmodes]  
-        suffix=self.ui._output_suffix.get().strip()
-        outdir = self.ui._output_dir.get()
+        suffix=self.ui._timing_tab._output_suffix.get().strip()
+        outdir = self.ui._timing_tab._output_dir.get()
         # -------------------------------------------------------------
 
         override = self.ui._timing_tab._override.get()

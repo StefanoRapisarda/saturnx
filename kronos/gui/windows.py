@@ -182,6 +182,8 @@ class MakePowerWin(tk.Tk):
 
         self.configure(bg='burlywood3')
 
+        self._obs_id = ''
+
         #For testing bindings
         #self._new_window(TestButton)
         #self._test_button['command'] = self._read_boxes
@@ -228,8 +230,8 @@ class MakePowerWin(tk.Tk):
         # the OptionMenu or by another method, self._mission_updated 
         # is called
         self._mission.trace_add('write', self._mission_updated)
-        missions = ('NICER','RXTE','Swift','NuStar','HXMT')
-        menu = tk.OptionMenu(box1, self._mission, *missions)
+        self._missions = ('NICER','RXTE','Swift','NuStar','HXMT')
+        menu = tk.OptionMenu(box1, self._mission, *self._missions)
         menu.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
 
         # Group of widget to put as label for box
@@ -282,9 +284,15 @@ class MakePowerWin(tk.Tk):
         # Listing pkl files inside a potential reduced product
         # folder
         sel = self._obs_id_box.curselection()
-        if len(sel) == 1:
+        if len(sel) == 0:
+            self._obs_id = ''
+            target_dir = self._fitting_tab._output_dir2.get()
+            pickle_files = sorted(glob.glob('{}/*.pkl'.format(target_dir)))
+            self._pickle_files = tuple(os.path.basename(pf) for pf in\
+                pickle_files if 'power' in pf)
+        elif len(sel) == 1:
             self._obs_id = self._obs_id_box.get(sel)
-            target_dir = os.path.join(self._output_dir2.get(),self._obs_id)
+            target_dir = os.path.join(self._fitting_tab._output_dir2.get(),self._obs_id)
             pickle_files = sorted(glob.glob('{}/*.pkl'.format(target_dir)))
             self._pickle_files = tuple(os.path.basename(pf) for pf in\
                 pickle_files if 'power' in pf)
@@ -340,6 +348,11 @@ class MakePowerWin(tk.Tk):
         all the folders in value will be listed.
         '''
 
+        for mission in self._missions:
+            if mission.upper() in self._timing_tab._input_dir.get().upper():
+                self._mission.set(mission)
+                break     
+
         self._obs_id_box.delete(0,tk.END)
 
         if type(value)==int:
@@ -393,11 +406,21 @@ class MakePowerWin(tk.Tk):
         tabControl.grid(column=0,row=0,sticky='nswe')
         #tabControl.pack(expand=1, fill="both")
 
+        self._current_tab = ''
+        tabControl.bind('<<NotebookTabChanged>>',self._handle_tab_changed)
+
         self._timing_tab = TimingTab(timing_tab,self)
         #self._init_fitting_tab(fitting_tab)
-        self._fitting_tab = FittingTab(fitting_tab,self,FitWindow_sherpa)           
+        self._fitting_tab = FittingTab(fitting_tab,self,FitWindow_sherpa)
 
-     
+    def _handle_tab_changed(self,event):
+        selection = event.widget.select()
+        self._current_tab = event.widget.tab(selection,'text')  
+
+    def _new_window(self, newWindow):
+        self.new = tk.Toplevel()
+        newWindow(self.new, self)       
+
 class LogWindow:
     def __init__(self,parent,controller):
         self._controller = controller
@@ -797,8 +820,8 @@ class FitWindow_mpl:
 
 
     def _save_fit(self):
-        fit_dir = os.path.join(self._controller._controller._output_dir.get(),\
-            'analysis',self._controller._controller._obs_id,'fits')
+        fit_dir = os.path.join(self._controller._output_dir2.get(),\
+            self._controller._obs_id,'fits')
         os.system(f'mkdir {fit_dir}')
         save_modelresult(self._fit_result,\
             os.path.join(fit_dir,self._output_name.get()+'.sav'))
@@ -1057,7 +1080,7 @@ class FitWindow_mpl:
 
         self._controller._ax1bis = self._controller._ax1.twinx()
         self._controller._to_plot.plot(ax=self._controller._ax1bis,\
-            alpha=0.3,lfont=12,xy=self._controller._xy_flag)
+            alpha=0.3,lfont=12,xy=self._controller._xy_flag,marker='')
         self._controller._ax1bis.set_ylabel('')
         self._controller._ax1bis.grid(False)
         self._controller._ax1bis.tick_params(axis='both',which='both',length=0)
@@ -1076,7 +1099,7 @@ class FitWindow_mpl:
 
         self._controller._ax2bis = self._controller._ax2.twinx()
         self._controller._to_plot.plot(ax=self._controller._ax2bis,\
-            alpha=0.3,lfont=12,xy=self._controller._xy_flag)
+            alpha=0.3,lfont=12,xy=self._controller._xy_flag,marker='')
         self._controller._ax2bis.set_ylabel('')
         self._controller._ax2bis.grid(False)
         self._controller._ax2bis.tick_params(axis='both',which='both',length=0)
@@ -1864,11 +1887,12 @@ class FitWindow_sherpa:
     - Implement other fitting functions 
     '''
 
-    def __init__(self,parent,controller):
+    def __init__(self,parent,controller,window):
         # Controller is the timing tab widget
         # Parent is the top level window
         self._controller = controller
         self._parent = parent
+        self._window = window
         self._parent.title = 'Fit window'
 
         s = ttk.Style()
@@ -2287,8 +2311,8 @@ class FitWindow_sherpa:
         self._total_fit_func_dict = {}
 
     def _save_fit(self):
-        fit_dir = os.path.join(self._controller._controller._output_dir.get(),\
-            'analysis',self._controller._controller._obs_id,'fits')
+        fit_dir = os.path.join(self._controller._output_dir2.get(),\
+            self._window._obs_id,'fits')
         os.system(f'mkdir {fit_dir}')
         output_file_name = os.path.join(fit_dir,self._output_name.get())
 
@@ -2918,7 +2942,6 @@ class PlotFitWindow:
         comp_button = ttk.Button(stat_frame,text='COMP',
             command=self._f_test)
         comp_button.grid(column=4,row=0,pady=5,padx=5,sticky='nswe')
-
         # -------------------------------------------------------------
 
         info_frame = ttk.LabelFrame(self._parent,text='Fit output',
@@ -2930,8 +2953,8 @@ class PlotFitWindow:
         self._controller._fit_info_box.grid(column=0,row=2,padx=5,pady=5,sticky='nsew')
 
     def _update_cursor(self,event):
-        self._x_pos.configure(text=str(event.xdata))
-        self._y_pos.configure(text=str(event.ydata))
+        self._x_pos.configure(text=str(np.round(event.xdata,4)))
+        self._y_pos.configure(text=str(np.round(event.ydata,4)))
 
     def _f_test(self):
         f = self._chi2_1.get()/self._chi2_2.get()*self._dof_2.get()/self._dof_1.get()

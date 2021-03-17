@@ -82,7 +82,11 @@ def make_power(lc_list_file,destination=pathlib.Path.cwd(),
         lcs2 = LightcurveList.load(lc2_list_name,obs_id_dir)  
     else:
         lcs = LightcurveList.load(lc_list_name,obs_id_dir)
-        lcs_filt = LightcurveList([lc for lc in lcs if lc.texp >= tseg])
+        if len(lcs) == 0:
+            logging.info('Lightcurve list file is empty, skipping.')
+            logging.info(lc_list_name)
+            return 0
+        lcs_filt = LightcurveList([lc for lc in lcs if (not lc.texp is None) and (lc.texp>= tseg)])
         # lcs is the original lightcurve filtered according to GTIs
         # meta_data in lcs store N_GTIS and GTI_INDEX according to the 
         # original GTIs

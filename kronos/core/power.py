@@ -85,15 +85,17 @@ class PowerSpectrum(pd.DataFrame):
     def nf(self):
         if len(self.freq) == 0: return None
         if np.all(self.freq >= 0):
-            nf = len(self)*self.df
+            if len(self)%2==0:
+                nf = (len(self)-1)*self.df
+            else: 
+                nf = len(self)*self.df
         else:
             nf = len(self)*self.df/2.
         return nf
 
     @property
     def a0(self):
-        if self.power.empty: return None
-        if self.power.iloc[0] == None: return None
+        if not self.power.any(): return None
 
         if (self._leahy_norm is None) and (self.freq.iloc[0] == 0):
             a0 = np.sqrt(self.power.iloc[0])
@@ -224,6 +226,9 @@ class PowerSpectrum(pd.DataFrame):
 
         meta_data = self.meta_data.copy()
 
+        if self.cr-bkg_cr < 0:
+            print('Warning!!! background cr larger than source cr')
+
         if norm == 'leahy':
             if (self._leahy_norm is None) and (self._rms_norm is None):
                 norm = 2./self.a0
@@ -231,9 +236,11 @@ class PowerSpectrum(pd.DataFrame):
                 norm_rms = None
                 meta_data['NORMALIZING'] = my_cdate()
                 meta_data['NORM_MODE'] = 'Leahy'
-            else:
+            elif (self._rms_norm is None):
                 print('The power spectrum is already either Leahy or RMS normalized')
                 norm = 1
+                norm_leahy = self._leahy_norm
+                norm_rms = self._rms_norm
         elif norm == 'rms':
             if (self._leahy_norm is None) and (self._rms_norm is None):
                 norm_leahy = (2./self.a0)
@@ -247,7 +254,10 @@ class PowerSpectrum(pd.DataFrame):
                 norm_rms = norm
                 meta_data['NORMALIZING'] = my_cdate()
                 meta_data['NORM_MODE'] = 'FRAC_RMS'
-            elif not self._rms_norm is None:     
+            elif not self._rms_norm is None:   
+                norm = 1
+                norm_leahy = self._leahy_norm
+                norm_rms = self._rms_norm  
                 print('The power spectrum is already RMS normalized') 
         elif norm is None:
             return self 
@@ -261,13 +271,13 @@ class PowerSpectrum(pd.DataFrame):
 
 
         if not self.spower.any() :
-            print('Power without errors')
+            #print('Power without errors')
             power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,
                                 weight = self._weight,low_en=self._low_en,high_en=self._high_en,
                                 leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
                                 notes={},meta_data=meta_data)    
         else:
-            print('Power with errors')
+            #print('Power with errors')
             power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,spower_array=self.spower*norm,
                                 weight = self._weight,low_en=self._low_en,high_en=self._high_en,
                                 leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
@@ -337,7 +347,7 @@ class PowerSpectrum(pd.DataFrame):
     def plot(self,ax=False,xy=False,title=False,lfont=16,**kwargs):
         
         if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
-        if not 'marker' in kwargs.keys(): kwargs['marker']='o'
+        #if not 'marker' in kwargs.keys(): kwargs['marker']='o'
 
         if ax is False:
             fig, ax = plt.subplots(figsize=(6,6))
@@ -588,7 +598,7 @@ class PowerSpectrum(pd.DataFrame):
             file_name = fold / file_name
 
         if not file_name.is_file():
-            raise FileNotFoundError(f'{file_name} not found')
+            raise FileNotFoundError(f'{file_name} not found'.format(file_name))
         
         lc = pd.read_pickle(file_name)
         
@@ -687,7 +697,7 @@ class PowerList(list):
             spower = power/np.sqrt(new_weight)
 
             if norm is None:
-                power.iloc[0] = a0**2
+                power[0] = a0**2
                 leahy_norm = None
                 rms_norm = None
             elif norm == 'leahy':
@@ -784,7 +794,7 @@ class PowerList(list):
             file_name = fold / file_name
 
         if not file_name.is_file():
-            raise FileNotFoundError(f'{file_name} not found')   
+            raise FileNotFoundError(f'{file_name} not found'.format(file_name))   
 
         with open(file_name,'rb') as infile:
             power_list = pickle.load(infile)

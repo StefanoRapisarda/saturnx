@@ -171,7 +171,7 @@ class pdf_page(FPDF):
 
         conv: float
             This is the estimated size of the used font in points
-            Default is 3.5 (Arial font)
+            Default is 0.35 (Arial font)
         '''
         
         keys = list(info.keys())
