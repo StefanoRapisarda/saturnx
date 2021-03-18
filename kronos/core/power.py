@@ -146,11 +146,11 @@ class PowerSpectrum(pd.DataFrame):
         rms = np.sqrt(rms2)
 
         if self.spower.any():
-            srms2_term1 = 1./4/rms
+            srms2_term1 = 1./4/rms2
             if (self.leahy_norm is None) and (self.rms_norm is None):
-                srms2_term2 = 4*np.sum(self.spower[mask]**2)
+                srms2_term2 = 4*np.sum(self.spower[mask]**2)/self.a0**4
             elif self.rms_norm is None:
-                srms2_term2 = self.a0**2 * np.sum(self.spower[mask]**2)/len(self)**4
+                srms2_term2 = np.sum(self.spower[mask]**2)/self.a0**2
             else:
                 srms2_term2 = np.sum(self.spower[mask]**2) * self.df**2           
             

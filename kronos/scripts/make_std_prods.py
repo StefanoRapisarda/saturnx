@@ -105,6 +105,7 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         obs_ids = df['OBS_ID'].to_numpy()
         target_index = np.where(obs_ids == obs_id)
         time_obs_id = time[target_index]
+        print(time_obs_id)
 
         for ax in axes:
             ax.set_xlim(int(time_obs_id/time_window)*time_window-time_window/10,\
@@ -116,8 +117,9 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     tot_cr = df.CR.to_numpy()
     bkg = df['BKG_CR'].to_numpy()
     n_act_det = df['N_ACT_DET'].to_numpy()
+    cr_err = df['CR_ERR'].to_numpy()/n_act_det
     cr = (tot_cr-bkg)/n_act_det
-    axes[0].errorbar(time,cr,xerr=half_dur_mjd,fmt='o',color='black',label=main_en_band)
+    axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt='o',color='black',label=main_en_band)
    
     if not obs_id is None:
         gold_dot, = axes[0].plot(time_obs_id,cr[target_index],'o',color='goldenrod',ms=12)
@@ -136,8 +138,9 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         en_band = str(df[f'EN_BAND{e+1}'].iloc[0])
         tot_cr = df[f'CR{e+1}'].to_numpy()  
         bkg = df[f'BKG_CR{e+1}'].to_numpy()
+        cr_err = df[f'CR_ERR{e+1}'].to_numpy()/n_act_det
         cr = (tot_cr-bkg)/n_act_det
-        axes[0].errorbar(time,cr,xerr=half_dur_mjd,fmt=markers[e],color=colors[e],label=en_band)
+        axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt=markers[e],color=colors[e],label=en_band)
         
         if not obs_id is None:
             axes[0].plot(time_obs_id,cr[target_index],'o',color='goldenrod',ms=12)
@@ -146,7 +149,7 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
             #axes[0].add_patch(p)   
     
     axes[0].set_ylabel('Count rate [c/s/n_det]',fontsize=14)
-    axes[0].legend(title='[keV]')
+    axes[0].legend(title='[keV]',loc='upper right')
     # --------------------------------------------------------------
     
     # Plot2, hardness ratio

@@ -858,8 +858,7 @@ class Lightcurve(pd.DataFrame):
 
     @property
     def cr_std(self):
-        if self.rate.empty: return None
-        if self.rate.iloc[0] is None: return None
+        if not self.rate.any(): return None
         if len(self.rate) == 0:
             return 0
         else:
@@ -1149,22 +1148,15 @@ class LightcurveList(list):
         if len(self) == 0:
             return 0
         else:
-            if len(set([i.texp for i in self])) == 1:
-                return np.mean([i.count_std for i in self])
-            else:
-                #print([i.cr_std for i in self],np.sum([len(i) for i in self]))
-                return np.sqrt( np.sum([i.count_std**2.*len(i) for i in self]) /np.sum([len(i) for i in self]) )    
+            return np.std([lc.counts for lc in self])
+
     
     @property
     def cr_std(self):
         if len(self) == 0:
             return 0
         else:
-            if len(set([i.texp for i in self])) == 1:
-                return np.mean([i.cr_std for i in self])
-            else:
-                #print([i.cr_std for i in self],np.sum([len(i) for i in self]))
-                return np.sqrt( np.sum([i.cr_std**2.*len(i) for i in self]) /np.sum([len(i) for i in self]) )
+            return np.std([lc.cr for lc in self])
     
     def mean(self,mask = None):
         '''
