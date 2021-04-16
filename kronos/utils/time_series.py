@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from random import gauss
 import math
 import multiprocessing as mp
 from functools import partial
@@ -504,3 +505,12 @@ def rebin_arrays(time_array,tres=None,rf=-30,
     print('Done!')
 
     return rta,rebinned_arrays
+
+
+def white_noise(nbins=1000,mean=0,std=2):
+    noise = [gauss(mean, std) for i in range(nbins)]
+    return np.array(noise)
+
+def poi_noise(counts=100,nbins=1000):
+    poi = [np.random.poisson(counts) for i in range(nbins)]
+    return np.array(poi)

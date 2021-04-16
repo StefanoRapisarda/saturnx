@@ -1,5 +1,6 @@
 import os
 import math
+from os import path
 import pathlib
 import logging
 import pickle
@@ -7,6 +8,8 @@ import numpy as np
 import pandas as pd
 
 from astropy.time import Time
+
+from PyPDF2 import PdfFileMerger, PdfFileReader
 
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -28,6 +31,13 @@ def make_nicer_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     rmf='/Users/xizg0003/AstroBoy/caldb/data/nicer/xti/cpf/rmf/nixtiref20170601v002.rmf',
     arf='/Users/xizg0003/AstroBoy/caldb/data/nicer/xti/cpf/arf/nixtiaveonaxis20170601v004.arf',
     log_name=None):
+    '''
+    Runs make_nicer_std_prod_single for each obs_ID in obs_id_dirs
+
+    HISTORY
+    -------
+    2021 03 18, Stefano Rapisarda (Uppsala), creation date
+    '''
 
     an_dir = obs_id_dirs[0].parent
 
@@ -45,9 +55,22 @@ def make_nicer_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
         else:
             logging.info('{} does not exist'.format(obs_id_dir))
 
+
 def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
-    time_window = 20,\
+    time_window = 20,plt_x_dim = 8,plt_y_dim = 8,
     obs_id = None,log_name=None):
+    '''
+    It reads a pandas data frame containing information about all the 
+    OBS_ID and makes a plot with count rate, hardness ratio, and 
+    fractional RMS over time
+
+    If obs_id is not None, a gold dot corresponding to the obs_ID time
+    is plotted 
+
+    HISTORY
+    -------
+    2021 03 18, Stefano Rapisarda (Uppsala), creation date
+    '''
     
     time_string = 'T{}_{}'.format(tres,tseg)
     
@@ -55,8 +78,8 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     obs_id_dir = an_dir/obs_id
 
     # Logging
-    #if log_name is None:
-    #    log_name = make_logger('make_nicer_general_plot',outdir=obs_id_dir)
+    if log_name is None:
+        log_name = make_logger('make_nicer_general_plot',outdir=obs_id_dir)
 
     logging.info('*'*72)
     logging.info('{:24}{:^24}{:24}'.format('*'*24,'make_nicer_general_plot','*'*24))
@@ -81,12 +104,7 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     # General settings
     colors = ['red','blue','green','orange','brown']
     markers = ['s','^','p','H','X']
-    n_en_bands = 2
-    
-    plt_x_dim = 8
-    plt_y_dim = 8
-    plt_yx_ratio = plt_y_dim/plt_x_dim
-    radius=0.05
+    n_en_bands = df['N_EN_BANDS'].iloc[0]
     
     fig, axes = plt.subplots(3,1,figsize=(plt_x_dim,plt_y_dim))
     plt.subplots_adjust(hspace=0)
@@ -101,18 +119,18 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     start_mjd = int(np.min(start_dates_mjd))
     time = mid_dates_mjd-start_mjd
     
-    if not obs_id is None: 
-        obs_ids = df['OBS_ID'].to_numpy()
+    obs_ids = df['OBS_ID'].to_numpy()
+    if (not obs_id is None) and (obs_id in obs_ids): 
         target_index = np.where(obs_ids == obs_id)
         time_obs_id = time[target_index]
-        print(time_obs_id)
 
         for ax in axes:
             ax.set_xlim(int(time_obs_id/time_window)*time_window-time_window/10,\
-                        int(time_obs_id/time_window+1)*time_window+time_window/10)
+                        int(time_obs_id/time_window+1)*time_window+time_window/10*2)
     
     # Plot1, count rates versurs time
     # --------------------------------------------------------------
+    # Main energy band
     main_en_band = str(df['MAIN_EN_BAND'].iloc[0])
     tot_cr = df.CR.to_numpy()
     bkg = df['BKG_CR'].to_numpy()
@@ -121,19 +139,12 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     cr = (tot_cr-bkg)/n_act_det
     axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt='o',color='black',label=main_en_band)
    
-    if not obs_id is None:
+    if (not obs_id is None) and (obs_id in obs_ids):
         gold_dot, = axes[0].plot(time_obs_id,cr[target_index],'o',color='goldenrod',ms=12)
-        #top,bottom = ax.get_ylim()
-        #left,right = ax.get_xlim()
-        #x_length = right-left
-        #y_length = top-bottom
-        #p=patches.Ellipse((time_obs_id,cr[target_index]),x_length*radius*plt_yx_ratio,y_length*radius,\
-        #                                              edgecolor='goldenrod',facecolor='none',lw=2,zorder=2)
-        #axes[0].add_patch(p)  
         leg2 = axes[0].legend([gold_dot],[obs_id],loc='upper left')
         axes[0].add_artist(leg2)
         
-    
+    # Other energy bands
     for e in range(n_en_bands):
         en_band = str(df[f'EN_BAND{e+1}'].iloc[0])
         tot_cr = df[f'CR{e+1}'].to_numpy()  
@@ -142,7 +153,7 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         cr = (tot_cr-bkg)/n_act_det
         axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt=markers[e],color=colors[e],label=en_band)
         
-        if not obs_id is None:
+        if (not obs_id is None) and (obs_id in obs_ids):
             axes[0].plot(time_obs_id,cr[target_index],'o',color='goldenrod',ms=12)
             #p=patches.Ellipse((time_obs_id,cr[target_index]),x_length*radius*plt_yx_ratio,y_length*radius,\
             #                                              edgecolor='goldenrod',facecolor='none',lw=2,zorder=2)
@@ -157,7 +168,7 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     hr = df.HR.to_numpy()
     axes[1].plot(time,hr,'o',color='black',zorder=4)
     
-    if not obs_id is None:
+    if (not obs_id is None) and (obs_id in obs_ids):
         axes[1].plot(time_obs_id,hr[target_index],'o',color='goldenrod',ms=12) 
         
     axes[1].set_ylabel('Hardness',fontsize=14)
@@ -165,20 +176,22 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     
     # Plot3, fractional rms
     # --------------------------------------------------------------
+    # Main energy band
     rms = df.RMS.to_numpy()
     rms_err = df['RMS_ERR'].to_numpy()
     axes[2].errorbar(time,rms*100,rms_err*100,fmt='o',color='black')
     
-    if not obs_id is None:
+    if (not obs_id is None) and (obs_id in obs_ids):
         gold_dot, = axes[2].plot(time_obs_id,rms[target_index]*100,'o',color='goldenrod',ms=12)   
         
+    # Other energy bands
     for e in range(n_en_bands):
         en_band = str(df[f'EN_BAND{e+1}'].iloc[0]) 
         rms = df[f'RMS{e+1}'].to_numpy()
         rms_err = df[f'RMS_ERR{e+1}'].to_numpy()
         axes[2].errorbar(time,rms*100,rms_err*100,fmt=markers[e],color=colors[e])
         
-        if not obs_id is None:
+        if (not obs_id is None) and (obs_id in obs_ids):
             gold_dot, = axes[2].plot(time_obs_id,rms[target_index]*100,'o',color='goldenrod',ms=12)
      
     axes[2].set_ylabel('Frac. RMS [%]',fontsize=14)
@@ -187,7 +200,7 @@ def make_nicer_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     
     for ax in axes: ax.grid()
         
-    # Saving dile
+    # Saving file
     plot_name = an_dir/obs_id/'std_plots'/'global_info_{}.jpeg'.format(time_string)
     fig.savefig(plot_name, dpi=300)
         
@@ -804,8 +817,53 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     return plots,first_column,second_column
 
 
+def print_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
+    add_plot=[],log_name=None):
+
+    time_string = 'T{}_{}'.format(tres,tseg)
+
+    first_obs_id_dir = obs_id_dirs[0]
+    if type(first_obs_id_dir) == str:
+        first_obs_id_dir = pathlib.Path(first_obs_id_dir)
+    an_dir = first_obs_id_dir.parent
+
+    # Logging
+    if log_name is None:
+        log_name = make_logger('print_std_prods',outdir=an_dir)
+
+    merger = PdfFileMerger()
+    if add_plot != []:
+        for plot_to_add in add_plot:
+            merger.append(PdfFileReader(plot_to_add[0]),bookmark=plot_to_add[1])
+
+    for obs_id_dir in obs_id_dirs:
+
+        if isinstance(obs_id_dir,str):
+            obs_id_dir = pathlib.Path(obs_id_dir)
+        
+        obs_id = obs_id_dir.name
+        std_prod_dir = obs_id_dir/'std_prods'
+        if not std_prod_dir.is_dir():
+            logging.info('std_prods dir does not exist, skipping obs.')
+            logging.info(std_prod_dir)
+            continue
+        pdf_file = std_prod_dir/'{}_std_prods_{}.pdf'.format(obs_id,time_string)
+
+        if pdf_file.is_file():
+
+            with open(pdf_file,'rb') as infile:
+                merger.append(PdfFileReader(infile),bookmark=obs_id)
+
+    # Saving file
+    output_file = an_dir/'std_prods'/'std_prods_{}.pdf'.format(time_string)
+
+    merger.write(str(output_file))
+
+
 def print_std_prod_single(an_dir,obs_id,col1,col2,plots,
     tres='0.0001220703125',tseg='128.0',log_name=None):
+    '''
+    '''
 
     time_string = 'T{}_{}'.format(tres,tseg)
     

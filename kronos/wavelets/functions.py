@@ -1,4 +1,6 @@
 import numpy as np
+import math
+from scipy.signal import savgol_filter
 from scipy.signal import convolve, fftconvolve
 from scipy.fft import fft,ifft
 from .wavelets import Wavelet
@@ -34,33 +36,32 @@ def scale2freq(scales,family='mexhat',method='fft'):
 
     if isinstance(scales,list): scales = np.asarray(scales)
 
-    dur = 100*2
-    n = int(2**12)
+    #dur = 100*2
+    #n = int(2**12)
 
-    t = np.linspace(0,dur,n)
-    wavelet = Wavelet(t,scale=1,family=family)
-    fc = wavelet.fc
+    #t = np.linspace(0,dur,n)
+    mother_wavelet = Wavelet(scale=1,family=family)
+    fc = mother_wavelet.fc
 
+    freqs = np.zeros(len(scales))
     if method == 'an':
-
-        freqs = fc/scales
+        for i,scale in enumerate(scales):
+            if family == 'mexhat':
+                freqs[i]=1./(2*np.pi*scale/np.sqrt(2.5))
+            elif family == 'morlet':
+                omega = mother_wavelet.f0*2*np.pi
+                freqs[i]=1/(4*np.pi*scale/(omega+np.sqrt(2+omega**2)))
 
     elif method == 'fft':
-        freqs = np.zeros(len(scales))
-
         for i,scale in enumerate(scales):
-            dur = 2*100*scale
-            f_attempt = fc/scale
-            n = int(f_attempt*dur*100)
-            t = np.linspace(0,dur,n)
-            wavelet = Wavelet(t,scale=scale,family=family)
-            freqs[i]=wavelet.fc
+            freqs[i]=fc/scale
 
     return freqs
 
 
 def cwt(data, dt, scales, family=None, 
-        sub_mean=False, pad=False, method='conv'):
+        sub_mean=True, pad=False, method='fft',coi_comp='cpeak',
+        print_progress=False):
     '''
     Compute continous wavelet transform using a specified wavelet
 
@@ -86,67 +87,103 @@ def cwt(data, dt, scales, family=None,
     method: str
         Can be conv or fft. It specifies the way you want to compute the 
         transform
+
+    coi_comp: str
+        Sets the way the cone of influence is computed
+        if 'cpeak', it is estimated according to a central peak
+        if 'speak', it is estimated according to side peaks
+        if 'anal', it is computed according to an analytical formula
     '''
 
     n = len(data)
 
     if sub_mean:
-        data -= np.mean(data)
+        data = data-np.mean(data)
 
     if pad:
         log2n = np.log(n)/np.log(2)
-        x = int(log2n)
-        if log2n - x != 0:
+        x = int(log2n)+1
+        if (2**x - n) < ((2**x-2**(x-1))/3):
             x+=1
-        pads = np.zeros(int(2**x-n)).astype(data.dtype)
-        ndata = np.concatenate((data,pads))
-        nn = len(data)
-        assert nn == 2**x, 'Something is wrong in padding'
+        diff = int(2**x-n)
+        to_pad = int(diff/2)
+        if diff%2 == 0:
+            left_pad,right_pad = to_pad,to_pad
+            ndata = np.pad(data,(to_pad,to_pad),'constant',constant_values=(0,0))
+        else:
+            left_pad,right_pad = to_pad,to_pad+1
+            ndata = np.pad(data,(to_pad,to_pad+1),'constant',constant_values=(0,0))
+        nn = len(ndata)
+        assert nn == 2**x, 'Something is wrong in padding ({},{})'.format(nn,2**x)
+        print('Data padded with zero, {} ---> {}'.format(len(data),nn))
     else:
         ndata = data
         nn = n
 
     # Determining wavelet dtype, wavelet transform has the same dtype
     if family is None: family = 'mexhat'
-    wavelet = Wavelet(family=family)
-    out_dtype = wavelet.y.dtype
+    mather_wavelet = Wavelet(scale=1,family=family)
+    out_dtype = mather_wavelet.y.dtype
+    fc = mather_wavelet.fc
 
     #scales = comp_scales(f_min=f_min,f_max=f_max,ds=ds,family=family)
 
-    output = np.zeros((len(scales), len(data)), dtype=out_dtype)
+    output = np.zeros((len(scales), nn), dtype=out_dtype)
     freqs = np.zeros(len(scales))
+    coi_times = np.zeros(len(scales))
+
+    if method == 'fft':
+        data_fft = fft(ndata)
+
     for i, scale in enumerate(scales):
+        if i%20 == 0 and print_progress:
+            print('Computing transform {} %'.format(int(i/(len(scales)-1)*100)))
 
         # Computing wavelet with the same data time resolution
         nw = 10*scale*2
         warray = np.arange(0,nw,dt)
-        wavelet = Wavelet(x=warray,scale=scale,family=family)
-        
-        freqs[i] = wavelet.fc
+        wavelet = Wavelet(x=warray,scale=scale,family=family,coi_comp=coi_comp)
+        wavelet_y = wavelet.y
+        if len(wavelet_y) < len(ndata):
+            diff = len(ndata)-len(wavelet_y)
+            to_pad2 = int(diff/2)
+            if diff%2 == 0:
+                wavelet_y = np.pad(wavelet_y,(to_pad2,to_pad2),'constant',constant_values=(0,0))
+            else:
+                wavelet_y = np.pad(wavelet_y,(to_pad2,to_pad2+1),'constant',constant_values=(0,0))
+        elif len(wavelet_y) > len(ndata):
+            diff = len(wavelet_y)-len(ndata)
+            to_crop = int(diff/2)
+            if diff%2 == 0:
+                wavelet_y = wavelet_y[to_crop:-to_crop]
+            else:
+                wavelet_y = wavelet_y[to_crop:-to_crop-1]
+
+        freqs[i] = fc/scale
+
+        # Computing coi
+        coi_times[i] = wavelet.coi
 
         if method == 'conv':
-            wavelet_data = np.conj(wavelet.y[::-1])
-            output[i] = convolve(data, wavelet_data, mode='same')
+            wavelet_data = np.conj(wavelet_y[::-1])
+            output[i] = convolve(ndata, wavelet_data, mode='same')
         
         elif method == 'fft':
 
-            # not reliable
-            tot_size = len(wavelet.y)+len(data)
-            log2n = np.log(tot_size)/np.log(2)
-            x = int(log2n)
-            if log2n - x != 0:
-                x+=1
-            closest_p2_size = int(2**x)
-            print('closest_p2_size',closest_p2_size)
+            fft_wavelet = fft(wavelet_y)
+            output[i,:] = np.fft.fftshift(ifft(data_fft*fft_wavelet))
 
-            wavelet_data = np.conj(fft(wavelet.y,n=len(data)))
-            fourier_data = fft(data,n=len(data))
-            conv = ifft(fourier_data*wavelet_data)
-            #print('conv shape',conv.shape)
-            #print('output shape',output.shape)
-            output[i,:] = conv*np.sqrt(scale)
+    if len(coi_times)%2==0:
+        window = len(coi_times)-1
+    else:
+        window = len(coi_times)
+    coi_times = savgol_filter(coi_times, window, 5)
 
-    return output, freqs
+    if pad:
+        output = output[:,left_pad:-right_pad]
+
+    print('Done!')
+    return output, freqs, coi_times
 
 
     

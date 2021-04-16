@@ -110,6 +110,9 @@ def make_nicer_lc(event_file,tres=1.,en_bands=[[0.5,10.]],
     logging.info('Obs ID: {}'.format(obs_id))
     logging.info('Settings:')
     logging.info('-'*60)
+    for en_band in en_bands:
+        low_en = en_band[0]
+        high_en = en_band[1]
     logging.info('Selected energy band: {}-{} keV'.format(low_en,high_en))
     logging.info('Selected time resolution: {} s'.format(tres)) 
     logging.info('Split events: {}'.format('yes' if split_event else 'no'))
@@ -144,10 +147,11 @@ def make_nicer_lc(event_file,tres=1.,en_bands=[[0.5,10.]],
     # Checking file existance
     no_lc_files = False
     for lc_list_file,lc_list_name in zip(lc_list_files,lc_list_names):
-        if not lc_list_file.is_file():
-            logging.info('Lightcurve list file {} already exists.'.\
-                format(lc_list_name))            
+        if not lc_list_file.is_file():         
             no_lc_files = True
+        else:
+            logging.info('Lightcurve list file {} already exists.'.\
+                format(lc_list_name))   
 
     # Computing lightcurve
     # -----------------------------------------------------------------
