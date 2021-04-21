@@ -69,10 +69,6 @@ class pdf_page(FPDF):
             list[1] = number of boxes on the y axis (default 1)
             list[2] = space between boxes along x in mm (default 5)
             list[3] = space between boxes along y in mm (default 5)
-            
-        margins: list (optional)
-            List of margins (default 0) to be applied to the selected box
-            [left margin,top margin,right margin,bottom margin]
         
         sel: string (optional)
             Two digit string specifying row and colomn of the selected box.
@@ -91,13 +87,6 @@ class pdf_page(FPDF):
         
         n_hor_spaces = grid[1]-1
         n_ver_spaces = grid[0]-1
-        
-        if input_box == []:        
-            effective_width = self._width-grid[2]*n_hor_spaces-self._margins[0]-self._margins[1]
-            effective_length = self._length-grid[3]*n_ver_spaces-self._margins[2]-self._margins[3]
-        else:
-            effective_width  = (input_box[3]-input_box[1])-grid[2]*n_hor_spaces
-            effective_length = (input_box[2]-input_box[0])-grid[3]*n_ver_spaces
         
         box_width  = (self._eff_width-(n_hor_spaces*grid[2]))/grid[1]
         box_length = (self._eff_length-(n_ver_spaces*grid[3]))/grid[0]
@@ -197,7 +186,23 @@ class pdf_page(FPDF):
         input_coors[0] = coors[0]+key_width
         self.print_column(rows=items,fontexp='',xy=(input_coors[0],input_coors[1]))
 
-            
+    def print_text(self, text='',fontsize=12,font='Arial',spacing=3,fontexp='',
+                 xy=(),conv=0.35):
+        '''
+        Writes text at the specified position
+        '''
+
+        start_xy = (self.get_x(),self.get_y())
+        if len(xy)==0:
+            self.set_xy(*start_xy)
+        else:
+            self.set_xy(*xy)
+
+        self.set_font(font,'',fontsize)
+        self.cell(0,conv*(fontsize+fontsize/spacing),txt=text,ln=2,align='L')
+        self.set_xy(xy[0],xy[1]+conv*(fontsize*2.5))
+
+
     def print_column(self,rows,title='',fontsize=12,font='Arial',spacing=3,fontexp='',
                  xy=(),conv=0.35):
         '''
@@ -207,6 +212,7 @@ class pdf_page(FPDF):
         start_xy = (self.get_x(),self.get_y())
         if len(xy)==0:
             self.set_xy(*start_xy)
+            xy = start_xy
         else:
             self.set_xy(*xy)
         

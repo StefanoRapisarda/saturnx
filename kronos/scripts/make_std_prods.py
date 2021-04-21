@@ -215,7 +215,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     arf='/Users/xizg0003/AstroBoy/caldb/data/nicer/xti/cpf/arf/nixtiaveonaxis20170601v004.arf',
     log_name=None):
     '''
-    Save plots and a dictionary with information according with user 
+    Makes plots and a dictionary with information according to user 
     settings
 
     This function is specific for NICER reduced products. It assumes

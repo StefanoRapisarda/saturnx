@@ -405,7 +405,7 @@ class WaveletTransform:
     @property
     def norm_power(self):
         if len(self.time) == 0 or len(self.wt) == 0: return None
-        return self.power/self.time.var()
+        return self.power/self.counts.var()
 
     @property
     def global_power(self):
@@ -419,11 +419,18 @@ class WaveletTransform:
     @staticmethod
     def from_lc(lightcurve,dt=1,s_min=None,s_max=None,dj=None,family='mexhat'):
 
+        meta_data = {}
+
         if type(lightcurve) == type(Lightcurve()):
+            print('Input is a lightcurve object')
             dt = lightcurve.tres
             tdur = lightcurve.texp
             counts = lightcurve.counts.to_numpy()
             time = lightcurve.time.to_numpy()
+
+            meta_data['WT_CRE_MODE'] = 'Wavelet transform computed from Lightcurve object'
+            for key,item in lightcurve.meta_data.items():
+                meta_data[key] = item
         else:
             if type(lightcurve) == list:
                 lightcurve = np.array(lightcurve)
@@ -433,6 +440,8 @@ class WaveletTransform:
                 raise ValueError('time and lightcurve arrays do not have the same dimension')
             counts = lightcurve
 
+            meta_data['WT_CRE_MODE'] = 'Wavelet transform computed from array'
+
         # Computing scales
         # The default minimum scale is 2 times the time resolution
         if s_min is None: s_min = 2*dt
@@ -441,13 +450,14 @@ class WaveletTransform:
         if s_max is None: s_max = tdur/4.
         if dj is None: dj = 0.05 
 
-        scales = comp_scales(1., tdur/10, dj=0.005)
+        scales = comp_scales(s_min, s_max, dj=dj)
         coef, freqs, coi = cwt(counts,dt=dt,scales=scales,
             family=family,method='fft',pad=True)
 
         result = WaveletTransform(scales=scales,freqs=freqs,
             time=time,counts=counts,
-            wt=coef,coi=coi)
+            wt=coef,coi=coi,
+            meta_data = meta_data)
 
         return result
 
@@ -494,15 +504,18 @@ class WaveletTransform:
         '''
         if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
 
-        if ax is False:
-            if time is False:
+        flag_bar = False
+        if ax == False:
+            if time == False:
                 fig, ax = plt.subplots(figsize=(12,6))
             else:
                 fig, (axt,ax) = plt.subplots(2,figsize=(12,10))
                 plt.subplots_adjust(hspace=0)
+            cbar_ax = fig.add_axes([0.95,0.15,0.03,.7])
+            flag_bar = True
 
-        if (not title is False) and (not ax is False):
-            if time is False:
+        if (not title == False) and (not ax == False):
+            if time == False:
                 ax.set_title(title)  
             else:
                 axt.set_title(title)
@@ -510,7 +523,7 @@ class WaveletTransform:
         start_time = int(np.min(self.time))
         time_array = self.time-start_time
 
-        if not time is False:
+        if not time == False:
             axt.plot(time_array,self.counts,'k')
             axt.set_ylabel(ylabel,fontsize=lfont)
             axt.set_xlim([np.min(time_array),np.max(time_array)])
@@ -529,15 +542,15 @@ class WaveletTransform:
             elif type(norm) == str and norm=='maxpxs':
                 maxes = np.transpose(np.tile(np.max(z,axis=1),(len(time_array),1)))
                 z = z/maxes
-        im = ax.contourf(time_array,y,z,extend='both',cmap=plt.cm.jet)
+
         if len(conf_levels)!=0:
             dof=2
             if not np.iscomplexobj(self.wt): dof=1
-            power_levels = chi2.ppf(conf_levels,df=2)/dof
-            norm_power = self.power/np.var(self.counts)
-            ax.contour(self.time,y,norm_power,power_levels,colors=['white'],linestyles=['-'],linewidths=[1])
+            power_levels = chi2.ppf(conf_levels,df=dof)/dof
+            ax.contour(self.time,y,self.norm_power,power_levels,colors=['white'],linestyles=['-'],linewidths=[1])
 
-                
+        im = ax.contourf(time_array,y,z,extend='both',cmap=plt.cm.jet)
+
         ax.plot(time_array[0]+self.coi,y,'r')
         ax.plot(time_array[-1]-self.coi,y,'r')
         ax.set_xlim([np.min(time_array),np.max(time_array)])
@@ -551,8 +564,8 @@ class WaveletTransform:
         ax.set_xlabel(time_label,fontsize=lfont)
         ax.grid()
         
-        if ax is False:
-            cbar_ax = fig.add_axes([0.95,0.15,0.03,.7])
+        if flag_bar:
+            # !!! fig.colorbar must be added after the axes
             fig.colorbar(im, cax = cbar_ax, orientation='vertical')
 
         if not mini_signal is None:
@@ -570,6 +583,8 @@ class WaveletTransform:
             ax.plot([mini_x[0],mini_x[-1]],[0.05,0.05],color='white',lw=2,ls='--',transform=trans)
             ax.text(mini_x[-1]+step,0.05,s='{} Hz'.format(mini_signal),color='white',transform=trans)
             ax.plot(mini_x,signal,color='white',lw=2,transform=trans)
+
+        return im
 
 
     def save(self,file_name='wavelet_transform.pkl',fold=pathlib.Path.cwd()):
@@ -591,7 +606,7 @@ class WaveletTransform:
         
         try:
             with open(file_name,'wb') as output:
-                pickle.dump(self,output)
+                pickle.dump(self,output, protocol=4)
             print('WaveletTransform saved in {}'.format(file_name))
         except Exception as e:
             print(e)
