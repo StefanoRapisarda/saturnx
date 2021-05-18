@@ -8,7 +8,7 @@ from kronos.core.lightcurve import Lightcurve
 from kronos.core.gti import Gti
 
 def read_lc(fits_file, ext='COUNTS',destination=pathlib.Path.cwd(),
-    mission='HXMT',output_suffix='',log_name=None):
+    mission='HXMT',output_suffix='',single_gti = True, log_name=None):
     '''
     Reads a binned lightcurve in a FITS file and stores it in a 
     lightcurve list.
@@ -48,13 +48,23 @@ def read_lc(fits_file, ext='COUNTS',destination=pathlib.Path.cwd(),
         logging.info('FITS file does not exist')
         return 0
 
+    bkg_flag = False
+    if ('BKG' in str(fits_file) or 'bkg' in str(fits_file)) and mission =='HXMT':
+        ext = 'RATE'
+        bkg_flag = True
+        logging.info('This is a background HXMT FITS file')
+
     rmission = getval(fits_file,'telescop',ext)
     if rmission != mission:
         logging.info(f'This is not a {mission} FITS file')
         return 0
     
     if mission == 'HXMT':
-        obs_id = getval(fits_file,'EXP_ID',ext)
+        try:
+            obs_id = getval(fits_file,'EXP_ID',ext)
+        except:
+            file_name = fits_file.name
+            obs_id = file_name.split('_')[0]
     elif mission == 'NICER':
         obs_id = getval(fits_file,'OBS_ID',ext)
     else:
@@ -69,7 +79,7 @@ def read_lc(fits_file, ext='COUNTS',destination=pathlib.Path.cwd(),
     # Defining PI mission-dependent mul. and correction factors 
     # -----------------------------------------------------------------
     if mission == 'HXMT':
-        instrument = obs_id = getval(fits_file,'INSTRUME',ext)
+        instrument = getval(fits_file,'INSTRUME',ext)
         if instrument == 'HE':
             factor = 370./256
             corr = 15
@@ -94,10 +104,19 @@ def read_lc(fits_file, ext='COUNTS',destination=pathlib.Path.cwd(),
         maxpi = getval(fits_file,'maxPI',1)
         low_en = round(float(minpi)*factor+corr,1)
         high_en = round(float(maxpi)*factor+corr,1)
-    except:
+    except KeyError:
         logging.info('Could not determine energy bands from FITS file')
-        low_en = None
-        high_en = None
+        if 'ch' in str(fits_file.name):
+            file_name = str(fits_file.name)
+            target = file_name.split('_')[4].replace('ch','')
+            minpi = int(target.split('-')[0])
+            maxpi = int(target.split('-')[1])
+            low_en = round(float(minpi)*factor+corr,1)
+            high_en = round(float(maxpi)*factor+corr,1)
+        else:
+            logging.info('Could not determine energy bands from FITS file name')
+            low_en = None
+            high_en = None
     # -----------------------------------------------------------------
 
     # Computing lightcurve
@@ -142,37 +161,50 @@ def read_lc(fits_file, ext='COUNTS',destination=pathlib.Path.cwd(),
         gti_name = 'gti_E{}_{}.gti'.format(low_en,high_en) 
     # -----------------------------------------------------------------
 
-    logging.info('Reading GTI from event file')
-    try:
-        gti = Gti.read_fits(fits_file)
-        logging.info('Done!')
-    except Exception as e:
-        logging.info('Could not read GTI.')
-        logging.info(e)
-        return 0   
-
     logging.info('Saving Lightcurve in the event folder')
     lc.save(lc_name,obs_id_dir)
     logging.info('Done!')
 
-    logging.info('Saving Gti in the event folder')
-    gti.save(gti_name,obs_id_dir)
-    logging.info('Done!')   
+    gti_flag = False
+    if not bkg_flag: # <--- source lightcurve
+        logging.info('Reading GTI from event file')
+        try:
+            gti = Gti.read_fits(fits_file)
+            gti_flag = True
+            logging.info('Done!')
+        except Exception as e:
+            logging.info('Could not read GTI.')
+            logging.info(e)  
 
-    # Computing lightcurve list
-    # -----------------------------------------------------------------
-    logging.info('Splitting lightcurve according to GTI')
-    try:
-        lcs = lc.split(gti)
+        if gti_flag:
+            logging.info('Saving Gti in the event folder')
+            gti.save(gti_name,obs_id_dir)
+            logging.info('Done!')   
+    else: # <--- background lightcurve
+        try:
+            if single_gti:
+                gti_name = 'gti_E{}_{}.gti'.format(low_en,high_en) 
+            gti = Gti.load(gti_name,obs_id_dir)
+            gti_flag = True
+        except FileNotFoundError:
+            logging.warning('I did not find a GTI file, I will NOT compute lightcurve list')
+
+
+    if not bkg_flag or gti_flag:
+        # Computing lightcurve list
+        # -----------------------------------------------------------------
+        logging.info('Splitting lightcurve according to GTI')
+        try:
+            lcs = lc.split(gti)
+            logging.info('Done!')
+        except Exception as e:
+            logging.info('Could not split lightcurve')
+            logging.info(e)
+            return 0
+        # -----------------------------------------------------------------
+
+        logging.info('Saving Lightcurve list in the event folder')
+        lcs.save(lc_list_name,obs_id_dir)
         logging.info('Done!')
-    except Exception as e:
-        logging.info('Could not split lightcurve')
-        logging.info(e)
-        return 0
-    # -----------------------------------------------------------------
-
-    logging.info('Saving Lightcurve list in the event folder')
-    lcs.save(lc_list_name,obs_id_dir)
-    logging.info('Done!')
      
     return 1           

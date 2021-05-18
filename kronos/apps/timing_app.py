@@ -50,8 +50,10 @@ class TimingApp:
         ext = self.ui._timing_tab._event_ext.get().strip()
         if ext[0] == '.': ext = ext[1:]
 
+        output_suffix = self.ui._timing_tab._output_suffix.get()
+
         indir = self.ui._timing_tab._input_dir.get()
-        outdir = os.path.join(self.ui._timing_tab._output_dir.get(),'analysis')
+        outdir = os.path.join(self.ui._timing_tab._output_dir.get())
         # -------------------------------------------------------------
 
         log_name = make_logger('read_lc',outdir,self.ui._logs)
@@ -64,6 +66,8 @@ class TimingApp:
             logging.info('Processing obs ID {} ({}/{})'.\
                 format(obs_id,i+1,len(self.ui._obs_ids)))
 
+            # Looking for specified FITS file according to specified
+            # parameters
             if mission == 'NICER':
                 root_dir = os.path.join(indir,obs_id,'xti/event_cl')
                 fits_files = glob.glob('{}/*{}*.{}*'.format(
@@ -75,6 +79,8 @@ class TimingApp:
                 fits_files = glob.glob('{}/*{}*.{}*'.format(
                 root_dir,self.ui._timing_tab._event_str.get().strip(),ext))
 
+            # Verifying that there is only a fits file corresponding to
+            # selected criteria
             if len(fits_files)==1:
                 fits_file = fits_files[0]
             elif len(fits_files)>1:
@@ -90,7 +96,9 @@ class TimingApp:
 
             # If energy bands are selected, checking if the FITS file 
             # name has the energy bands in its name
-            if len(self.ui._en_bands) != 0:
+            # !!! This means that energy band selection in this function
+            # is perfomed according to FITS file name !!!
+            if len(self.ui._en_bands) != 0 and mission != 'HXMT':
                 en_bands = [[(e.split('-')[0]),(e.split('-')[1])]\
                     for e in self.ui._en_bands] 
                 flag = False
@@ -105,7 +113,8 @@ class TimingApp:
                     continue
                         
             result = read_lc(fits_file,destination=outdir,
-                mission=mission,log_name=log_name)
+                mission=mission,output_suffix=output_suffix,
+                log_name=log_name)
 
             if not result:
                 logging.info('Something went wrong with obs ID {}'.\

@@ -6,6 +6,7 @@ import pathlib
 from datetime import datetime
 import tkinter as tk
 
+loggers = {}
 
 class GuiHandler(logging.StreamHandler):
     '''
@@ -59,7 +60,7 @@ def initialize_logger(log_name=False,level=logging.INFO,text_widget=None):
     -------
     unknown   , Stefano Rapisarda (SHAO), creation date
     2020 09 23, Stefano Rapisarda (Uppsala), efficiency improved
-    2020 11 06, Stefano Rapisarda (Uppsala), 
+    2020 11 06, Stefano Rapisarda (Uppsala), efficiency improved
     '''
 
     # Creating an instance of the object logger
@@ -94,7 +95,7 @@ def initialize_logger(log_name=False,level=logging.INFO,text_widget=None):
 
     return logger
 
-def make_logger(process_name,outdir=pathlib.Path.cwd(),log_widget=None):
+def make_logger(log_name,outdir=pathlib.Path.cwd(),log_widget=None):
     '''
     It creates a logger using the process name and the current date
     and time. It also creates a logs folder inside destination.
@@ -103,7 +104,11 @@ def make_logger(process_name,outdir=pathlib.Path.cwd(),log_widget=None):
     HISTORY
     -------
     2021 02 03, Stefano Rapisarda (Uppsala), creation date
+    2021 04 24, Stefano Rapisarda (Uppsala)
+        Added global variable loggers to avoid double loggers
     '''
+
+    global loggers
 
     if type(outdir) == str: outdir = pathlib.Path(outdir)
     log_dir = outdir/'logs'
@@ -111,11 +116,24 @@ def make_logger(process_name,outdir=pathlib.Path.cwd(),log_widget=None):
         print('Creating log folder...')
         os.mkdir(log_dir)
 
+    full_log_name = log_dir/log_name
+
+    if loggers.get(log_name):
+        return loggers.get(log_name)
+    else:
+        logger = initialize_logger(full_log_name, text_widget=log_widget)
+        loggers[log_name] = logger
+
+    return log_name
+
+def get_logger_name(process_name):
+    '''
+    Attache date to process_name
+    '''
     now = datetime.now()
     date = ('%d_%d_%d') % (now.day,now.month,now.year)
     time = ('%d_%d') % (now.hour,now.minute)
-    log_name = log_dir/'{}_D{}_T{}'.format(process_name,date,time)
 
-    initialize_logger(log_name, text_widget=log_widget)
+    log_name = '{}_D{}_T{}'.format(process_name,date,time)
 
     return log_name

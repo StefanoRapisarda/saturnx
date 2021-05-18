@@ -5,20 +5,22 @@ from scipy.signal import convolve, fftconvolve
 from scipy.fft import fft,ifft
 from .wavelets import Wavelet
 
-def comp_scales(s_min,tdur,dj=0.25,family='mexhat'):
+def comp_scales(s_min,s_max,dj=0.25,family='mexhat',method='fft'):
 
     #assert s_max > s_min, 's_max must be larger then s_min'
 
     #n = int( np.log(s_max/s_min)/np.log(2)/ds )
-    nj = int(( np.log(tdur/s_min)/np.log(2) )/dj)
+    nj = int(( np.log(s_max/s_min)/np.log(2) )/dj)
     j = np.arange(0,nj+1,1)
-    print(len(j),(np.log(tdur/s_min)/np.log(2)),dj)
+    print('{} Computing scales {}'.format(10*'*',10*'*'))
+    #print(len(j),(np.log(s_max/s_min)/np.log(2)),dj)
     scales = np.asarray(s_min*2**(j*dj))
-    freqs = scale2freq(scales,family=family,method='fft')
+    freqs = scale2freq(scales,family=family,method=method)
 
     print('s_max = {}, s_min = {}'.format(scales[-1],scales[0]))
     print('f_min = {}, f_max = {}'.format(freqs[-1],freqs[0]))
     print('n_scales =',len(scales))
+    print('{} {} {}'.format(10*'*',16*'*',10*'*'))
     return scales
 
 def scale2freq(scales,family='mexhat',method='fft'):

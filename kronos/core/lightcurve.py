@@ -202,9 +202,9 @@ class Lightcurve(pd.DataFrame):
     def __sub__(self, other):
         if type(other) == type(Lightcurve()):
             if len(self) != len(other):
-                raise ValueError('You cannot add Lightcurves with different dimensions')
+                raise ValueError('You cannot subtract Lightcurves with different dimensions')
             if self.tres != other.tres:
-                raise ValueError('You cannot add Lightcurves with different time resolution')
+                raise ValueError('You cannot subtract Lightcurves with different time resolution')
         
             # Initialize time 
             if np.array_equal(self.time, other.time):
@@ -231,7 +231,7 @@ class Lightcurve(pd.DataFrame):
                 if is_number(other): 
                     other=eval(other)
                 else:
-                    raise TypeError('Cannot add string to Lightcurve')
+                    raise TypeError('Cannot subtract string to Lightcurve')
             time = self.time
             counts = self.counts - other
             low_en, high_en = self.low_en, self.high_en

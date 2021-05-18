@@ -118,6 +118,68 @@ class PowerSpectrum(pd.DataFrame):
             return self.a0*self.df
         else: return None
 
+    def __mul__(self,value):
+        
+        if type(value) in [list,np.ndarray,pd.Series]:
+            if len(value) == 0: return self
+            
+            powers = []
+            for item in value:
+                if type(item) == str:
+                    if is_number(item): 
+                        value=eval(item)
+                    else:
+                        raise TypeError('Cannot multiply string to PowerSpectrum')                
+                else:
+                    try:
+                        float(item)
+                    except Exception:
+                        raise TypeError('Array items must be numbers')
+
+                power = self.power*item
+                if not self.spower is None:
+                    spower = self.spower*item
+                else:
+                    spower = None
+
+                powers += [PowerSpectrum(freq_array= self.freq,
+                    power_array=power,spower_array=spower,
+                    weight=self.weight,low_en=self.low_en,high_en=self.high_en,
+                    leahy_norm=self.leahy_norm,rms_norm=self.rms_norm,
+                    poi_level=self.poi_level,smart_index=True,
+                    notes=self.notes,meta_data=self.meta_data)]
+            
+            return PowerList(powers)
+
+        else:
+            if type(value) == str:
+                if is_number(value): 
+                    value=eval(value)
+                else:
+                    raise TypeError('Cannot multiply string to PowerSpectrum')                
+            else:
+                try:
+                    float(value)
+                except Exception:
+                    raise TypeError('Value must be a number')            
+            
+            power = self.power*value 
+            if not self.spower is None:
+                spower = self.spower*value
+            else:
+                spower = None   
+
+            return PowerSpectrum(freq_array= self.freq,
+                power_array=power,spower_array=spower,
+                weight=self.weight,low_en=self.low_en,high_en=self.high_en,
+                leahy_norm=self.leahy_norm,rms_norm=self.rms_norm,
+                poi_level=self.poi_level,smart_index=True,
+                notes=self.notes,meta_data=self.meta_data)
+
+    def __rmul__(self,value):
+        return self*value
+
+
     def comp_frac_rms(self,low_freq=0,high_freq=np.inf,pos_only=False):
 
         if not self.power.any():
@@ -708,9 +770,18 @@ class PowerList(list):
             meta_data['PW_CRE_DATE'] = my_cdate()
             meta_data['PW_CRE_MODE'] = 'Average of Leahy power spectra'
             meta_data['N_PWA']=len(self)
-            meta_data['SEG_DUR'] = self[0].meta_data['SEG_DUR']
-            meta_data['TIME_RES'] = self[0].meta_data['TIME_RES']
-            meta_data['INFO_FROM_HEADER'] = self[0].meta_data['INFO_FROM_HEADER']
+            try:
+                meta_data['SEG_DUR'] = self[0].meta_data['SEG_DUR']
+            except:
+                meta_data['SEG_DUR'] = None
+            try:
+                meta_data['TIME_RES'] = self[0].meta_data['TIME_RES']
+            except:
+                meta_data['TIME_RES'] = None
+            try:
+                meta_data['INFO_FROM_HEADER'] = self[0].meta_data['INFO_FROM_HEADER']
+            except:
+                meta_data['INFO_FROM_HEADER'] = None
 
             return PowerSpectrum(freq_array = self[0].freq,
                                  power_array = power,

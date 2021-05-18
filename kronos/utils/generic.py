@@ -73,7 +73,7 @@ def chunks(in_obj,n_chunks):
         n = in_obj
         array = list(range(in_obj))
     else:
-        logging.error('Wrong object type')
+        print('Wrong object type')
         return
 
     if n%n_chunks == 0:

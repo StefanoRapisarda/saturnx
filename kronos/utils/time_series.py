@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from random import gauss
 import math
+from scipy.fftpack import ifft
 import multiprocessing as mp
 from functools import partial
 
@@ -272,7 +273,7 @@ def rebin_xy(x,y=None,xe=None,ye=None,rf=-30,start_x=0,stop_x=np.inf,
 
     HISTORY
     -------
-    Stefano Rapisarda, 2021 02 04 (SHAO), creation date
+    Stefano Rapisarda, 2021 02 04 (Uppsala), creation date
     '''
 
     if type(x) == pd.Series: x = x.to_numpy()
@@ -514,3 +515,105 @@ def white_noise(nbins=1000,mean=0,std=2):
 def poi_noise(counts=100,nbins=1000):
     poi = [np.random.poisson(counts) for i in range(nbins)]
     return np.array(poi)
+
+def timmer_koenig2(freq,ps,mean=0):
+    '''
+    It is like timmer_koenig, but works with a given power spectrum
+    '''
+
+    t_dur = 1./abs(freq[2]-freq[1])
+    t_res = 1./2/max(freq)
+    n_bins = len(freq)
+
+    # Initializing fourier amplitudes
+    fourier = np.zeros(n_bins,dtype=complex)
+    fourier[0] = n_bins*mean
+
+    # Loop on frequency excluding the zero-frequency component 
+    for i in range(1,n_bins):
+        amp  = np.sqrt(ps[i])
+        if i < int(n_bins/2):
+            fourier[i] = np.random.normal()*amp+np.random.normal()*amp*1j
+        else:
+            fourier[i] = np.conj(fourier[i-int((i-n_bins/2)*2)])
+
+    # Obtaining the time series via inverse Fourier transform
+    time = irfft(fourier).real#+t_dur*cr
+    
+    # Array of time bins boundaries
+    t_bins = np.linspace(0,t_dur+t_res,n_bins+1)
+    
+    # Array with the center of the time bin
+    t = np.array([(t_bins[i]+t_bins[i-1])/2. for i in range(1,len(t_bins))])
+
+    #time = time-np.mean(time)+cr*t_dur
+    #time = time/np.std(time)*std
+    #time = time-np.mean(time)+t_dur*cr/n_bins
+    time = time-np.mean(time)+mean
+
+    return t,time
+
+def timmer_koenig_from_ps(dt,nt,ps,dc=0):
+    '''
+    Returns a realization of the specified power spectrum
+    according to the Timmer and Koenig prescription 
+    (Timmer and Koenig 1995)
+
+    DESCRIPTION
+    -----------
+    This function was designed to obtain a realization of a power 
+    spectrum of a certain analytical form. The way the user should
+    use it is, first decide the time resolution dt and the number
+    of bins of the output lightcurve. Then, the user should create
+    an array of frequencies with scipy/numpy fftfreq and the previously
+    defined time resolution and number of bins. User this array of 
+    frequency, the user can estimate according to an analytic 
+    expression the power spectrum corresponding to positive frequencies
+    and feed it to this function.
+
+    PARAMETERS
+    ----------
+    dt: float
+        Time resolution of the original time series
+    nt: int
+        Number of time bins in the original time series
+    ps: numpy.array
+        Power spectrum (positive frequencies)
+    dc: float, optional
+        dc or zero-frequency component, it should be equal
+        to the desired total counts of the time series
+
+    RETURNS
+    -------
+    t, lc: tuple
+        t is the time array and lc the corresponding amplitude
+        of the lightcurve
+
+
+    HISTORY
+    -------
+    2021 05 18, Stefano Rapisarda (Uppsala), creation date
+        Compared to the previous versions, this is more efficient
+        as a tried to use "pythonian" language as much as I can.
+    '''
+
+    # Initializing two series of random numbers
+    n1 = np.random.normal(size=len(ps))
+    n2 = np.random.normal(size=len(ps))
+
+    # Initializing Fourier amplitudes
+    pos_amp = np.sqrt(0.5*ps)*(n1+n2*1j)
+    
+    if nt%2 == 0:
+        amp = np.hstack([dc,pos_amp,1/2/dt,np.flip(pos_amp)])
+    else:
+        amp = np.hstack([dc,pos_amp,np.flip(pos_amp)])
+
+    # Perform inverse Fourier transform
+    lc = (ifft(amp)).real
+
+    # Initializing time array of bin center
+    t_bins = np.linspace(0,dt*(nt+1),nt+1)
+    t = np.array([(t_bins[i]+t_bins[i-1])/2. for i in range(1,len(t_bins))])
+
+    return t,lc
