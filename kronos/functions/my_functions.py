@@ -231,42 +231,7 @@ def my_rebin(x,y,xe=0,ye=0,rf=-30,remove_neg=False,average=True):
     print('Done!')
     return rx,ry,rxe,rye
 
-def timmer_koenig2(freq,ps,mean=0):
-    '''
-    It is like timmer_koenig, but works with a given power spectrum
-    '''
 
-    t_dur = 1./(freq[2]-freq[1])
-    t_res = 1./2/max(freq)
-    n_bins = len(freq)
-
-    # Initializing fourier amplitudes
-    fourier = np.zeros(n_bins,dtype=complex)
-    fourier[0] = n_bins*mean
-
-    # Loop on frequency excluding the zero-frequency component 
-    for i in range(1,n_bins):
-        amp  = np.sqrt(ps[i])
-        if i < int(n_bins/2):
-            fourier[i] = np.random.normal()*amp+np.random.normal()*amp*1j
-        else:
-            fourier[i] = np.conj(fourier[i-int((i-n_bins/2)*2)])
-
-    # Obtaining the time series via inverse Fourier transform
-    time = fftpack.ifft(fourier).real#+t_dur*cr
-    
-    # Array of time bins boundaries
-    t_bins = np.linspace(0,t_dur+t_res,n_bins+1)
-    
-    # Array with the center of the time bin
-    t = np.array([(t_bins[i]+t_bins[i-1])/2. for i in range(1,len(t_bins))])
-
-    #time = time-np.mean(time)+cr*t_dur
-    #time = time/np.std(time)*std
-    #time = time-np.mean(time)+t_dur*cr/n_bins
-    time = time-np.mean(time)+mean
-
-    return t,time
 
 
 def timmer_koenig(t_dur,t_res,fv,cr=0,std=1):

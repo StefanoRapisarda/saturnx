@@ -581,7 +581,9 @@ def timmer_koenig_from_ps(dt,nt,ps,dc=0):
         Power spectrum (positive frequencies)
     dc: float, optional
         dc or zero-frequency component, it should be equal
-        to the desired total counts of the time series
+        to the desired total counts of the time series.
+        !!! This correspond to the Fourier amplitude at
+        zero frequency, so np.sqrt(ps[0])!!!
 
     RETURNS
     -------
@@ -605,9 +607,9 @@ def timmer_koenig_from_ps(dt,nt,ps,dc=0):
     pos_amp = np.sqrt(0.5*ps)*(n1+n2*1j)
     
     if nt%2 == 0:
-        amp = np.hstack([dc,pos_amp,1/2/dt,np.flip(pos_amp)])
+        amp = np.hstack([dc,pos_amp,1/2/dt,np.flip(np.conj(pos_amp))])
     else:
-        amp = np.hstack([dc,pos_amp,np.flip(pos_amp)])
+        amp = np.hstack([dc,pos_amp,np.flip(np.conj(pos_amp))])
 
     # Perform inverse Fourier transform
     lc = (ifft(amp)).real

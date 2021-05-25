@@ -6,7 +6,7 @@ import pathlib
 import math
 import pickle
 from scipy.stats import chi2
-from scipy.signal import convolve
+from scipy.signal import convolve, wavelets
 from scipy.fftpack import fft, fftfreq
 
 from kronos.core.lightcurve import Lightcurve
@@ -463,7 +463,8 @@ class WaveletTransform:
 
     def plot(self,ax=False,time=False,freqs=True,logs=True,
         norm='maxpxs',sigma_norm=True,power=True,
-        xrange=[],conf_levels=[],mini_signal=None,
+        xrange=[],conf_levels=[],power_level=None,
+        mini_signal=None,
         ylabel='counts',title=False,lfont=16,**kwargs):
         '''
         Method for plotting the wavelet transform or power
@@ -499,8 +500,10 @@ class WaveletTransform:
             entire array is plotted
         conf_levels: list (optional)
             list of confidence levels as a fraction of 1 (default is [])
-        
-
+        power_level: numpy.array (optional)
+            If not None (None is default), the confidence level is 
+            computed according to this level. The specified power_level
+            must have the same scale/frequency dimension
         '''
         if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
 
@@ -531,10 +534,12 @@ class WaveletTransform:
                 axt.set_xlim(xrange)
             axt.grid()
 
-        y = self.scales
-        if freqs: y = self.freqs
+        y = np.flip(self.scales)
         z = self.wt
         if power: z = self.power
+        if freqs: 
+            y = self.freqs
+        
         if sigma_norm: z = z/np.var(self.counts)
         if not norm is None:
             if type(norm) in [int,float]:
@@ -547,7 +552,15 @@ class WaveletTransform:
             dof=2
             if not np.iscomplexobj(self.wt): dof=1
             power_levels = chi2.ppf(conf_levels,df=dof)/dof
-            ax.contour(self.time,y,self.norm_power,power_levels,colors=['white'],linestyles=['-'],linewidths=[1])
+
+            if not power_level is None:
+                assert len(power_level) == len(self.scales), 'Background power must have same shape of scales/freqs'
+                ps_extended = np.transpose(np.tile(power_level,(len(self.time),1)))
+                power_to_check = self.norm_power/ps_extended
+            else:
+                power_to_check = self.norm_power
+
+            ax.contour(self.time,y,power_to_check,power_levels,colors=['white'],linestyles=['-'],linewidths=[1])
 
         im = ax.contourf(time_array,y,z,extend='both',cmap=plt.cm.jet)
 
