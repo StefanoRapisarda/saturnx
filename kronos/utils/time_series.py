@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from random import gauss
 import math
-from scipy.fftpack import ifft
+from scipy.fft import ifft,irfft
 import multiprocessing as mp
 from functools import partial
 
@@ -553,10 +553,10 @@ def timmer_koenig2(freq,ps,mean=0):
 
     return t,time
 
-def timmer_koenig_from_ps(dt,nt,ps,dc=0):
+def timmer_koenig_from_ps(dt,nt,ps,dc=0,frac_rms = 0.1):
     '''
     Returns a realization of the specified power spectrum
-    according to the Timmer and Koenig prescription 
+    according to the Timmer and Koenig prescription b
     (Timmer and Koenig 1995)
 
     DESCRIPTION
@@ -584,6 +584,8 @@ def timmer_koenig_from_ps(dt,nt,ps,dc=0):
         to the desired total counts of the time series.
         !!! This correspond to the Fourier amplitude at
         zero frequency, so np.sqrt(ps[0])!!!
+    frac_rms: float
+        Fractional rms of the output time series
 
     RETURNS
     -------
@@ -597,6 +599,10 @@ def timmer_koenig_from_ps(dt,nt,ps,dc=0):
     2021 05 18, Stefano Rapisarda (Uppsala), creation date
         Compared to the previous versions, this is more efficient
         as a tried to use "pythonian" language as much as I can.
+    2021 06 08, Stefano Rapisarda (Uppsala)
+        Introduced factor 1/2 to take into account power over positive
+        and negative frequencies.
+        frac_rms parameter added.
     '''
 
     # Initializing two series of random numbers
@@ -604,18 +610,33 @@ def timmer_koenig_from_ps(dt,nt,ps,dc=0):
     n2 = np.random.normal(size=len(ps))
 
     # Initializing Fourier amplitudes
-    pos_amp = np.sqrt(0.5*ps)*(n1+n2*1j)
-    
+    # NOTE
+    # 0.25 = 1/2 * 1/2
+    # The first 1/2 is from Timmer and Koenig, so that
+    # the modulus squared of the (complex) fourier amplitude
+    # is equal to the given power
+    # The second 1/2 is vecause the power is equally distributed
+    # between positive and negative frequencies (and here we 
+    # are considering only the negative frequencies)
+    pos_amp = np.sqrt(0.25*ps)*(n1+n2*1j)
+
+    # If nt is even, the Nyquist frequency is included in the
+    # Fourier amplitudes. It is real and unique for both negative
+    # and positive frequencies. Unlike fftfreq, the Nyquist 
+    # frequency component is considered to be positive. 
     if nt%2 == 0:
-        amp = np.hstack([dc,pos_amp,1/2/dt,np.flip(np.conj(pos_amp))])
-    else:
-        amp = np.hstack([dc,pos_amp,np.flip(np.conj(pos_amp))])
+        pos_amp[-1] = np.sqrt(ps[-1])*np.random.normal()
+
+    # Including zero frequency (aka DC) component
+    amp = np.concatenate(([dc],pos_amp))
 
     # Perform inverse Fourier transform
-    lc = (ifft(amp)).real
+    lc = irfft(amp)
 
-    # Initializing time array of bin center
-    t_bins = np.linspace(0,dt*(nt+1),nt+1)
-    t = np.array([(t_bins[i]+t_bins[i-1])/2. for i in range(1,len(t_bins))])
+    # Initializing time array 
+    t = dt*np.arange(nt)
+
+    # Normalizing to given DC and fractional rms
+    lc = (lc-np.mean(lc))/np.std(lc) * frac_rms * dc/nt + dc/nt
 
     return t,lc

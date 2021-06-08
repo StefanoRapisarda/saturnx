@@ -436,7 +436,7 @@ class PowerSpectrum(pd.DataFrame):
                         **kwargs)           
 
         ax.set_xlabel('Frequency [Hz]',fontsize=lfont)
-        if not self._rms_norm is None:
+        if not self.rms_norm is None:
             if xy:
                 ax.set_ylabel('Power [(rms/mean)$^2$',fontsize=lfont)
             else:
