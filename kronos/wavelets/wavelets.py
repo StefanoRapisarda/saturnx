@@ -387,6 +387,7 @@ class WaveletTransform:
         if len(self.time) == 0: return None
         return 1./self.texp
 
+    @property
     def nf(self):
         if len(self.time) == 0: return None
         return 1/2/self.tres
@@ -408,18 +409,22 @@ class WaveletTransform:
         return (abs(self.wt))**2
 
     @property
-    def norm_power(self):
-        if len(self.time) == 0 or len(self.wt) == 0: return None
-        return self.power/self.counts.var()
-
-    @property
     def global_power(self):
         if len(self.wt) == 0: return None
-        return self.norm_power.mean(axis=1)
+        return self.norm_power().mean(axis=1)
 
     @property
     def family(self):
         return self._family
+
+    def norm_power(self,norm_type=''):
+        if len(self.time) == 0 or len(self.wt) == 0: return None
+        result = self.power/np.var(self.counts)
+        if norm_type.upper() == 'LEAHY':
+            result /= np.sum(self.counts)
+        elif norm_type.upper() == 'RMS':
+            result = result*len(self.time)*self.tres/np.sum(self.counts)**2
+        return result
 
     @staticmethod
     def from_lc(lightcurve,dt=1,s_min=None,s_max=None,dj=None,family='mexhat'):
@@ -561,9 +566,9 @@ class WaveletTransform:
             if not power_level is None:
                 assert len(power_level) == len(self.scales), 'Background power must have same shape of scales/freqs'
                 ps_extended = np.transpose(np.tile(power_level,(len(self.time),1)))
-                power_to_check = self.norm_power/ps_extended
+                power_to_check = self.norm_power()/ps_extended
             else:
-                power_to_check = self.norm_power
+                power_to_check = self.norm_power()
 
             ax.contour(self.time,y,power_to_check,power_levels,colors=['white'],linestyles=['-'],linewidths=[1])
 
@@ -656,8 +661,6 @@ class WaveletTransform:
         
         return wt   
 
-from kronos.wavelets.functions import cwt,comp_scales
-
 class Patches:
 
     def __init__(self,patches=None,nf=None,nt=None,
@@ -690,7 +693,7 @@ class Patches:
             if len(bkg_power) != len(wavelet.freqs):
                 raise ValueError('power_level must have same wavelet.freqs dimension')
 
-        wt_norm_power = wavelet.norm_power
+        wt_norm_power = wavelet.norm_power()
         nf, nt = wt_norm_power.shape
 
         # Finding point-wise contour significance
@@ -836,7 +839,7 @@ class Patches:
         # In this case the maks is empty
         if np.sum(mask) == 0: return False,[False]
             
-        masked_power = (mask*wavelet.norm_power)[y_mask]
+        masked_power = (mask*wavelet.norm_power())[y_mask]
         # Number of wavelet power time bins inside the patch per
         # row (scale/freq) inside the patch 
         n_t_bins = (sum_mask[y_mask]).astype(int)
@@ -866,7 +869,7 @@ class Patches:
             
         return verdict,patch_flags
 
-    def evaluate_patches(self,wavelet,bkg_power,conf_level=None,tollerance=0.95):
+    def evaluate_patches(self,wavelet,bkg_power,conf_level=None,tollerance=0.95,show_progress=False):
 
         if conf_level is None: conf_level = self.meta_data['CONF_LEVEL']
         self.meta_data['TOLLERANCE'] = 0.95
@@ -874,6 +877,7 @@ class Patches:
         verdicts = []
         flags = []
         for p in range(len(self.patches)):
+            if show_progress: print('Processing patch {}/{}'.format(p+1,len(self.patches)))
             result = self.evaluate_patch_single(wavelet,bkg_power=bkg_power,\
                 patch_i=p,conf_level=conf_level,tollerance=tollerance)
             verdicts += [result[0]]
@@ -933,3 +937,4 @@ class Patches:
         
         return wt   
 
+from kronos.wavelets.functions import cwt,comp_scales

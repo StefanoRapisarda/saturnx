@@ -6,6 +6,7 @@ from scipy.fft import ifft,irfft
 import multiprocessing as mp
 from functools import partial
 
+
 def poi_events(tres=1, nbins=1000, cr=1):
     '''
     Creates a numpy array of Poisson distributed events
@@ -640,3 +641,5 @@ def timmer_koenig_from_ps(dt,nt,ps,dc=0,frac_rms = 0.1):
     lc = (lc-np.mean(lc))/np.std(lc) * frac_rms * dc/nt + dc/nt
 
     return t,lc
+
+

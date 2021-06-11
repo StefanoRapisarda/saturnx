@@ -507,7 +507,7 @@ class PowerSpectrum(pd.DataFrame):
             if (not lightcurve.counts is None) and (lightcurve.tot_counts > 0):
                 
                 freq = fftfreq(len(lightcurve),np.double(lightcurve.tres))
-                amp = fft(lightcurve.counts)
+                amp = fft(lightcurve.counts.to_numpy())
                 power = PowerSpectrum(freq_array = freq, power_array = np.multiply(amp, np.conj(amp)).real,
                                 low_en = lightcurve.low_en, high_en = lightcurve.high_en,
                                 weight = 1, meta_data = meta_data)
