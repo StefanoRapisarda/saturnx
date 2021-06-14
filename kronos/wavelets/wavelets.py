@@ -6,6 +6,10 @@ import pathlib
 import math
 import pickle
 
+import functools
+
+import concurrent
+
 from scipy.stats import chi2
 from scipy.signal import convolve, wavelets
 from scipy.fftpack import fft, fftfreq
@@ -408,10 +412,9 @@ class WaveletTransform:
         if len(self.wt) == 0: return None
         return (abs(self.wt))**2
 
-    @property
-    def global_power(self):
+    def global_power(self,norm_type=''):
         if len(self.wt) == 0: return None
-        return self.norm_power().mean(axis=1)
+        return self.norm_power(norm_type).mean(axis=1)
 
     @property
     def family(self):
@@ -421,7 +424,7 @@ class WaveletTransform:
         if len(self.time) == 0 or len(self.wt) == 0: return None
         result = self.power/np.var(self.counts)
         if norm_type.upper() == 'LEAHY':
-            result /= np.sum(self.counts)
+            result = result/np.sum(self.counts)
         elif norm_type.upper() == 'RMS':
             result = result*len(self.time)*self.tres/np.sum(self.counts)**2
         return result
@@ -664,7 +667,8 @@ class WaveletTransform:
 class Patches:
 
     def __init__(self,patches=None,nf=None,nt=None,
-        verdicts=None,flags=None,meta_data=None,notes=None):
+        verdicts=None,flags=None,conf_level=None,
+        meta_data=None,notes=None):
 
         self.patches = patches
         self.nf = nf
@@ -672,12 +676,15 @@ class Patches:
         self.verdicts = verdicts
         self.flags = flags
 
+        self.conf_level = conf_level
+
         self.notes = notes
 
         if meta_data is None:
             self.meta_data = {}
         else: self.meta_data = meta_data
         self.meta_data['PATCHES_CRE_DATE'] = my_cdate()
+
         
     @staticmethod
     def extract_patches(wavelet, bkg_power=1., conf_level = 0.9975):
@@ -734,7 +741,7 @@ class Patches:
         # -------------------------------------------------------------
 
         result = Patches(patches=patches,nf=nf,nt=nt,verdicts=None,
-        meta_data=None,notes=None)
+        conf_level=conf_level,meta_data=None,notes=None)
         result.meta_data['PATCHES_CRE_MODE'] = 'Patches extracted from wavelet object'
         result.meta_data['CONF_LEVEL'] = conf_level
 
@@ -818,8 +825,7 @@ class Patches:
 
         if ax is None: return fig,ax
 
-    def evaluate_patch_single(self,wavelet,bkg_power,patch_i,
-        conf_level,tollerance):
+    def evaluate_patch_single(self,patch_i,wavelet,bkg_power,tollerance):
 
         if len(wavelet.freqs) != len(bkg_power):
             raise ValueError('The backgound power must have the same wavelet.freqs dimension')
@@ -850,7 +856,7 @@ class Patches:
         # Averaging power over time
         average_power = np.sum(masked_power,axis=1)/n_t_bins
             
-        norm = np.flip(bkg_power)[y_mask]*chi2.ppf(conf_level,df=dof)/dof
+        norm = np.flip(bkg_power)[y_mask]*chi2.ppf(self.conf_level,df=dof)/dof
         norm_power = average_power/norm
         
         #print(norm_power)
@@ -869,22 +875,35 @@ class Patches:
             
         return verdict,patch_flags
 
-    def evaluate_patches(self,wavelet,bkg_power,conf_level=None,tollerance=0.95,show_progress=False):
+    def evaluate_patches(self,wavelet,bkg_power,tollerance=0.95,show_progress=False,
+        multi_process=False,print_info=True):
 
-        if conf_level is None: conf_level = self.meta_data['CONF_LEVEL']
         self.meta_data['TOLLERANCE'] = 0.95
 
-        verdicts = []
-        flags = []
-        for p in range(len(self.patches)):
-            if show_progress: print('Processing patch {}/{}'.format(p+1,len(self.patches)))
-            result = self.evaluate_patch_single(wavelet,bkg_power=bkg_power,\
-                patch_i=p,conf_level=conf_level,tollerance=tollerance)
-            verdicts += [result[0]]
-            flags += [result[1]]
+        if multi_process:
+            partial_evaluate = functools.partial(self.evaluate_patch_single,wavelet = wavelet,\
+                bkg_power=bkg_power,tollerance=tollerance)
+            with concurrent.futures.ProcessPoolExecutor() as executor:
+                results = list(executor.map(partial_evaluate,[p for p in range(len(self.patches))]))
+            self.verdicts = [r[0] for r in results]
+            self.flags = [r[1] for r in results]
 
-        self.verdicts = verdicts
-        self.flags = flags
+        else:
+            verdicts = []
+            flags = []
+
+            for p in range(len(self.patches)):
+                if show_progress: print('Processing patch {}/{}'.format(p+1,len(self.patches)))
+                result = self.evaluate_patch_single(patch_i=p,wavelet=wavelet,bkg_power=bkg_power,\
+                tollerance=tollerance)
+                verdicts += [result[0]]
+                flags += [result[1]]
+
+            self.verdicts = verdicts
+            self.flags = flags
+
+        print('Patches Evaluated')
+
 
     def save(self,file_name='wavelet_patches.pkl',fold=pathlib.Path.cwd()):
 

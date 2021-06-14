@@ -43,7 +43,7 @@ def sin_signal_from_bkg_lc(bkg_lc,freq=1,snr=1,mean=0):
     bkg_power = PowerSpectrum.from_lc(bkg_lc)
     df = bkg_power.df
     rms_bkg_power = bkg_power.normalize('rms')
-    bkg_frac_rms = rms_bkg_power.comp_frac_rms(low_freq=freq-df,high_freq=freq+df)[0]
+    bkg_frac_rms = rms_bkg_power.comp_frac_rms(low_freq=freq-df/2,high_freq=freq+df/2)[0]
     
     # Initializing sinusoid signal
     # NOTE: The variance of a sinusoid signal is amp**2/2
@@ -97,7 +97,7 @@ def chirp_signal_from_bkg_lc(bkg_lc,freq1=1,freq2=2,snr=1,mean=0):
     bkg_power = PowerSpectrum.from_lc(bkg_lc)
     df = bkg_power.df
     rms_bkg_power = bkg_power.normalize('rms')
-    bkg_frac_rms = rms_bkg_power.comp_frac_rms(low_freq=freq1-df,high_freq=freq2+df)[0]
+    bkg_frac_rms = rms_bkg_power.comp_frac_rms(low_freq=freq1-df/2,high_freq=freq2+df/2)[0]
     
     # Initializing chirp signal
     factor = 1.4 # This is determined empirically

@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
+from scipy.fft import rfftfreq
 
-def sbend_pl(f,a1,a2,b=1,f0=1,norm=None,dc=10,frac_rms=0.3,df=1):
+def sbend_pl(dt,nt,freq_array=None,a1=0,a2=-1,b=10,f0=1,norm=None,dc=10,frac_rms=0.3):
     '''
     It returns a (smoothly) bending power law power spectral shape
     given a certain total fractional RMS amplitude and a normalizaion
@@ -9,8 +10,15 @@ def sbend_pl(f,a1,a2,b=1,f0=1,norm=None,dc=10,frac_rms=0.3,df=1):
 
     PARAMETERS
     ----------
-    f: sequence or float
-        Frequency array 
+    dt: float
+        Time frequency
+    nt: int
+        Number of time bins
+    freq_array: sequence, float, or None
+        Frequency values where to evaluate the (normalized) power.
+        If None (default), an array of positive frequencies will
+        be evaluated according to the provided time resolution and
+        number of time bins
     a1: float
         Power law index at low frequencies
     a2: float
@@ -28,15 +36,10 @@ def sbend_pl(f,a1,a2,b=1,f0=1,norm=None,dc=10,frac_rms=0.3,df=1):
         Other options are:
         - POWER
         - LEAHY
-        - RMS
-        
+        - RMS        
     frac_rms: float
         Total fractional RMS
-    df: float
-        Frequency resolution. This is used only in the case the 
-        frequency array is longer than 2. It is supposed to be 
-        specified when you want to evaluate the power at a single
-        frequency
+
 
     RETURNS
     -------
@@ -46,34 +49,40 @@ def sbend_pl(f,a1,a2,b=1,f0=1,norm=None,dc=10,frac_rms=0.3,df=1):
     HISTORY
     -------
     2021 06 01, Stefano Rapisarda (Uppsala), Creation date
+    2021 06 14, Stefano Rapisarda (Uppsala)
+        Mistake about RMS comutation corrected. I did not take into 
+        account that the initially provided frequency array could be
+        not linearly spaced. I added two parameters (dt,nt), so that
+        the script provide a valid frequency array for computing RMS
+        normalization
     '''
 
-    if not type(f) in [list,np.ndarray,pd.Series]:
-        f = np.array([f])
-    elif type(f) == list:
-        f = np.array(f)
-
-    x = f/f0
-    result = x**a1/( (1.0+x**b)**((-a2+a1)/b) )
+    f = rfftfreq(n=nt,d=dt)
+    df = f[2]-f[1]
     
-    if len(f) > 2:
-        df = f[2]-f[1]
-
-    # Get rid of the zero frequency component
-    start=0
-    if f[0] == 0.: start=1
-        
-    # Applying normalization according to specified option
     if not norm is None:
+        
+        f = rfftfreq(n=nt,d=dt)
+        xtmp = f/f0
+        power = xtmp**a1/( (1.0+xtmp**b)**((-a2+a1)/b))
+
         if norm.upper() == 'POWER':
             # There is not 2 because the None normalization takes
             # into account both positive and negative power
-            current_frac_rms2 = np.sum(result[start:])/dc**2
+            current_frac_rms2 = np.sum(power)/dc**2
         elif norm.upper() == 'LEAHY':
-            current_frac_rms2 = np.sum(result[start:])/dc
+            current_frac_rms2 = np.sum(power)/dc
         elif norm.upper() == 'RMS':
-            current_frac_rms2 = np.sum(result[start:])*df
+            current_frac_rms2 = np.sum(power)*df
 
-        result = result/current_frac_rms2*frac_rms**2
+        norm_factor = frac_rms**2/current_frac_rms2
+                       
+    if freq_array is None:
+        x = f/f0
+    else:
+        if type(freq_array) == list: freq_array = np.array(freq_array)  
+        x = freq_array/f0
+                       
+    result = norm_factor * x**a1/( (1.0+x**b)**((-a2+a1)/b))
     
     return result

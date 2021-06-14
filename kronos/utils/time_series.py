@@ -619,7 +619,7 @@ def timmer_koenig_from_ps(dt,nt,ps,dc=0,frac_rms = 0.1):
     # The second 1/2 is vecause the power is equally distributed
     # between positive and negative frequencies (and here we 
     # are considering only the negative frequencies)
-    pos_amp = np.sqrt(0.25*ps)*(n1+n2*1j)
+    pos_amp = np.sqrt(0.5*ps)*(n1+n2*1j)
 
     # If nt is even, the Nyquist frequency is included in the
     # Fourier amplitudes. It is real and unique for both negative
