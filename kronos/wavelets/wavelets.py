@@ -667,7 +667,7 @@ class WaveletTransform:
 class Patches:
 
     def __init__(self,patches=None,nf=None,nt=None,
-        verdicts=None,flags=None,conf_level=None,
+        verdicts=None,flags=None,conf_level=None,patch_info=None,
         meta_data=None,notes=None):
 
         self.patches = patches
@@ -675,6 +675,8 @@ class Patches:
         self.nt = nt
         self.verdicts = verdicts
         self.flags = flags
+
+        self.patch_info = patch_info
 
         self.conf_level = conf_level
 
@@ -685,9 +687,50 @@ class Patches:
         else: self.meta_data = meta_data
         self.meta_data['PATCHES_CRE_DATE'] = my_cdate()
 
+    def __len__(self):
+        return len(self.patches)
+
+    def get_single_patch_info(self,patch_i,wavelet):
+        patch = self.patches[patch_i]
+        info = {}
+        info['area'] = patch.area
+        info['centroid'] = (patch.centroid.x,patch.centroid.y)
         
+        x,y = patch.exterior.xy
+        max_x_dist = max(x)-min(x)
+        max_y_dist = max(y)-min(y)
+        info['max_x_dist'] = max_x_dist
+        info['max_y_dist'] = max_y_dist
+        
+        # First point is repeated
+        info['n_points'] = len(x)-1
+        
+        mask = self.extract_mask(patch_i)
+        n_area_points = np.sum(mask)
+        info['n_area_points'] = n_area_points
+        masked_power = mask*wavelet.norm_power() 
+        info['max_power'] = np.max(masked_power)
+        info['mean_power'] = np.sum(masked_power)/n_area_points
+
+        return info
+
+    def get_patch_info(self,wavelet):
+        result = []
+        for patch_i in range(len(self.patches)):
+            result += [self.get_single_patch_info(patch_i=patch_i,wavelet=wavelet)]
+        self.patch_info = result
+  
     @staticmethod
-    def extract_patches(wavelet, bkg_power=1., conf_level = 0.9975):
+    def extract_patches(wavelet, bkg_power=1., conf_level = None):
+        '''
+        Extracts significance patches from wavelet power spectrum given
+        a noise level and a confidence level
+
+        When the noise level is given, this can be either a single 
+        number or an array. In the latter case, this is assumed to 
+        correspond to increasing frequency and its length must be equal
+        to the length of the wavelet frequencies.
+        '''
 
         # Converting eventual string arguments
         if type(bkg_power) == str: power_level = eval(bkg_power)
@@ -698,7 +741,7 @@ class Patches:
             bkg_power = np.array([bkg_power for i in range(len(wavelet.freqs))])
         elif type(bkg_power) == np.ndarray:
             if len(bkg_power) != len(wavelet.freqs):
-                raise ValueError('power_level must have same wavelet.freqs dimension')
+                raise ValueError('bkg_power must have same wavelet.freqs dimension')
 
         wt_norm_power = wavelet.norm_power()
         nf, nt = wt_norm_power.shape
@@ -710,11 +753,15 @@ class Patches:
 
         dof = 2
         if not np.iscomplexobj(wavelet.wt): dof=1
-        chi2_distr = chi2.ppf(conf_level,df=dof)/dof
+
+        if not conf_level is None:
+            chi2_value = chi2.ppf(conf_level,df=dof)/dof
+        else:
+            chi2_value = 1.
 
         # With these normalizations, the expectration value of 
         # normalized power is 1
-        norm_power = wt_norm_power/bkg_power_2D/chi2_distr
+        norm_power = wt_norm_power/bkg_power_2D/chi2_value
 
         contours = measure.find_contours(norm_power, 1)
         # -------------------------------------------------------------
@@ -772,8 +819,8 @@ class Patches:
         patch = self.patches[patch_i]
         
         # Making grid arrays
-        x_grid = np.arange(int(patch.bounds[0])-1,int(patch.bounds[2])+1+1)
-        y_grid = np.arange(int(patch.bounds[1])-1,int(patch.bounds[3])+1+1)
+        x_grid = np.arange(int(patch.bounds[0]),int(patch.bounds[2])+1+1)
+        y_grid = np.arange(int(patch.bounds[1]),int(patch.bounds[3])+1+1)
         
         x_indices = []
         y_indices = []
@@ -801,12 +848,13 @@ class Patches:
 
         patch = self.patches[patch_i]
     
-        x_grid = np.arange(int(patch.bounds[0])-1,int(patch.bounds[2])+1+1)
-        y_grid = np.arange(int(patch.bounds[1])-1,int(patch.bounds[3])+1+1)
+        patch_x_grid = np.arange(int(patch.bounds[0]),int(patch.bounds[2])+1+1)
+        patch_y_grid = np.arange(int(patch.bounds[1]),int(patch.bounds[3])+1+1)
         
         mask = np.zeros((self.nf,self.nt))
-        for yi in y_grid:
-            for xi in x_grid:
+        
+        for yi in patch_y_grid:
+            for xi in patch_x_grid:
                 if patch.contains(Point(xi,yi)): mask[yi,xi] = 1.
         return mask
 
