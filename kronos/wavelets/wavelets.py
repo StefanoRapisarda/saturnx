@@ -21,6 +21,11 @@ from skimage import measure
 from kronos.core.lightcurve import Lightcurve
 from kronos.utils.generic import my_cdate
 
+import numpy
+import pyximport
+pyximport.install({"include_dirs":numpy.get_include()})
+from kronos.wavelets.cextract_mask import extract_mask_cython
+
 class BaseWavelet:
     '''
     Base wavelet object
@@ -714,10 +719,33 @@ class Patches:
 
         return info
 
-    def get_patch_info(self,wavelet):
+    def get_patch_info(self,wavelet,freq_band=[]):
+
+        if len(freq_band) != 0:
+            # This will be interpreted as upper limit
+            # Remeber!!! highest index, lowest frequency
+            if len(freq_band) == 1:
+                upp_index = np.argmin(abs(wavelet.freqs-freq_band[1]))
+                low_index = 0
+            elif len(freq_band) == 2:
+                low_index = np.argmin(abs(wavelet.freqs-freq_band[1]))
+                upp_index = np.argmin(abs(wavelet.freqs-freq_band[0]))
+            else:
+                raise ValueError('freq_band must contain 2 or less values')
+        else:
+            low_index = 0
+            upp_index = len(wavelet.freq) + 1
+
+        print('low_index',low_index)
+        print('upp_index',upp_index)
+
         result = []
         for patch_i in range(len(self.patches)):
-            result += [self.get_single_patch_info(patch_i=patch_i,wavelet=wavelet)]
+            centroid_freq_index = self.patches[patch_i].centroid.y
+            print('Centroid freq index',centroid_freq_index)
+            if centroid_freq_index >= low_index and centroid_freq_index <= upp_index:
+                print('Accepted!')
+                result += [self.get_single_patch_info(patch_i=patch_i,wavelet=wavelet)]
         self.patch_info = result
   
     @staticmethod
@@ -839,7 +867,7 @@ class Patches:
             
         return x_indices, y_indices
 
-    def extract_mask(self,patch_i):
+    def extract_mask(self,patch_i,opt='wrf'):
         '''
         Creates a mask of zeros with the same dimension of the wavelet 
         transform object where only the points inside the specified patch
@@ -848,14 +876,18 @@ class Patches:
 
         patch = self.patches[patch_i]
     
-        patch_x_grid = np.arange(int(patch.bounds[0]),int(patch.bounds[2])+1+1)
-        patch_y_grid = np.arange(int(patch.bounds[1]),int(patch.bounds[3])+1+1)
-        
-        mask = np.zeros((self.nf,self.nt))
-        
-        for yi in patch_y_grid:
-            for xi in patch_x_grid:
-                if patch.contains(Point(xi,yi)): mask[yi,xi] = 1.
+        if opt is None:
+            patch_x_grid = np.arange(int(patch.bounds[0]),int(patch.bounds[2])+1+1)
+            patch_y_grid = np.arange(int(patch.bounds[1]),int(patch.bounds[3])+1+1)
+            
+            mask = np.zeros((self.nf,self.nt))
+            
+            for yi in patch_y_grid:
+                for xi in patch_x_grid:
+                    if patch.contains(Point(xi,yi)): mask[yi,xi] = 1
+        elif opt in ['wrf','matlab','shapely']:
+            mask = extract_mask_cython(patch,self.nf,self.nt,opt=opt)
+
         return mask
 
     def plot_patch(self,sel=0,ax=None,slices=False):
