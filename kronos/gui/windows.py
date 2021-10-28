@@ -45,7 +45,7 @@ import sys
 sys.path.append('/Volumes/Samsung_T5/kronos')
 import kronos
 from kronos.fitting.fitting_functions import lorentzian
-from kronos.functions.rxte_functions import list_modes
+from kronos.utils.rxte_functions import list_modes
 from kronos.utils.generic import plt_color
 from kronos.gui.tabs import FittingTab, TimingTab
 from kronos.fitting.astropy_custom_models import *

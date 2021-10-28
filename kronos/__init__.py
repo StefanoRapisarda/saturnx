@@ -2,8 +2,6 @@ from . import core
 from .core import *
 from . import fitting
 from .fitting import *
-from . import functions
-from .functions import *
 from . import gui
 from .gui import *
 from . import utils

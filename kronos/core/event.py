@@ -6,7 +6,7 @@ from astropy.io.fits import getdata,getval
 
 from kronos.utils.generic import clean_expr, is_number, my_cdate
 from kronos.utils.fits import get_basic_info, read_fits_keys
-from kronos.functions.nicer_functions import all_det
+from kronos.utils.nicer_functions import all_det
 from kronos.core.gti import Gti
 
 class Event(pd.DataFrame):
