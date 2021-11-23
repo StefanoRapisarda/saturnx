@@ -108,7 +108,7 @@ def make_logger(log_name,outdir=pathlib.Path.cwd(),log_widget=None):
         Added global variable loggers to avoid double loggers
     '''
 
-    global loggers
+    global loggers #!!! Careful with this
 
     if type(outdir) == str: outdir = pathlib.Path(outdir)
     log_dir = outdir/'logs'
@@ -128,7 +128,7 @@ def make_logger(log_name,outdir=pathlib.Path.cwd(),log_widget=None):
 
 def get_logger_name(process_name):
     '''
-    Attache date to process_name
+    Attach date to process_name
     '''
     now = datetime.now()
     date = ('%d_%d_%d') % (now.day,now.month,now.year)
@@ -137,3 +137,58 @@ def get_logger_name(process_name):
     log_name = '{}_D{}_T{}'.format(process_name,date,time)
 
     return log_name
+
+class LoggingWrapper:
+    '''
+    Wrapper for logging. If a logger is initialized, it will print
+    messages on logger (logging.<opt>), otherwise on the screen
+    via print()
+
+    The way to use this is initializing an instance of the
+    LoggingWrapper AFTER having initialized the logger (e.f 
+    my_logging = LoggingWrapper()). At the initialization, the wrapper
+    will check the global variable loggers, initialized by the function
+    make_loggers. Depending on this variable, all the messaged will be
+    either printed via print() (no logger initialized) or on the logger.
+
+    As I used the same format of logging for printing, the two messages
+    are almost undistinguishable on the screen, however the message
+    displayed via print provides the seconds with 6 decimals instead of 
+    the 3 decimals of logging (this info is for debugging purposes)
+    
+    HISTORY
+    -------
+    2021 11 02, Stefano Rapisarda (Uppsala), creation date
+        As I would like to have logging message printed by task
+        both when ran independently and as part of a script, I
+        needed a tool that would use print() or logging depending
+        on the logger was initialized or not
+    '''
+    def __init__(self):
+        if len(loggers) != 0:
+            self.logging_on = True
+        else:
+            self.logging_on = False
+    def eval_time(self):
+        now = datetime.now()
+        return str(now)
+    def info(self,message):
+        if self.logging_on:
+            logging.info(message)
+        else:
+            print('INFO: {}: {}'.format(self.eval_time(),message))
+    def error(self,message):
+        if self.logging_on:
+            logging.error(message)
+        else:
+            print('ERROR: {}: {}'.format(self.eval_time(),message))
+    def warning(self,message):
+        if self.logging_on:
+            logging.error(message)
+        else:
+            print('WARNING: {}: {}'.format(self.eval_time(),message))          
+    def debug(self,message):
+        if self.logging_on:
+            logging.debug(message)
+        else:
+            print('DEBUG: {}: {}'.format(self.eval_time(),message))

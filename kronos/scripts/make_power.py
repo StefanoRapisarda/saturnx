@@ -3,7 +3,7 @@ import pathlib
 from datetime import datetime
 import logging
 
-from kronos.utils.logging import make_logger
+from kronos.utils.my_logging import make_logger
 from kronos.utils.generic import my_cdate
 from kronos.core.event import Event,EventList
 from kronos.core.gti import Gti, GtiList

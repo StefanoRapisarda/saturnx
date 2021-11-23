@@ -3,9 +3,12 @@ Contain functions specific to NICER data
 '''
 
 import os
+from re import LOCALE
 from astropy.io import fits
-from .my_functions import get_nn_var
+from .my_functions import get_nn_var,list_items
+from .my_logging import LoggingWrapper
 import numpy as np
+import pathlib
 
 all_det = np.array([0,1,2,3,4,5,6,
                 10,11,12,13,14,15,7,
@@ -15,6 +18,68 @@ all_det = np.array([0,1,2,3,4,5,6,
                 50,51,52,53,45,36,37,
                 60,62,64,66,54,46,47,
                 61,63,65,67,55,56,57])
+
+def check_nicerl2_io(obs_id_dir):
+    '''
+    Checks if nicerl2 has everything it needs
+
+    HISTORY
+    -------
+    2021 11 02, Stefano Rapisarda (Uppsala), creation date
+        I made this to clean up the execution flow in NICER_pipeline
+    '''
+
+    if type(obs_id_dir) == str:
+        obs_id_dir = pathlib.Path(obs_id_dir)
+
+    mylogging = LoggingWrapper() 
+
+    # Folders
+    # -----------------------------------------------------------------
+    folders = {
+        'auxil':'auxil',
+        'hk':'xti/hk',
+        'event_uf':'xti/event_uf',
+        'event_cl':'xti/event_cl'
+        }    
+    for folder_name,full_path in folders.items():
+        to_check = obs_id_dir/full_path
+        if not to_check.exists():
+            mylogging.error(f'{folder_name} does not exist')
+            return False 
+    # -----------------------------------------------------------------
+
+    # Files
+    # -----------------------------------------------------------------
+    # 7 Uncalibrated files (one per MPU)
+    uf_files = list_items(obs_id_dir/folders['event_uf'],itype='file',
+        include_and=['_uf.evt'])
+    if len(uf_files) != 7:
+        mylogging.error('The uncalibrated files are not 7')
+        return False
+
+    # Make filter file (also unzipping if zipped)
+    mkf_files = list_items(obs_id_dir/folders['auxil'],itype='file',include_and=['.mkf'],
+        exclude_or=['mkf2','mkf3'])
+    if len(mkf_files) != 1:
+        mylogging.error('The make filter file (.mkf) does not exist')
+        return False
+
+    # Orbit file
+    orbit_file = list_items(obs_id_dir/folders['auxil'],itype='file',include_and=['.orb'])             
+    if len(orbit_file) != 1:
+        mylogging.error('The orbit file (.orb) does not exist')
+        return False
+
+    # Attitude file
+    att_files = list_items(obs_id_dir/folders['auxil'],itype='file',include_and=['.att'])
+    if len(att_files) != 1:
+        mylogging.error('The attitude file (.att) does not exist')
+        return False
+    # -----------------------------------------------------------------
+
+    return True
+        
 
 def run_nicerl2(obs_id_dir,tasks="ALL",filtcolumns="NICERV3,3C50",
         niprefilter2="YES",saafilt="NO",nicersaafilt="YES",
@@ -33,7 +98,16 @@ def run_nicerl2(obs_id_dir,tasks="ALL",filtcolumns="NICERV3,3C50",
     HISTORY
     -------
     2021 10 13, Stefano Rapisarda (Uppsala), creation date
+    2021 11 02, Stefano Rapisarda (Uppsala)
+        Moved some instructions here from the main script (NICER_pipeline)
+        Now it prints its own logging command and it checks if the output
+        was properly created
     '''
+
+    mylogging = LoggingWrapper() 
+
+    if type(obs_id_dir) == str:
+        obs_id_dir = pathlib.Path(obs_id_dir)
 
     command = f'nicerl2 indir="{str(obs_id_dir)}" tasks="{tasks}" \
         filtcolumns="{filtcolumns}" niprefilter2="{niprefilter2}" \
@@ -43,106 +117,202 @@ def run_nicerl2(obs_id_dir,tasks="ALL",filtcolumns="NICERV3,3C50",
         overonly_range="{overonly_range}" overonly_expr="{overonly_expr}" \
         clobber="{clobber}"> {log_file}'
     
-    result = True
+    mylogging.info('Running nicerl2 ...')
     try:
         os.system(command)
+        mylogging.info('... and done!\n')
     except:
-        retult = False
+        mylogging.error('Something went wrong running nicerl2, check log file\n' +\
+            f'({nicerl2_log_name})')
+        return False
+
+    # Checking nicerl2 output files
+    # -----------------------------------------------------------------
+    event_cl_dir = obs_id_dir/'xti/event_cl'
+
+    ufa_files = list_items(event_cl_dir,itype='file',
+        include_and=['_ufa.evt'])
+    if len(ufa_files) != 8:
+        mylogging.error('ufa files not created correctly')
+        return False
+
+    cl_file = list_items(event_cl_dir,itype='file',
+        include_and=['_0mpu7_cl.evt'])
+    if len(cl_file) != 1:
+        mylogging.error('Cleaned event file not created correctly')
+        return False   
+    # -----------------------------------------------------------------   
+
+    return cl_file[0]
+
+
+def run_nifpmsel(cl_file,det_list,clobber='yes',log_file='nifpmsel.log'):
+    '''
+    PARAMETERS
+    ----------
+    cl_file: str or pathlib.Path()
+        Full path of the cleaned event file
+    det_list: str
+        Detectors to exclude separated by coma
+        (e.g. -11,-34)
+    log_file: str or pathlib.Path()
+        Name, with full path, of the log file for nifmpsel
+
+    HISTORY
+    -------
+    2021 11 02, Stefano Rapisarda (Uppsala), creation date
+        I wrote this to clean up the main program flow
+    '''
+
+    mylogging = LoggingWrapper()  
+
+    if type(cl_file) == str:
+        cl_file = pathlib.Path(cl_file)
+
+    event_cl_dir = cl_file.parent
+
+    if cl_file.suffix == '.gz':
+        mylogging.info('run_nifpmsel: unzipping cleaned event file')
+        os.system(f'gunzip {cl_file}')
+        input_evt_file = pathlib.Path(cl_file.stem)
+    else:
+        input_evt_file = cl_file
+
+    name_cl_bdc = str(input_evt_file.name).replace('cl.evt','cl_bdc.evt')
     
-    return result
-        
-
-def check_nicer_data(obs_id,home=os.getcwd()):
-    '''
-    Check NICER folder data structure
-    '''
-
-    files = {}
-
-    # Folder structure
-    check_dir = {}
-    obs_id_dir = os.path.join(home,obs_id)
-    check_dir['obs_id_dir'] = os.path.isdir(obs_id_dir)
-    auxil_dir = os.path.join(obs_id_dir,'auxil')
-    check_dir['auxil'] = os.path.isdir(auxil_dir)
-    xti_dir = os.path.join(obs_id_dir,'xti')
-    check_dir['xti'] = os.path.isdir(xti_dir)
-
-    event_cl_dir = os.path.join(xti_dir,'event_cl')
-    check_dir['event_cl'] = os.path.isdir(event_cl_dir)
-    event_uf_dir = os.path.join(xti_dir,'event_uf')
-    check_dir['event_uf'] = os.path.isdir(event_uf_dir)    
-    hk_dir = os.path.join(xti_dir,'hk')
-    check_dir['hk_dir'] = os.path.isdir(hk_dir)  
-
-    public_key = True
-
-    # Files
-    check_files = {'att':False,'orb':False,'mkf':False,'mkf2':False,'mkf3':False}
+    cl_bdc_file = event_cl_dir/name_cl_bdc     
+    
+    cmd = f'nifpmsel infile="{input_evt_file}" outfile="{cl_bdc_file}"  \
+        detlist="launch,{det_list}" clobber={clobber} > {log_file}'   
+    
+    mylogging.info('Excluding noisy detectors ...')
     try:
-        auxil_files = next(os.walk(auxil_dir))[2]
-        for key in check_files.keys():
-            for f in auxil_files:
-                if key in f:
-                    check_files[key]= True
-                    files[key] = os.path.join(auxil_dir,f)
-                    continue
-    except StopIteration as e:
-        print(e)
-    
-    check_files['hk'] = True
-    for i in range(7):
-        if not os.path.isfile(os.path.join(hk_dir,f'ni{obs_id}_0mpu{i}.hk.gz')):
-            check_files['hk'] = False
-    
-    if not check_files['hk']:
-        test = [fname.endswith('.gpg') for fname in os.listdir(hk_dir)]
-        if sum(test) != 0: public_key=False
+        os.system(cmd)
+        mylogging.info('... and done!')
+    except:
+        mylogging.error('Something went wrong running nifpmsel, check log file\n' +\
+            f'({log_file})')
+        return False       
 
-    check_files['uf'] = True
-    first = True
-    for i in range(7):
-        uf = os.path.join(event_uf_dir,f'ni{obs_id}_0mpu{i}_uf.evt.gz')
-        if not os.path.isfile(uf):
-            check_files['uf'] = False
+    # Checking if the file was created
+    if not cl_bdc_file.exists():
+        mylogging.warning('nifpmsel file not created')
+        return False
+
+    return cl_bdc_file
+
+
+def run_barycorr(evt_file,orbit_file,refframe='ICRS',
+    ephem='JPLEPH.430',clobber='yes',log_file='barycorr.log'):
+
+    mylogging = LoggingWrapper()  
+
+    if type(evt_file) == str:
+        evt_file = pathlib.Path(evt_file)
+
+    evt_dir = evt_file.parent
+
+    # Barycorr does not like if the input file is zipped
+    if evt_file.suffix == '.gz':
+        mylogging.info('barycorr: unzipping cleaned event file')
+        os.system(f'gunzip {evt_file}')
+        input_evt_file = pathlib.Path(evt_file.stem)
+    else:
+        input_evt_file = evt_file
+
+    name_evt_bc = str(input_evt_file.name).replace('.evt','_bc.evt')
+    bc_file = evt_dir/name_evt_bc
+
+    cmd = f'barycorr infile="{input_evt_file}" \
+            outfile="{bc_file}" \
+            orbitfiles="{orbit_file}" \
+            refframe={refframe} ephem={ephem} \
+            clobber={clobber} > {log_file}'    
+    mylogging.info('Applying barycentering correction ...')
+    try:
+        os.system(cmd)
+        mylogging.info('... and done!')
+    except:
+        mylogging.error('Something went wrong running barycorr, check log file\n' +\
+            f'({log_file})')
+        return False   
+
+    # Checking if the file was created
+    if not bc_file.exists():
+        mylogging.warning('Barycentric corrected file not created!')
+        return False
+
+    return bc_file
+
+def check_nicer_data(obs_id_dir):
+    '''
+    
+    HISTORY
+    2020 .. .., Stefano Rapisarda (Uppsala), creation date
+    2021 11 03, Stefano Rapisarda (Uppsala)
+        Updated with pathlibPath, removed dir check (as I think it was
+        redundant at this point), and updated list of files created by
+        the new nicer_pipeline
+    '''
+
+    mylogging = LoggingWrapper()
+
+    if type(obs_id_dir) == str: obs_id_dir = pathlib.Path(obs_id_dir)
+    
+    # Checking obs ID
+    obs_id = obs_id_dir.name
+    if not obs_id.isdigit():
+        mylogging(f'check_nicer_data: Something is wrong with the obs. ID name ({obs_id})')
+
+    # [file achronim, string to indentify it]
+    files_to_check = {
+        'att':['.att','auxil'],
+        'orb':['.orb','auxil'],
+        'cat':['.cat','auxil'],
+        'mkf':['.mkf','auxil'],
+        'mkf2':['.mkf2','auxil'],
+        'mkf3':['.mkf3','auxil'],
+        'uf':['_uf.evt','xti/event_uf'],
+        'ufa':['_ufa.evt','xti/event_cl'],
+        'cl':['_cl.evt','xti/event_cl'],
+        'cl_bdc':['_cl_bdc.evt','xti/event_cl'],
+        'cl_bdc_bc':['_cl_bdc_bc.evt','xti/event_cl'],
+        'spectrum':['_bdc.pha','xti/event_cl'],
+        'bkg_spectrum':['_bdc_bkg.pha','xti/event_cl'],
+        'grp_spectrum':['_bdc_grp25.pha','xti/event_cl'],
+        '3C50_spectrum':['3C50_tot','xti/event_cl'],
+        '3C50_bkg':['3C50_bkg','xti/event_cl'],
+        'arf':['arf_bdc.arf','xti/event_cl'],
+        'rmf':['rmf_bdc.rmf','xti/event_cl'],
+        'lis':['arf_bdc.lis','xti/event_cl'],
+        'bkg':['_bkg.','xti/event_cl']
+        }
+
+    are_files_there = {}
+    files = {}
+    for key,item in files_to_check.items():
+        are_files_there[key] = False
+        files[key] = ''
+        target_dir = obs_id_dir/item[1]
+        if key == 'mkf':
+            ffiles = list_items(target_dir,itype='file',include_and=[item[0]],exclude_and=['2','3'])
         else:
-            if first:
-                first = False 
-                files['uf'] = [uf]
-            else:
-                files['uf'] += [uf]
-
-    if not check_files['uf']:
-        test = [fname.endswith('.gpg') for fname in os.listdir(event_uf_dir)]
-        if sum(test) != 0: public_key=False
- 
-
-    ufa = os.path.join(event_cl_dir,f'ni{obs_id}_0mpu7_ufa.evt.gz')
-    check_files['ufa'] = os.path.isfile(ufa)
-    if check_files['ufa']:
-        files['ufa'] = ufa
-    else:
-        files['ufa'] = None
-
-    if not check_files['ufa']:
-        test = [fname.endswith('.gpg') for fname in os.listdir(event_cl_dir)]
-        if sum(test) != 0: public_key=False
-
-    cl = os.path.join(event_cl_dir,f'ni{obs_id}_0mpu7_cl.evt.gz')
-    check_files['cl'] = os.path.isfile(cl)
-    if check_files['cl']:
-        files['cl'] = cl
-    else:
-        files['cl'] = None
-
-    if not check_files['cl']:
-        test = [fname.endswith('.gpg') for fname in os.listdir(event_cl_dir)]
-        if sum(test) != 0: public_key=False
-
-    check_files['public'] = public_key
-
+            ffiles = list_items(target_dir,itype='file',include_and=[item[0]])
+        
+        if key == 'uf': 
+            if len(ffiles) == 7:
+                are_files_there[key] = True
+                files[key] = ffiles
+        elif key == 'ufa': 
+            if len(ffiles) == 8:
+                are_files_there[key] = True
+                files[key] = ffiles
+        else:
+            if len(ffiles) != 0:
+                are_files_there[key] = True
+                files[key] = ffiles[0]
     
-    return check_dir,check_files,files
+    return are_files_there, files
 
 def check_nicer_filtering(filter_file,
                           filter_expr = {

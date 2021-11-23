@@ -11,7 +11,7 @@ import tkinter as tk
 
 sys.path.append('/Volumes/Samsung_T5/kronos')
 from kronos.gui.windows import MakePowerWin, LogWindow
-from kronos.utils.logging import make_logger
+from kronos.utils.my_logging import make_logger
 
 from kronos.scripts.make_lc import make_nicer_lc
 from kronos.scripts.make_power import make_power

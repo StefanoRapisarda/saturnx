@@ -7,6 +7,8 @@ import logging
 from datetime import datetime
 from astropy.io import fits
 
+from .my_logging import LoggingWrapper
+
 def convert_time(time_info,time=False,time_sys_out='UTC'):
     '''
     Convert NICER times as recorded by the spacecraft into absolute
@@ -176,7 +178,7 @@ def get_cr(spec_file, low_en=0.5, high_en=10., mission='NICER',instrument='HE'):
     return cr,cr_err
 
 def run_xselect(cl_event_file_fp,binsize=16,
-    outfile='spectrum.pha',logging_on=False):
+    outfile='spectrum.pha'):
     '''
     Runs xselect with specified options
 
@@ -202,7 +204,12 @@ def run_xselect(cl_event_file_fp,binsize=16,
     HISTORY
     -------
     2021 10 15, Stefano Rapisarda (Uppsala), creation date
+    2021 11 03, Stefano Rapisarda (Uppsala)
+        Introduced the wrapper LoggingWrapper and removed the
+        (now useless) function argument mylogging_on
     '''
+
+    mylogging = LoggingWrapper()
 
     # Recording date and time
     now = datetime.now()
@@ -214,12 +221,8 @@ def run_xselect(cl_event_file_fp,binsize=16,
         cl_event_file_fp = pathlib.Path(cl_event_file_fp)
     if not cl_event_file_fp.exists():
         message = 'run_xselect: cleaned event file does not exists'
-        if logging_on:
-            logging.error(message)
-            logging.error(cl_event_file_fp)
-        else:
-            print(message)
-            print(str(cl_event_file_fp))
+        mylogging.error(message)
+        mylogging.error(cl_event_file_fp)
         return False
     else:
         cl_event_file = cl_event_file_fp.name
@@ -237,10 +240,7 @@ def run_xselect(cl_event_file_fp,binsize=16,
     elif ext == '.lc':
         opt = 'lightcurve'
     else:
-        if logging_on:
-            logging.error('run_xselect: wrong option')
-        else:        
-            print('run_xselect: wrong option')
+        mylogging.error('run_xselect: wrong option')
         return False
     # -----------------------------------------------------------------
 
@@ -271,10 +271,7 @@ def run_xselect(cl_event_file_fp,binsize=16,
         os.system(f'xselect < {infile_name} > {log_name}')
     except:
         message = 'run_xselect: Something went wrong running xselect'
-        if logging_on:
-            logging.error(message)
-        else:
-            print(message)
+        mylogging.error(message)
         return False
     # -----------------------------------------------------------------
 

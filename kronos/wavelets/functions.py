@@ -63,7 +63,7 @@ def scale2freq(scales,family='mexhat',method='fft'):
 
 def cwt(data, dt, scales, family=None, 
         sub_mean=True, pad=False, method='fft',coi_comp='cpeak',
-        print_progress=False):
+        print_progress=False,cfreq='cf'):
     '''
     Compute continous wavelet transform using a specified wavelet
 
@@ -161,7 +161,10 @@ def cwt(data, dt, scales, family=None,
             else:
                 wavelet_y = wavelet_y[to_crop:-to_crop-1]
 
-        freqs[i] = fc/scale
+        if cfreq == 'cf':
+            freqs[i] = fc/scale
+        elif cfreq == 'pf':
+            freqs[i] = wavelet.fp
 
         # Computing coi
         coi_times[i] = wavelet.coi

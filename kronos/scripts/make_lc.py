@@ -2,7 +2,7 @@ import os
 import pathlib
 import logging
 
-from kronos.utils.logging import make_logger
+from kronos.utils.my_logging import make_logger
 from kronos.core.event import Event,EventList
 from kronos.core.gti import Gti,GtiList
 from kronos.core.lightcurve import Lightcurve,LightcurveList

@@ -246,6 +246,9 @@ def read_args(usr_args={}):
     HISTORY
     -------
     2021 10 13, Stefano Rapisarda (Uppsala), creation date
+    2021 11 03, Stefano Rapisarda (Uppsala)
+        Bug corrected, when you where writing True or False 
+        the argument was interpreted as a string
     '''
     args=sys.argv
 
@@ -271,6 +274,9 @@ def read_args(usr_args={}):
         else:
             value = div[1]
 
+        if value.upper() == 'TRUE': value = True
+        if value.upper() == 'FALSE': value = False
+ 
         arg_dict[div[0]] = value
 
     return arg_dict

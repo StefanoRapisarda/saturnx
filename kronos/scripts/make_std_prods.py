@@ -22,7 +22,7 @@ import xspec
 from kronos.core.gti import Gti
 from kronos.core.lightcurve import LightcurveList
 from kronos.core.power import PowerList
-from kronos.utils.logging import make_logger
+from kronos.utils.my_logging import make_logger
 from kronos.utils.generic import chunks, my_cdate, is_number
 from kronos.utils.pdf import pdf_page
 from kronos.functions.nicer_functions import all_det

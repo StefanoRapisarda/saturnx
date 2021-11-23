@@ -20,7 +20,7 @@ from matplotlib import pyplot
 from kronos.core.gti import Gti
 from kronos.core.lightcurve import LightcurveList
 from kronos.core.power import PowerList
-from kronos.utils.logging import make_logger,get_logger_name
+from kronos.utils.my_logging import make_logger,get_logger_name
 from kronos.wavelets.wavelets import WaveletTransform
 from kronos.wavelets.functions import comp_scales
 from kronos.utils.pdf import pdf_page

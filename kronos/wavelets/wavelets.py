@@ -112,7 +112,7 @@ class BaseWavelet:
         assert self.scale != 0.,'scale cannot be zero'
 
         self.shift = shift
-        if not self.x is None: self.x -= self.shift
+        #if not self.x is None: self.x -= self.shift
 
         self.coi_comp = coi_comp
 
@@ -179,10 +179,17 @@ class BaseWavelet:
     def fp(self):
         '''
         Central frequency computed as maximum of power
-        '''
+        
+        2021 11 17, Stefano Rapisarda (Uppsala)
+            It seems that this estimate is always half frequency  
+            bin lower then the characteristic f and the analytical 
+            value. I therefore added half frequency bin to the 
+            returned value'''
 
         power,freq = self.power(only_pos=True)
-        return freq[np.argmax(power)]
+        #factor = (freq[2]-freq[1])*0.517
+        factor = 0
+        return freq[np.argmax(power)]+factor
 
     @property
     def fc(self):
@@ -435,7 +442,8 @@ class WaveletTransform:
         return result
 
     @staticmethod
-    def from_lc(lightcurve,dt=1,s_min=None,s_max=None,dj=None,family='mexhat'):
+    def from_lc(lightcurve,dt=1,s_min=None,s_max=None,dj=None,family='mexhat',
+        method='fft',pad=True,cfreq='cf'):
 
         meta_data = {}
 
@@ -470,7 +478,7 @@ class WaveletTransform:
 
         scales = comp_scales(s_min, s_max, dj=dj)
         coef, freqs, coi = cwt(counts,dt=dt,scales=scales,
-            family=family,method='fft',pad=True)
+            family=family,method=method,pad=pad,cfreq=cfreq)
 
         result = WaveletTransform(scales=scales,freqs=freqs,
             time=time,counts=counts,
@@ -482,7 +490,8 @@ class WaveletTransform:
     def plot(self,ax=False,time=False,freqs=True,logs=True,
         norm='maxpxs',sigma_norm=True,power=True,
         xrange=[],conf_levels=[],power_level=None,
-        mini_signal=None,
+        cmap=plt.cm.jet,
+        mini_signal=None,coi=True,
         ylabel='counts',title=False,lfont=16,**kwargs):
         '''
         Method for plotting the wavelet transform or power
@@ -490,8 +499,8 @@ class WaveletTransform:
         PARAMETERS
         ----------
         ax: matplotlib.Axes.axes (optional) 
-            if not False, this is the external matplotlib axes provided
-            by the user (default is False)
+            This should be the external matplotlib axes 
+            provided by the user (default is False)
         time: boolean (optional)
             if True, time series is plot on top of the wavelet products
             (default is False)
@@ -499,19 +508,19 @@ class WaveletTransform:
             if True, Frequency are plotted instead of scales
             (default is True)
         logs: boolean(optional)
-            if True, the scales/frequencies are plotted in logarithmic
+            if True, scales/frequencies are plotted in logarithmic
             scale
         norm: float, str, or None (optional)
-            if float, the plotted wavelet products are divided by the 
+            - if float, the plotted wavelet products are divided by the 
             float
-            if equal to 'maxpxs' (default), wavelet products are divided
+            - if equal to 'maxpxs' (default), wavelet products are divided
             by the maximum of the products at each scale
-            if None, no normalization is applied
+            - if None, no normalization is applied
         sigma_norm: boolean (optional)
-            if True, wavelet products are divided by the variance of 
+            if True, wavelet power is divided by the variance of 
             the original time series (default is True)
         power: boolean (optional)
-            if True, the wavelet power is plotted (default)
+            if True, the wavelet power is plotted (default),
             if False, the wavelet transform is plotted (real part)
         xrange: list (optional)
             x axis range (starting from zero), if empty (default), the 
@@ -522,6 +531,20 @@ class WaveletTransform:
             If not None (None is default), the confidence level is 
             computed according to this level. The specified power_level
             must have the same scale/frequency dimension
+        cmap: matplotlib color map
+            default is plt.cm.jet
+        mini_signal: float or None (optional)
+            If float, it will be printed a mini signal (one full 
+            oscillation) with the specified frequency (float).
+            Default is None
+        coi: boolean (optional)
+            If True (default) the cone of influence is plotted
+        ylabel: str (optional)
+            Label for the time series plot (default is "counts")
+        title: str or None (optional)
+            Title of the plot
+        lfont: int (optional)
+            xy label font (default is 16)
         '''
         if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
 
@@ -550,6 +573,7 @@ class WaveletTransform:
             axt.set_xlim([np.min(time_array),np.max(time_array)])
             if len(xrange)!=0:
                 axt.set_xlim(xrange)
+            axt.set_xticklabels([])
             axt.grid()
 
         y = np.flip(self.scales)
@@ -580,10 +604,13 @@ class WaveletTransform:
 
             ax.contour(self.time,y,power_to_check,power_levels,colors=['white'],linestyles=['-'],linewidths=[1])
 
-        im = ax.contourf(time_array,y,z,extend='both',cmap=plt.cm.jet)
+        im = ax.contourf(time_array,y,z,extend='both',cmap=cmap)
 
-        ax.plot(time_array[0]+self.coi,y,'r')
-        ax.plot(time_array[-1]-self.coi,y,'r')
+        if coi:
+            coi_mask = self.coi<=time_array[len(time_array)//2]
+            ax.plot(time_array[0]+self.coi[coi_mask],y[coi_mask],'r')
+            ax.plot(time_array[-1]-self.coi[coi_mask],y[coi_mask],'r')
+
         ax.set_xlim([np.min(time_array),np.max(time_array)])
         if len(xrange)!=0:
             ax.set_xlim(xrange)
@@ -615,7 +642,7 @@ class WaveletTransform:
             ax.text(mini_x[-1]+step,0.05,s='{} Hz'.format(mini_signal),color='white',transform=trans)
             ax.plot(mini_x,signal,color='white',lw=2,transform=trans)
 
-        return im
+        return ax
 
 
     def save(self,file_name='wavelet_transform.pkl',fold=pathlib.Path.cwd()):
