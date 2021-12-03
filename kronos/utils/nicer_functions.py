@@ -295,7 +295,7 @@ def check_nicer_data(obs_id_dir):
         files[key] = ''
         target_dir = obs_id_dir/item[1]
         if key == 'mkf':
-            ffiles = list_items(target_dir,itype='file',include_and=[item[0]],exclude_and=['2','3'])
+            ffiles = list_items(target_dir,itype='file',include_and=[item[0]],exclude_and=['mkf2','mkf3'])
         else:
             ffiles = list_items(target_dir,itype='file',include_and=[item[0]])
         
