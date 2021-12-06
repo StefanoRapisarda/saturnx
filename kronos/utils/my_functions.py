@@ -17,7 +17,7 @@ from ..utils import my_classes as mc
 import matplotlib
 import matplotlib.pyplot as plt
 
-def list_items(path,itype = 'dir',ext = '',
+def list_items(path,itype = 'dir',ext = '',prefix='',
                 include_or=[],include_and=[],exclude_or=[],exclude_and=[],
                 choose=False,show=False,sort=True,digits=False):
     '''
@@ -37,6 +37,9 @@ def list_items(path,itype = 'dir',ext = '',
         'dir' for directory, 'file' for files (default = 'dir')
     ext: string or list of strings, optional
         Only files with extension equal to .ext will be returned
+    prefix: string or list of strings, optional
+        Only files/dirs beginning with prexix will be returned 
+        (default is '')
     include_or: string or list, optional
         Only items including one of the specified string will be
         returned
@@ -88,6 +91,8 @@ def list_items(path,itype = 'dir',ext = '',
           the item name when checking if all the characters are digits
           (see description of the parameter);
         - Directories now are treated as pathlib.Path(s);
+    2021 12 06 Stefano Rapisarda (Uppsala)
+        Added Prefix option
     '''
 
     if type(path) != type(pathlib.Path()):
@@ -106,7 +111,8 @@ def list_items(path,itype = 'dir',ext = '',
     # Filtering files with a certain extension
     if itype == 'file' and ext != '':
         if type(ext) == str: ext = [ext]
-        # Removing first dot
+
+        # Removing first dot from ext
         new_ext = [ex[1:]  if ex[0]=='.' else ex for ex in ext]
         ext = new_ext
 
@@ -120,6 +126,24 @@ def list_items(path,itype = 'dir',ext = '',
             if ext_to_test[1:] in ext:
                 new_items += [item]
         items = new_items
+
+    # Filtering according to pre (first string)
+    if prefix != '':
+        if type(prefix) == str: prefix = [prefix]
+
+        # Making an array of prefix lenghts
+        pl = [len(p) for p in prefix]
+
+        new_items = []
+        for item in items:
+            flag = False
+            for p in prefix:
+                lp = len(p)
+                if item[0:lp] == prefix: flag=True
+                    
+            if flag: new_items += [item]
+        items = new_items
+
 
     # Filtering files according to include_or
     if include_or != []:
