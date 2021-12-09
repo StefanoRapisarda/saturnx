@@ -18,15 +18,16 @@ import matplotlib.colors as mcolors
 from matplotlib.patches import Rectangle
 
 import xspec
+from sherpa.astro import ui
 
 from kronos.core.gti import Gti
 from kronos.core.lightcurve import LightcurveList
 from kronos.core.power import PowerList
-from kronos.utils.my_logging import make_logger
+from kronos.utils.my_logging import make_logger, LoggingWrapper
 from kronos.utils.generic import chunks, my_cdate, is_number
 from kronos.utils.pdf import pdf_page
-from kronos.functions.nicer_functions import all_det
-from kronos.functions.xray import get_cr
+from kronos.utils.nicer_functions import all_det
+from kronos.utils.xray import get_cr
 
 def make_hxmt_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['52.6','188.4'], spec_en_ch = ['26','120'], en_bands = [],
@@ -655,23 +656,20 @@ def make_hxmt_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
 
 def make_nicer_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
-    rebin=-30,data_dir=pathlib.Path.cwd(),
-    rmf='/Users/xizg0003/AstroBoy/caldb/data/nicer/xti/cpf/rmf/nixtiref20170601v002.rmf',
-    arf='/Users/xizg0003/AstroBoy/caldb/data/nicer/xti/cpf/arf/nixtiaveonaxis20170601v004.arf',
-    log_name=None):
+    rebin=-30,data_dir=pathlib.Path.cwd()):
     '''
     Runs make_nicer_std_prod_single for each obs_ID in obs_id_dirs
 
     HISTORY
     -------
     2021 03 18, Stefano Rapisarda (Uppsala), creation date
+    2021 12 09, Stefano Rapisarda (Uppsala)
+        log_name, rmf, and arf parameters removed
     '''
 
-    an_dir = obs_id_dirs[0].parent
+    mylogging = LoggingWrapper()
 
-    # Logging
-    if log_name is None:
-        log_name = make_logger('print_std_prods',outdir=an_dir)
+    an_dir = obs_id_dirs[0].parent
 
     for obs_id_dir in obs_id_dirs:
 
@@ -845,10 +843,7 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
 
 def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
-    rebin=-30,data_dir=pathlib.Path.cwd(),
-    rmf='/Users/xizg0003/AstroBoy/caldb/data/nicer/xti/cpf/rmf/nixtiref20170601v002.rmf',
-    arf='/Users/xizg0003/AstroBoy/caldb/data/nicer/xti/cpf/arf/nixtiaveonaxis20170601v004.arf',
-    log_name=None):
+    rebin=-30,data_dir=pathlib.Path.cwd()):
     '''
     Makes plots and a dictionary with information according to user 
     settings
@@ -910,8 +905,12 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     2020 03 10, Stefano Rapisarda (Uppsala)
         Cleaned up. Now it returns objects to be used directly
         in print_std_prods
+    2021 09 12, Stefano Rapisarda (Uppsala)
+        Removed arf, rmf, and log_name, adopted LoggingWrapper approach
     '''
-    
+
+    mylogging = LoggingWrapper()
+  
     colors = ['red','blue','green','orange','brown']
     markers = ['s','^','p','H','X']
     if len(en_bands) > len(colors):
@@ -920,67 +919,71 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     if type(obs_id_dir) == str: obs_id_dir = pathlib.Path(obs_id_dir)
     if type(data_dir) == str: data_dir = pathlib.Path(data_dir)
 
-    # Logging
-    if log_name is None:
-        log_name = make_logger('make_nicer_std_prod_single',outdir=obs_id_dir)
+    mylogging.info('\n'+'*'*72)
+    mylogging.info('{:22} {:^26} {:22}'.format('*'*22,'make_nicer_std_prod_single','*'*22))
+    mylogging.info('*'*72+'\n')
 
-    logging.info('*'*72)
-    logging.info('{:24}{:^24}{:24}'.format('*'*24,'make_nicer_std_prod_single','*'*24))
-    logging.info('*'*72)
-    
-    # Making folders 
-    # -----------------------------------------------------
     obs_id = obs_id_dir.name
     
+    # Making directories
+    # -----------------------------------------------------------------
     std_plot_dir = obs_id_dir/'std_plots'
     if not std_plot_dir.is_dir():
-        logging.info('std_plots does not exist, creating one...')
+        mylogging.info('std_plots does not exist, creating one...')
         os.mkdir(std_plot_dir)
     else:
-        logging.info('std_plots already exists.')
-    # -----------------------------------------------------
+        mylogging.info('std_plots already exists.')
+    # -----------------------------------------------------------------
     
+
     # Defining names of files to read
-    # -----------------------------------------------------
+    # -----------------------------------------------------------------
     
-    # Main files (Full energy band or energy band to highlight)
+    # Full energy band lightcurve list and power list name
     main_prod_name = 'E{}_{}_T{}_{}'.format(main_en_band[0],main_en_band[1],tres,tseg)
-    
-    main_gti_name = 'gti_E{}_{}.gti'.format(main_en_band[0],main_en_band[1])
     main_lc_list_file = obs_id_dir/'lc_list_{}.pkl'.format(main_prod_name)
     main_pw_list_file = obs_id_dir/'power_list_{}.pkl'.format(main_prod_name)
-    
-    # Other energy bands
+
+    # Full energy band GTI name
+    main_gti_name = 'gti_E{}_{}.gti'.format(main_en_band[0],main_en_band[1])
+
+    # Other energy band names
     lc_list_files = []
     power_list_files = []
     for en_band in en_bands:
         low_en, high_en = en_band[0], en_band[1]
         lc_list_files += [obs_id_dir/'lc_list_E{}_{}_T{}_{}.pkl'.\
-                                       format(low_en,high_en,tres,tseg)]
+            format(low_en,high_en,tres,tseg)]
         power_list_files += [obs_id_dir/'power_list_E{}_{}_T{}_{}.pkl'.\
-                                        format(low_en,high_en,tres,tseg)]
+            format(low_en,high_en,tres,tseg)]
     
-    # Energy spectra
-    spec = data_dir/obs_id/'xti'/'event_cl'/(str(obs_id)+'_tot_spec.pi')
-    bkg_spec = data_dir/obs_id/'xti'/'event_cl'/(str(obs_id)+'_bkg_spec.pi')
+    # Energy spectrum name
+    spec = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_spectrum_bdc.pha'
+    bkg_spec = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_spectrum_bdc_bkg.pha'
+    spec_3c50 = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_spectrum_bdc_3C50_tot.pi'
+    bkg_spec_3c50 = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_spectrum_bdc_3C50_bkg.pi'
+
+    # arf and rmf files
+    arf_file = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_arf_bdc.arf'
+    rmf_file = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_rmf_bdc.rmf'
     # ------------------------------------------------------
 
     # Printing some info
     # -----------------------------------------------------------------
-    logging.info('')
-    logging.info('Obs ID: {}'.format(obs_id))
-    logging.info('Settings:')
-    logging.info('-'*72)
-    logging.info('Selected main energy band: {}-{} keV'.\
+    mylogging.info('')
+    mylogging.info('Obs ID: {}'.format(obs_id))
+    mylogging.info('Settings:')
+    mylogging.info('-'*72)
+    mylogging.info('Selected main energy band: {}-{} keV'.\
         format(main_en_band[0],main_en_band[1]))
     for i,en_band in enumerate(en_bands):
-        logging.info('Selected energy band {}: {}-{} keV'.\
+        mylogging.info('Selected energy band {}: {}-{} keV'.\
             format(i,en_band[0],en_band[1]))        
-    logging.info('Selected time resolution: {} s'.format(tres)) 
-    logging.info('Selected time segment: {} s'.format(tseg)) 
-    logging.info('Log file name: {}'.format(log_name))
-    logging.info('-'*72)
-    logging.info('')
+    mylogging.info('Selected time resolution: {} s'.format(tres)) 
+    mylogging.info('Selected time segment: {} s'.format(tseg)) 
+    mylogging.info('Log file name: {}'.format(log_name))
+    mylogging.info('-'*72)
+    mylogging.info('')
     # -----------------------------------------------------------------
     
     # Plotting
@@ -994,7 +997,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     # Plot1: count rate per segment
     # ------------------------------------------------------
-    logging.info('Plotting count rate per segment')
+    mylogging.info('Plotting count rate per segment')
     fig,ax = plt.subplots(figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.suptitle('Count rate per segment',fontsize=14)
@@ -1015,8 +1018,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         for g in gti_seg.stop.to_numpy():
             ax.axvline(g-start,ls='--',color='orange')
     else:
-        logging.info('Main energy band lc_list file not found')
-        logging.info(main_lc_list_file)
+        mylogging.info('Main energy band lc_list file not found')
+        mylogging.info(main_lc_list_file)
        
     # Other energy bands count rate
     other_crs = []
@@ -1030,8 +1033,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             other_crs += [lc_list.cr]
             other_crs_err += [lc_list.cr_std]
         else:
-            logging.info('Single energy band lc_list not found')
-            logging.info(lc_list_file)
+            mylogging.info('Single energy band lc_list not found')
+            mylogging.info(lc_list_file)
 
     # I have not idea why I did this, but it works
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -1048,68 +1051,110 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     # Plot2: Energy spectrum 
     # ------------------------------------------------------
-    logging.info('Plotting energy spectrum')
+    mylogging.info('Plotting energy spectrum')
     fig,ax = plt.subplots(figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     #fig.tight_layout()
     fig.suptitle('Energy spectrum', fontsize=14)
     
     if spec.is_file():
-        s = xspec.Spectrum(str(spec))
-        s.response = rmf
-        s.response.arf = arf
+        ui.clean()
+        ui.load_pha('tot',str(spec))
+        ui.load_arf('tot',str(arf_file))
+        ui.load_rmf('tot',str(rmf_file))
+        spectrum_data = ui.get_data_plot('tot')
+        ax.errorbar(spectrum_data.x,spectrum_data.y,spectrum_data.yerr,
+            color='k',label='Spectrum',zorder=10)
         
         if bkg_spec.is_file():
-            s.background = str(bkg_spec)
-            
-        xspec.Plot.xAxis = "keV"
-        s.ignore("**-0.2 12.0-**")
-        
-        xspec.Plot.device = '/null'
-        xspec.Plot("data")
-        xspec.Plot.addCommand("rebin 3 35")
-        xVals = xspec.Plot.x()
-        yVals = xspec.Plot.y()
-        # To get a background array, Plot.background must be set prior to plot
-        xspec.Plot.background = True
-        xspec.Plot("data")
-        if bkg_spec.is_file():
-            bkg = xspec.Plot.backgroundVals()
-        # Retrieve error arrays
-        xErrs = xspec.Plot.xErr()
-        yErrs = xspec.Plot.yErr()
-        
-        ax.errorbar(xVals, yVals, yerr=yErrs, xerr=xErrs, fmt='k')
-        if os.path.isfile(bkg_spec):
-            ax.plot(xVals,bkg,'red',label='Background')
-        ax.set_xscale('log')
-        ax.set_yscale('log')
-        ax.grid(b=True, which='major', color='grey', linestyle='-')
-        ax.legend()
-        ax.set_xlabel('Energy [keV]',fontsize=14)
-        ax.set_ylabel('counts/cm$^2$/sec/keV',fontsize=14)
-        
-        for i,en_band in enumerate(en_bands):
-            low_en = float(en_band[0])
-            high_en = float(en_band[1])
-            ylims = ax.get_ylim()
-            rect = Rectangle((low_en,ylims[0]),high_en-low_en,
-                             ylims[0]+10**(math.log10(ylims[0])+1/2),
-                            color=colors[i],fill=True)
-            ax.add_patch(rect)
+            ui.load_bkg('tot',str(bkg_spec))
+            bkg_spectrum_data = ui.get_bkg_plot('tot')
+            ax.errorbar(bkg_spectrum_data.x,bkg_spectrum_data.y,bkg_spectrum_data.yerr,
+                fmt='--',color='k',label='Bkg',zorder=10)
+        else:
+            mylogging.error('Background energy spectrum not found')
     else:
-        logging.info('Energy spectrum file not found')
-        logging.info(spec)
+        mylogging.error('Energy spectrum not found')
+
+    if spec_3c50.is_file():
+        ui.clean()
+        ui.load_pha('3c50',str(spec_3c50))
+        ui.load_arf('3c50',str(arf_file))
+        ui.load_rmf('3c50',str(rmf_file)) 
+        spectrum_data_3c50 = ui.get_data_plot('3c50')
+        ax.errorbar(spectrum_data_3c50.x,spectrum_data_3c50.y,spectrum_data_3c50.yerr,
+            color='purple',label='Spectrum (3c50)',zorder=5)
+
+        if bkg_spec_3c50.is_file(): 
+            ui.load_bkg('3c50',str(bkg_spec_3c50))
+            bkg_spectrum_data_3c50 = ui.get_bkg_plot('3c50')
+            ax.errorbar(bkg_spectrum_data_3c50.x,bkg_spectrum_data_3c50.y,bkg_spectrum_data_3c50.yerr,
+                fmt='--',color='purple',label='Bkg (3c50)',zorder=5)
+        else:
+            mylogging.error('Background energy spectrum (3c50) not found')
+    else:
+        mylogging.error('Energy spectrum (3c50) not found')
+
+    ax.set_xlim([0.15,16])
+    ax.set_xlabel('Energy [keV]',fontsize=16)
+    ax.set_ylabel('Counts/Sec/keV',fontsize=16)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.grid(b=True, which='major', color='grey', linestyle='-')
+    ax.legend()
+
+    # s = xspec.Spectrum(str(spec))
+    # s.response = rmf_file
+    # s.response.arf = arf_file
+    
+    # if bkg_spec.is_file():
+    #     s.background = str(bkg_spec)
+        
+    # xspec.Plot.xAxis = "keV"
+    # s.ignore("**-0.2 12.0-**")
+    
+    # xspec.Plot.device = '/null'
+    # xspec.Plot("data")
+    # xspec.Plot.addCommand("rebin 3 35")
+    # xVals = xspec.Plot.x()
+    # yVals = xspec.Plot.y()
+    # # To get a background array, Plot.background must be set prior to plot
+    # xspec.Plot.background = True
+    # xspec.Plot("data")
+    # if bkg_spec.is_file():
+    #     bkg = xspec.Plot.backgroundVals()
+    # # Retrieve error arrays
+    # xErrs = xspec.Plot.xErr()
+    # yErrs = xspec.Plot.yErr()
+    
+    # ax.errorbar(xVals, yVals, yerr=yErrs, xerr=xErrs, fmt='k')
+    # if os.path.isfile(bkg_spec):
+    #     ax.plot(xVals,bkg,'red',label='Background')
+    # ax.set_xscale('log')
+    # ax.set_yscale('log')
+    # ax.grid(b=True, which='major', color='grey', linestyle='-')
+    # ax.legend()
+    # ax.set_xlabel('Energy [keV]',fontsize=14)
+    # ax.set_ylabel('counts/cm$^2$/sec/keV',fontsize=14)
+    
+    # for i,en_band in enumerate(en_bands):
+    #     low_en = float(en_band[0])
+    #     high_en = float(en_band[1])
+    #     ylims = ax.get_ylim()
+    #     rect = Rectangle((low_en,ylims[0]),high_en-low_en,
+    #                      ylims[0]+10**(math.log10(ylims[0])+1/2),
+    #                     color=colors[i],fill=True)
+    #     ax.add_patch(rect)
         
     plot2 = std_plot_dir/'energy_spectrum.jpeg'
     plots += [plot2]
     fig.savefig(plot2, dpi=300)
     # ------------------------------------------------------
     
-    
+
     # Plot3: Full power spectrum
     # ------------------------------------------------------
-    logging.info('Plotting full power spectrum')
+    mylogging.info('Plotting full power spectrum')
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.suptitle('Full Power spectrum',fontsize=14)
@@ -1136,8 +1181,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         rms_rebin = rms.rebin(rebin)
         rms_rebin.plot(ax=ax2,xy=True)
     else:
-        logging.info('Full Power spectrum file not found')
-        logging.info(main_pw_list_file)
+        mylogging.info('Full Power spectrum file not found')
+        mylogging.info(main_pw_list_file)
         
     ax1.grid(b=True, which='major', color='grey', linestyle='-')
     ax2.grid(b=True, which='major', color='grey', linestyle='-')
@@ -1151,7 +1196,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     # Plot4: different energy bands power spectra
     # ------------------------------------------------------ 
-    logging.info('Plotting different energy bands power spectra')
+    mylogging.info('Plotting different energy bands power spectra')
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     #fig.tight_layout()
@@ -1188,8 +1233,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             rms_rebin.plot(ax=ax2,xy=True,label='{}-{}'.format(low_en,high_en),color=colors[i])
         
         else:
-            logging.info('Single power list file not found')
-            logging.info(pw_file)
+            mylogging.info('Single power list file not found')
+            mylogging.info(pw_file)
 
     ax1.grid(b=True, which='major', color='grey', linestyle='-')
     ax2.grid(b=True, which='major', color='grey', linestyle='-')
@@ -1204,7 +1249,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     # Plot5: Full power spectra per GTI
     # ------------------------------------------------------ 
-    logging.info('Plotting Full power spectra per GTI')
+    mylogging.info('Plotting Full power spectra per GTI')
     if main_pw_list_file.is_file():
         power_list = PowerList.load(main_pw_list_file)
         n_gtis = power_list[0].meta_data['N_GTIS']
@@ -1247,8 +1292,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             plots += [plotx]
             fig.savefig(plotx, dpi=300)
     else:
-        logging.info('Main energy band PowerList file not found')
-        logging.info(main_pw_list_file)
+        mylogging.info('Main energy band PowerList file not found')
+        mylogging.info(main_pw_list_file)
     # ------------------------------------------------------ 
     
     
@@ -1258,7 +1303,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # parent_info is defined to populate a pandas data frame with
     # info from each obs ID. This will be used for general plotting
 
-    logging.info('Extracting info')
+    mylogging.info('Extracting info')
     parent_info = {}
 
     # Active detectors
@@ -1433,7 +1478,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         # -------------------------------------------------------------
         parent_std_prod_dir = obs_id_dir.parent/'std_prods'
         if not parent_std_prod_dir.is_dir():
-            logging.info('Parent std_prods for does not exist, creating it')
+            mylogging.info('Parent std_prods for does not exist, creating it')
             os.mkdir(parent_std_prod_dir)
         df_name = parent_std_prod_dir/'info_data_frame_T{}_{}.pkl'.format(tres,tseg)
         if df_name.is_file():

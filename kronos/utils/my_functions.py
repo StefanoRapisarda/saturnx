@@ -17,7 +17,7 @@ from ..utils import my_classes as mc
 import matplotlib
 import matplotlib.pyplot as plt
 
-def list_items(path,itype = 'dir',ext = '',prefix='',
+def list_items(path=pathlib.Path.cwd(),itype = 'dir',ext = '',prefix='',
                 include_or=[],include_and=[],exclude_or=[],exclude_and=[],
                 choose=False,show=False,sort=True,digits=False):
     '''
@@ -31,8 +31,8 @@ def list_items(path,itype = 'dir',ext = '',prefix='',
 
     PARAMETERS
     ----------
-    path: string or pathlib.Path
-        target directory
+    path: string or pathlib.Path (optional)
+        target directory, default is current working directory
     itype: string, optional 
         'dir' for directory, 'file' for files (default = 'dir')
     ext: string or list of strings, optional
@@ -131,15 +131,11 @@ def list_items(path,itype = 'dir',ext = '',prefix='',
     if prefix != '':
         if type(prefix) == str: prefix = [prefix]
 
-        # Making an array of prefix lenghts
-        pl = [len(p) for p in prefix]
-
         new_items = []
         for item in items:
             flag = False
             for p in prefix:
-                lp = len(p)
-                if item[0:lp] == prefix: flag=True
+                if item.name[0:len(p)] == p: flag=True
                     
             if flag: new_items += [item]
         items = new_items
@@ -215,7 +211,7 @@ def list_items(path,itype = 'dir',ext = '',prefix='',
 
     if choose: show=True
 
-    item_name = 'Folders'
+    item_name = 'Directories'
     if itype == 'file': item_name = 'Files'
     if show: print('{} in {}:'.format(item_name,str(path)))
     happy = False
@@ -225,7 +221,9 @@ def list_items(path,itype = 'dir',ext = '',prefix='',
                 print('{}) {}'.format(i+1,item.name))
 
         if choose:
-            index = int(input('Choose a directory ====> '))-1
+            target_name = 'directory'
+            if itype == 'file': target_name = 'file'
+            index = int(input(f'Choose a {target_name} ====> '))-1
             target = items[index]
             ans=input('You chose "{}", are you happy?'.format(target.name))
             if not ('N' in ans.upper() or 'O' in ans.upper()):
@@ -273,6 +271,8 @@ def read_args(usr_args={}):
     2021 11 03, Stefano Rapisarda (Uppsala)
         Bug corrected, when you where writing True or False 
         the argument was interpreted as a string
+    2021 12 10 Stefano Rapisarda (Uppsala)
+        Bug fixed, it was trying to capitalize list
     '''
     args=sys.argv
 
@@ -298,8 +298,9 @@ def read_args(usr_args={}):
         else:
             value = div[1]
 
-        if value.upper() == 'TRUE': value = True
-        if value.upper() == 'FALSE': value = False
+        if type(value) == str:
+            if value.upper() == 'TRUE': value = True
+            if value.upper() == 'FALSE': value = False
  
         arg_dict[div[0]] = value
 

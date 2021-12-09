@@ -141,14 +141,14 @@ def get_logger_name(process_name):
 class LoggingWrapper:
     '''
     Wrapper for logging. If a logger is initialized, it will print
-    messages on logger (logging.<opt>), otherwise on the screen
-    via print()
+    messages on the existing logger (logging.<opt>), otherwise it will
+    print on the screen via print()
 
     The way to use this is initializing an instance of the
     LoggingWrapper AFTER having initialized the logger (e.f 
     my_logging = LoggingWrapper()). At the initialization, the wrapper
     will check the global variable loggers, initialized by the function
-    make_loggers. Depending on this variable, all the messaged will be
+    make_loggers. Depending on this variable, all the messages will be
     either printed via print() (no logger initialized) or on the logger.
 
     As I used the same format of logging for printing, the two messages
