@@ -1,4 +1,4 @@
-from kronos.functions.my_functions import print_history
+from kronos.utils.my_functions import print_history
 import os
 import math
 from os import path
@@ -667,24 +667,37 @@ def make_nicer_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
         log_name, rmf, and arf parameters removed
     '''
 
-    mylogging = LoggingWrapper()
-
     an_dir = obs_id_dirs[0].parent
+
+    # Recording date and time
+    # -----------------------------------------------------------------
+    now = datetime.now()
+    date = ('%d_%d_%d') % (now.day,now.month,now.year)
+    time = ('%d_%d') % (now.hour,now.minute)
+    # -----------------------------------------------------------------
+
+    # Initializing logger
+    # -----------------------------------------------------------------
+    log_name = os.path.basename(__file__).replace('.py','')+\
+        '_D{}_T{}'.format(date,time)
+    make_logger(log_name,outdir=an_dir)
+
+    mylogging = LoggingWrapper() 
+    # -----------------------------------------------------------------
 
     for obs_id_dir in obs_id_dirs:
 
         if obs_id_dir.is_dir():
             make_nicer_std_prod_single(obs_id_dir,tres=tres,tseg=tseg,
                 main_en_band = main_en_band, en_bands = en_bands,
-                rebin=rebin,data_dir=data_dir,
-                rmf=rmf,arf=arf,log_name=log_name)
+                rebin=rebin,data_dir=data_dir)
         else:
-            logging.info('{} does not exist'.format(obs_id_dir))
+            mylogging.info('{} does not exist'.format(obs_id_dir))
 
 
 def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     time_window = 20,plt_x_dim = 8,plt_y_dim = 8,
-    obs_id = None,mission='NICER',log_name=None):
+    obs_id = None,mission='NICER'):
     '''
     It reads a pandas data frame containing information about all the 
     OBS_ID and makes a plot with count rate, hardness ratio, and 
@@ -696,31 +709,33 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     HISTORY
     -------
     2021 03 18, Stefano Rapisarda (Uppsala), creation date
+    2021 12 10, Stefano Rapisarda (Uppsala)
+        Adopted LoggingWrapper approach
     '''
+
+    mylogging = LoggingWrapper()
     
     time_string = 'T{}_{}'.format(tres,tseg)
     
     if type(an_dir) == str: an_dir = pathlib.Path(an_dir)
     obs_id_dir = an_dir/obs_id
 
-    # Logging
-    if log_name is None:
-        log_name = make_logger('make_general_plot',outdir=obs_id_dir)
-
-    logging.info('*'*72)
-    logging.info('{:24}{:^24}{:24}'.format('*'*24,'make_general_plot','*'*24))
-    logging.info('*'*72)
+    mylogging.info('*'*72)
+    mylogging.info('{:24}{:^24}{:24}'.format('*'*24,'make_general_plot','*'*24))
+    mylogging.info('*'*72)
 
     # Making general plot folder
     std_plot_dir = an_dir/'std_plots'
     if not std_plot_dir.is_dir():
-        logging.info('std_plot folder does not exist. Creating it')
+        mylogging.info('std_plot folder does not exist. Creating it')
         os.mkdir(std_plot_dir)
 
     # Reading info
     info_df_name = an_dir/'std_prods'/'info_data_frame_{}.pkl'.format(time_string)
     if info_df_name.is_file():
         df = pd.read_pickle(info_df_name)
+    else:
+        mylogging.error('I could not finde a {} file'.format(info_df_name.name))
         
     df=df.drop_duplicates(subset=['OBS_ID'])
         
@@ -836,8 +851,6 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     # Saving file
     plot_name = an_dir/obs_id/'std_plots'/'global_info_{}.jpeg'.format(time_string)
     fig.savefig(plot_name, dpi=300)
-        
-    logging.shutdown() 
     
     return plot_name
 
@@ -919,7 +932,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     if type(obs_id_dir) == str: obs_id_dir = pathlib.Path(obs_id_dir)
     if type(data_dir) == str: data_dir = pathlib.Path(data_dir)
 
-    mylogging.info('\n'+'*'*72)
+    mylogging.info('*'*72)
     mylogging.info('{:22} {:^26} {:22}'.format('*'*22,'make_nicer_std_prod_single','*'*22))
     mylogging.info('*'*72+'\n')
 
@@ -964,9 +977,10 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     bkg_spec_3c50 = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_spectrum_bdc_3C50_bkg.pi'
 
     # arf and rmf files
-    arf_file = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_arf_bdc.arf'
-    rmf_file = data_dir/obs_id/'xti'/'event_cl'/f'{obs_id}_rmf_bdc.rmf'
-    # ------------------------------------------------------
+    arf_file = data_dir/obs_id/'xti'/'event_cl'/f'arf_bdc.arf'
+    rmf_file = data_dir/obs_id/'xti'/'event_cl'/f'rmf_bdc.rmf'
+    # -----------------------------------------------------------------
+
 
     # Printing some info
     # -----------------------------------------------------------------
@@ -981,22 +995,29 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             format(i,en_band[0],en_band[1]))        
     mylogging.info('Selected time resolution: {} s'.format(tres)) 
     mylogging.info('Selected time segment: {} s'.format(tseg)) 
-    mylogging.info('Log file name: {}'.format(log_name))
     mylogging.info('-'*72)
     mylogging.info('')
     # -----------------------------------------------------------------
     
     # Plotting
-    # =======================================================
-    
+    # =================================================================
+    # For each plot I will create the figure anyway, to preserve the 
+    # page layout. Then, if a file does not exist or something goes 
+    # wrong, the figure will be empty
+    # The array plots will contain the full path of the just created
+    # plot:
+    # PLOT1: Count rate per segment in different energy band
+    # PLOT2: Energy spectrum
+    # PLOT3: Full energy band average power spectrum
+    # PLOT4: Average power spectra in different energy bands
+    # PLOT5: Full energy band power spectrum per GTI
+
+
     plots = []
     plt.tight_layout()
-    # I create the figure anyway, then, if the file does not exists, 
-    # the figure will be empty
     
-    
-    # Plot1: count rate per segment
-    # ------------------------------------------------------
+    # PLOT1: count rate per segment
+    # -----------------------------------------------------------------
     mylogging.info('Plotting count rate per segment')
     fig,ax = plt.subplots(figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -1046,17 +1067,18 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     plot1 = std_plot_dir/'cr_per_seg_T{}_{}.jpeg'.format(tres,tseg)
     plots += [plot1]
     fig.savefig(plot1, dpi=300)
-    # ------------------------------------------------------
+    # -----------------------------------------------------------------
     
     
-    # Plot2: Energy spectrum 
-    # ------------------------------------------------------
+    # PLOT2: Energy spectrum 
+    # -----------------------------------------------------------------
     mylogging.info('Plotting energy spectrum')
     fig,ax = plt.subplots(figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     #fig.tight_layout()
     fig.suptitle('Energy spectrum', fontsize=14)
     
+    # Energy spectrum created via xselect
     if spec.is_file():
         ui.clean()
         ui.load_pha('tot',str(spec))
@@ -1076,6 +1098,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     else:
         mylogging.error('Energy spectrum not found')
 
+    # Energy spectrum created via nibackgen3c50
     if spec_3c50.is_file():
         ui.clean()
         ui.load_pha('3c50',str(spec_3c50))
@@ -1137,23 +1160,23 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # ax.set_xlabel('Energy [keV]',fontsize=14)
     # ax.set_ylabel('counts/cm$^2$/sec/keV',fontsize=14)
     
-    # for i,en_band in enumerate(en_bands):
-    #     low_en = float(en_band[0])
-    #     high_en = float(en_band[1])
-    #     ylims = ax.get_ylim()
-    #     rect = Rectangle((low_en,ylims[0]),high_en-low_en,
-    #                      ylims[0]+10**(math.log10(ylims[0])+1/2),
-    #                     color=colors[i],fill=True)
-    #     ax.add_patch(rect)
+    for i,en_band in enumerate(en_bands):
+        low_en = float(en_band[0])
+        high_en = float(en_band[1])
+        ylims = ax.get_ylim()
+        rect = Rectangle((low_en,ylims[0]),high_en-low_en,
+            ylims[0]+10**(math.log10(ylims[0])+1/2),
+            color=colors[i],fill=True)
+        ax.add_patch(rect)
         
     plot2 = std_plot_dir/'energy_spectrum.jpeg'
     plots += [plot2]
     fig.savefig(plot2, dpi=300)
-    # ------------------------------------------------------
+    # -----------------------------------------------------------------
     
 
-    # Plot3: Full power spectrum
-    # ------------------------------------------------------
+    # PLOT3: Full power spectrum
+    # -----------------------------------------------------------------
     mylogging.info('Plotting full power spectrum')
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -1191,11 +1214,11 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     plot3 = std_plot_dir/'full_power_spectrum_T{}_{}.jpeg'.format(tres,tseg)
     plots += [plot3]
     fig.savefig(plot3, dpi=300)
-    # ------------------------------------------------------
+    # -----------------------------------------------------------------
     
     
-    # Plot4: different energy bands power spectra
-    # ------------------------------------------------------ 
+    # PLOT4: different energy bands power spectra
+    # -----------------------------------------------------------------
     mylogging.info('Plotting different energy bands power spectra')
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -1244,11 +1267,11 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     plot4 = os.path.join(std_plot_dir,'multi_band_power_spectrum_T{}_{}.jpeg'.format(tres,tseg))
     plots += [plot4]
     fig.savefig(plot4, dpi=300)
-    # ------------------------------------------------------    
+    # -----------------------------------------------------------------
     
     
-    # Plot5: Full power spectra per GTI
-    # ------------------------------------------------------ 
+    # PLOT5: Full power spectra per GTI
+    # ----------------------------------------------------------------- 
     mylogging.info('Plotting Full power spectra per GTI')
     if main_pw_list_file.is_file():
         power_list = PowerList.load(main_pw_list_file)
@@ -1294,14 +1317,15 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     else:
         mylogging.info('Main energy band PowerList file not found')
         mylogging.info(main_pw_list_file)
-    # ------------------------------------------------------ 
+    # ----------------------------------------------------------------- 
     
     
     # Extracting Information
-    # ------------------------------------------------------ 
+    # =================================================================
 
-    # parent_info is defined to populate a pandas data frame with
-    # info from each obs ID. This will be used for general plotting
+    # parent_info is a dictionary defined to populate a pandas data 
+    # frame with global information from each obs ID. This will be used 
+    # for general plotting
 
     mylogging.info('Extracting info')
     parent_info = {}
@@ -1387,7 +1411,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         parent_info['NET_SOFT_CR'] = net_cr_soft
         parent_info['HR'] = hr
 
-        # First columns
+        # First column
         # -------------------------------------------------------------
         first_column = {}
         first_column['CDATE'] = ['Cre. date (this file):',my_cdate()]
@@ -1399,13 +1423,13 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         first_column['IDET'] = ['Inactive det.:',
             str(inact_det_list).replace('[','').replace(']','')]
         first_column['MAIN_EN_BAND'] = ['Main energy band:',
-            '{}-{} [keV]'.format(main_en_band[0],main_en_band[1])]
-        parent_info['MAIN_EN_BAND'] = '{}-{}'.\
+            '{} - {} [keV]'.format(main_en_band[0],main_en_band[1])]
+        parent_info['MAIN_EN_BAND'] = '{} - {}'.\
             format(main_en_band[0],main_en_band[1])
         for i,en_band in enumerate(en_bands):
             first_column['EN_BAND{}'.format(i+1)] = ['Energy band {}:'.\
-                format(i+1),'{}-{} [keV]'.format(en_band[0],en_band[1])]
-            parent_info[f'EN_BAND{i+1}'] = '{}-{}'.\
+                format(i+1),'{} - {} [keV]'.format(en_band[0],en_band[1])]
+            parent_info[f'EN_BAND{i+1}'] = '{} - {}'.\
                 format(en_band[0],en_band[1])
         # -------------------------------------------------------------
 
@@ -1493,12 +1517,16 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     else:
         first_column = {}
         second_column = {}
+
+    # =================================================================
     
     return plots,first_column,second_column
 
 
 def print_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
-    add_plot=[],log_name=None):
+    add_plot=[]):
+
+    mylogging = LoggingWrapper()
 
     time_string = 'T{}_{}'.format(tres,tseg)
 
@@ -1506,10 +1534,6 @@ def print_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     if type(first_obs_id_dir) == str:
         first_obs_id_dir = pathlib.Path(first_obs_id_dir)
     an_dir = first_obs_id_dir.parent
-
-    # Logging
-    if log_name is None:
-        log_name = make_logger('print_std_prods',outdir=an_dir)
 
     merger = PdfFileMerger()
     if add_plot != []:
@@ -1524,8 +1548,8 @@ def print_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
         obs_id = obs_id_dir.name
         std_prod_dir = obs_id_dir/'std_prods'
         if not std_prod_dir.is_dir():
-            logging.info('std_prods dir does not exist, skipping obs.')
-            logging.info(std_prod_dir)
+            mylogging.info('std_prods dir does not exist, skipping obs.')
+            mylogging.info(std_prod_dir)
             continue
         pdf_file = std_prod_dir/'{}_std_prods_{}.pdf'.format(obs_id,time_string)
 
@@ -1541,22 +1565,20 @@ def print_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
 
 
 def print_std_prod_single(an_dir,obs_id,col1,col2,plots,
-    tres='0.0001220703125',tseg='128.0',log_name=None):
+    tres='0.0001220703125',tseg='128.0'):
     '''
     '''
+
+    mylogging = LoggingWrapper()
 
     time_string = 'T{}_{}'.format(tres,tseg)
     
     if type(an_dir) == str: an_dir = pathlib.Path(an_dir)
     obs_id_dir = an_dir/obs_id
 
-    # Logging
-    if log_name is None:
-        log_name = make_logger('print_std_prods',outdir=obs_id_dir)
-
-    logging.info('*'*72)
-    logging.info('{:24}{:^24}{:24}'.format('*'*24,'print_std_prod','*'*24))
-    logging.info('*'*72)
+    mylogging.info('*'*72)
+    mylogging.info('{:24}{:^24}{:24}'.format('*'*24,'print_std_prod','*'*24))
+    mylogging.info('*'*72)
     
     if type(col1) == list:
         info1 = {i[0]:i[1] for i in col1}
@@ -1576,7 +1598,7 @@ def print_std_prod_single(an_dir,obs_id,col1,col2,plots,
     # Saving
     std_prod_dir = obs_id_dir/'std_prods'
     if not std_prod_dir.is_dir():
-        logging.info('std_prods dir does not exist, creating it')
+        mylogging.info('std_prods dir does not exist, creating it')
         os.mkdir(std_prod_dir)
     output_file = std_prod_dir/'{}_std_prods_{}.pdf'.format(obs_id,time_string)
 

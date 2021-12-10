@@ -140,12 +140,19 @@ def get_cr(spec_file, low_en=0.5, high_en=10., mission='NICER',instrument='HE'):
         changed channels to energy and introduced the mission parameter
     2021 05 01, Stefano Rapisarda (Uppsala)
         name changed into get cr and multi-mission option introduced
+    2021 12 10, Stefano Rapisarda (Uppsala)
+        Adopted the LogginWrapper approach and corrected but about rate
+        (so far it was only looking for RATE keyword in the spectrum,
+        now if it does not find it it looks for counts and exposure in the
+        header)
 
     TODO:
     - 2020 10 16, Stefano Rapisarda (Uppsala)
         this should be moved to xray functions, for now is here as it
         works only with python
     '''
+
+    mylogging = LoggingWrapper()
 
     factor = 1
     if mission == 'NICER':
@@ -167,13 +174,36 @@ def get_cr(spec_file, low_en=0.5, high_en=10., mission='NICER',instrument='HE'):
 
     with fits.open(str(spec_file)) as hdul:
         data = hdul[1].data
-        cha = data['CHANNEL']
-        rate = data['RATE']
-        err = data['STAT_ERR']
-        
+        col_names = data.names
+
+        if not 'CHANNEL' in col_names:
+            mylogging.error(f'CHANNEL key not found in {spec_file.name}')
+            return None,None
+        else:
+            cha = data['CHANNEL']
+
+        flag_rate = False
+        if 'RATE' in col_names:
+            flag_rate = True
+            rate = data['RATE']
+        else:
+            mylogging.warning(f'RATE key not in {spec_file.name}. I will read counts.')
+            counts = data['COUNTS']
+            exp = hdul[1].header['ONTIME']
+
+        if 'STAT_ERR' in col_names:
+            err = data['STAT_ERR']
+        else:
+            mylogging.warning(f'STAT_ERR key not in {spec_file.name}. I will set errors to zero')
+            err = np.zeros(len(cha))
+    
     mask = (cha >= low_cha) & (cha <= high_cha)
-    cr = rate[mask].sum()
-    cr_err = np.sqrt(((err[mask])**2).sum())
+    if flag_rate:
+        cr = rate[mask].sum()
+        cr_err = np.sqrt(((err[mask])**2).sum())
+    else:
+        cr = counts[mask].sum()/float(exp)
+        cr_err = np.sqrt(((err[mask])**2).sum())/float(exp)
 
     return cr,cr_err
 
