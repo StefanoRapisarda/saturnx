@@ -8,10 +8,11 @@ import pathlib
 from datetime import datetime
 
 import tkinter as tk
+from tkinter import ttk
 
 sys.path.append('/Volumes/Samsung_T5/kronos')
 from kronos.gui.windows import MakePowerWin, LogWindow
-from kronos.utils.my_logging import make_logger
+from kronos.utils.my_logging import make_logger, LoggingWrapper
 
 from kronos.scripts.make_lc import make_nicer_lc
 from kronos.scripts.make_power import make_power
@@ -25,6 +26,11 @@ class TimingApp:
         self.ui._timing_tab._comp_button['command'] = self._compute
         #self.ui._button1['command'] = self._compute_power
         #self.ui._button2['command'] = self._compute_lightcurve
+
+        self.s = ttk.Style(self.ui)
+        self.ui.tk.call('lappend','auto_path','/Volumes/Samsung_T5/kronos/kronos/gui/awthemes-10.4.0')
+        self.ui.tk.call('package','require','awdark')
+        self.s.theme_use('awdark')
 
     def _compute(self):
         if self.ui._timing_tab._comp_lc.get(): self._compute_lightcurve()

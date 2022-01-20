@@ -244,15 +244,56 @@ def run_barycorr(evt_file,orbit_file,refframe='ICRS',
 
     return bc_file
 
-def check_nicer_data(obs_id_dir):
+def check_nicer_data(obs_id_dir,files_to_check={}):
     '''
+    Checks the existance of certain files. 
     
+    This can be used either to 
+    check if NICER observations contain all the files needed for 
+    running specific ftools or to check the correct creation of data
+    analysis products.
+
+    PARAMETERS
+    ----------
+    obs_id_dir: str or pathlib.Path
+        Full path of a NICER obs id directory
+    files_to_check: dict (optional)
+        Dictionary containing the files to check
+        The format of the dictionary MUST be:
+        {
+            <user_key>:[<file_str_identifier>,<relative_location>]
+        }
+        where:
+        - user_key is an arbitrary str identifying the file;
+        - file_str_identifier is a str contained in the name of the
+            file to check and selected in a way that ALONE AND ONLY
+            the file to check contains this string and can be 
+            uniquely by it;
+        - relative_location is a str containing the location of the 
+            file to check relative to the obs ID folder.
+        If no dictionary is specified ({}, default), then files_to_check
+        will be initialized according to my criteria (corresponding to 
+        the output files of my current NICER pipeline)
+    
+    RETURNS
+    -------
+    are_files_there, files: (dict,dict)
+        are_files_there is a dict containing a boolean for each of the
+        user_key in files_to_check. The boolean indicates if the file 
+        has been found to not
+        files is a dict containing either a full path or an empty str
+        for each of the user_key in files_to_check in case the file has 
+        been found or not.
+
     HISTORY
+    -------
     2020 .. .., Stefano Rapisarda (Uppsala), creation date
     2021 11 03, Stefano Rapisarda (Uppsala)
         Updated with pathlibPath, removed dir check (as I think it was
-        redundant at this point), and updated list of files created by
-        the new nicer_pipeline
+        redundant at this point, as checking files with their full paths
+        should be enough), updated files_to_check with files created 
+        by the new nicer_pipeline, and adopted the LoggingWrapper 
+        philosophy.
     '''
 
     mylogging = LoggingWrapper()
@@ -264,30 +305,32 @@ def check_nicer_data(obs_id_dir):
     if not obs_id.isdigit():
         mylogging(f'check_nicer_data: Something is wrong with the obs. ID name ({obs_id})')
 
-    # [file achronim, string to indentify it]
-    files_to_check = {
-        'att':['.att','auxil'],
-        'orb':['.orb','auxil'],
-        'cat':['.cat','auxil'],
-        'mkf':['.mkf','auxil'],
-        'mkf2':['.mkf2','auxil'],
-        'mkf3':['.mkf3','auxil'],
-        'uf':['_uf.evt','xti/event_uf'],
-        'ufa':['_ufa.evt','xti/event_cl'],
-        'cl':['_cl.evt','xti/event_cl'],
-        'cl_bdc':['_cl_bdc.evt','xti/event_cl'],
-        'cl_bdc_bc':['_cl_bdc_bc.evt','xti/event_cl'],
-        'spectrum':['_bdc.pha','xti/event_cl'],
-        'bkg_spectrum':['_bdc_bkg.pha','xti/event_cl'],
-        'grp_spectrum':['_bdc_grp25.pha','xti/event_cl'],
-        '3C50_spectrum':['3C50_tot','xti/event_cl'],
-        '3C50_bkg':['3C50_bkg','xti/event_cl'],
-        'arf':['arf_bdc.arf','xti/event_cl'],
-        'rmf':['rmf_bdc.rmf','xti/event_cl'],
-        'lis':['arf_bdc.lis','xti/event_cl'],
-        'bkg':['_bkg.','xti/event_cl']
-        }
+    if len(files_to_check) == 0:
+        files_to_check = {
+            'att':['.att','auxil'],
+            'orb':['.orb','auxil'],
+            'cat':['.cat','auxil'],
+            'mkf':['.mkf','auxil'],
+            'mkf2':['.mkf2','auxil'],
+            'mkf3':['.mkf3','auxil'],
+            'uf':['_uf.evt','xti/event_uf'],
+            'ufa':['_ufa.evt','xti/event_cl'],
+            'cl':['_cl.evt','xti/event_cl'],
+            'cl_bdc':['_cl_bdc.evt','xti/event_cl'],
+            'cl_bdc_bc':['_cl_bdc_bc.evt','xti/event_cl'],
+            'spectrum':['_bdc.pha','xti/event_cl'],
+            'bkg_spectrum':['_bdc_bkg.pha','xti/event_cl'],
+            'grp_spectrum':['_bdc_grp25.pha','xti/event_cl'],
+            '3C50_spectrum':['3C50_tot','xti/event_cl'],
+            '3C50_bkg':['3C50_bkg','xti/event_cl'],
+            'arf':['arf_bdc.arf','xti/event_cl'],
+            'rmf':['rmf_bdc.rmf','xti/event_cl'],
+            'lis':['arf_bdc.lis','xti/event_cl'],
+            'bkg':['_bkg.','xti/event_cl']
+            }
 
+    # Checking files
+    # =================================================================
     are_files_there = {}
     files = {}
     for key,item in files_to_check.items():
@@ -311,28 +354,41 @@ def check_nicer_data(obs_id_dir):
             if len(ffiles) != 0:
                 are_files_there[key] = True
                 files[key] = ffiles[0]
+    # =================================================================
     
     return are_files_there, files
 
 def check_nicer_filtering(filter_file,
-                          filter_expr = {
-                                        'nicersaafilt':'YES',
-                                        'saafilt':'NO',
-                                        'trackfilt':'YES',
-                                        'ang_dist':0.015,
-                                        'st_valid':'YES',
-                                        'elv':13,
-                                        'br_earth':30,
-                                        'min_fpm':7,
-                                        'underonly_range':'0-200',
-                                        'overonly_range':'0-1.0',
-                                        'overonly_expr':'1.52*COR_SAX**(-0.633)'
-                                        },
-                          show_filt_expr=False):
+    filter_expr = {
+        'nicersaafilt':'YES',
+        'saafilt':'NO',
+        'trackfilt':'YES',
+        'ang_dist':0.015,
+        'st_valid':'YES',
+        'elv':15,
+        'br_earth':30,
+        'cor_range':'*-*',
+        'min_fpm':7,
+        'underonly_range':'0-500',
+        'overonly_range':'0-1.5',
+        'overonly_expr':'1.52*COR_SAX**(-0.633)'
+        },
+    show_filt_expr=False):
     '''
-    Return a dictionary with the percent of photon filtered per filtering criterium
-    using a certain filter expression for NICERL2
+    Return a dictionary with the percent of photon filtered per 
+    filtering criterium using a certain filter expression for NICERL2
+
+    DESCRIPTION
+    -----------
+    The filter file is a file having a time column with time bins 
+    (rows) of 1 second. For each time bin (and so, for each row),
+    we have values of different parameters related to the satellite
+    oparating condition (like pointing, elevetation, satellite 
+    altitude, etc)
+
+
     '''
+    # (More user friendy description)           Corresponding values
     # nicersaafilt=YES                          --> NICER_SAA==0
     # saafilt=NO                                --> SAA==0
     # trackfilt=YES                             --> ATT_MODE==1 && ATT_SUBMODE_AZ==2 && ATT_SUBMODE_EL==2
@@ -344,6 +400,8 @@ def check_nicer_filtering(filter_file,
     # underlonly_range=A-B=0-200                --> FPM_UNDERONLY_COUNT > A && FPM_UNDERONLY_COUNT < B
     # overonly_range=A-B=0-1.0                  --> FPM_OVERONLY_COUNT > A && FPM_OVERONLY_COUNT < B
     # overonly_expr=EXPR=1.52*COR_SAX**(-0.633) --> FPM_OVERONLY_COUNT < EXPR
+
+    mylogging = LoggingWrapper()
 
     my_ori = {
             'time':'TIME',
@@ -365,11 +423,13 @@ def check_nicer_filtering(filter_file,
             }
 
     if show_filt_expr:
-        print('Current filtering criteria')
+        mylogging.info('Current filtering criteria')
         for key,value in filter_expr.items():
-            print(f'{key}={value}')
-        print()
+            mylogging.info(f'{key}={value}')
 
+    # Reading make filter file (.mkf, it's a FITS) and storing selected
+    # columns in the pars dictionary
+    # -----------------------------------------------------------------
     pars = {}
     try:
         with fits.open(filter_file) as hdu_list:
@@ -379,22 +439,36 @@ def check_nicer_filtering(filter_file,
                 try:
                     pars[key] = hdu1_data[item]
                 except:
-                    print(f'Key {key} does not exist')
+                    mylogging.info(f'Key {key} does not exist')
                     pars[key] = False
     except:
-        print('Could not open the header')
-        for key,item in my_ori.items():
-            pars[key] = False
+        mylogging.warning('I could not open the filter file')
+        return
+    # -----------------------------------------------------------------
 
-
+    # Extracting time column
     if not pars['time'] is False: 
         time = pars['time']
         before = len(time)
-        print('There are {} 1s rows'.format(before))
-    
+        mylogging.info('There are {} 1s rows (time bins)'.format(before))
+    else:
+        mylogging.error('I could not find the time column in the filter file')
+        return
+
+    # Mask and percent 
     masks = []
     per ={}
 
+    # For each filtering criterium...
+    # 1) Check if the corresponding column is the make filter file
+    # 2) Check if the filtering criterium is the specified nicerl2
+    #    filtering expression
+    # 3) Select rows corresponding to the specified filtering value 
+    #    making a mask for the time array
+    # 4) Appending the mask to a list of masks in order to evaluate
+    #    total filtering percentage
+    # 5) Compute percent of filtered rows
+    # -----------------------------------------------------------------
     if not pars['nicer_saa'] is False:
         key = 'nicersaafilt'
         if key in filter_expr:
@@ -418,8 +492,8 @@ def check_nicer_filtering(filter_file,
                 per[key] = None   
 
     if (not pars['att_mode'] is False) and \
-    (not pars['att_mode_az'] is False) and \
-    (not pars['att_mode_el'] is False):
+       (not pars['att_mode_az'] is False) and \
+       (not pars['att_mode_el'] is False):
         key = 'trackfilt'
         if key in filter_expr:
             if filter_expr[key] == 'YES':
@@ -474,6 +548,24 @@ def check_nicer_filtering(filter_file,
             after = len(time[mask])
             per[key] = round(100*(before-after)/before)  
 
+    if not pars['cor_sax'] is False:
+        key = 'cor_range'
+        if key in filter_expr:
+            a = filter_expr[key].split('-')[0]
+            b = filter_expr[key].split('-')[1]
+            if a == '*':
+                a = -np.inf
+            else:
+                a = np.double(a)
+            if b == '*':
+                b = np.inf
+            else:
+                b = np.double(b)
+            mask = ((pars['cor_sax'] > a) & (pars['cor_sax'] < b)) 
+            masks += [mask]
+            after = len(time[mask])
+            per[key] = round(100*(before-after)/before)             
+
     if not pars['underonly'] is False:
         key = 'underonly_range'
         if key in filter_expr:
@@ -518,7 +610,10 @@ def check_nicer_filtering(filter_file,
         masks += [mask]
         after = len(time[mask])
         per[key] = round(100*(before-after)/before)  
+    # -----------------------------------------------------------------
     
+    # Computing total percentage of filtered time
+    # -----------------------------------------------------------------
     if len(masks) != 0:
         tot_mask = masks[0]
         for i in range(1,len(masks)):
@@ -526,6 +621,7 @@ def check_nicer_filtering(filter_file,
 
         after = len(time[tot_mask])
         per['total'] = round(100*(before-after)/before) 
+    # -----------------------------------------------------------------
 
     if show_filt_expr:
         print('Percent of filtering per criterium:')
