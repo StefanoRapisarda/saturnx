@@ -7,6 +7,23 @@ import pathlib
 import matplotlib
 import matplotlib.pyplot as plt
 
+def str_title(title,total_characters=72,symbol='*'):
+    '''
+    Returns a string of length total_characters with title in the 
+    middle and symbol filling the rest of space.
+    '''
+
+    len_title = len(title)
+    if len_title%2 != 0:
+        len_title += 1
+
+    num_of_symbols = (total_characters - len_title - 2)/2
+    result = '{:num_of_symbols} {:^title } {:num_of_symbols}'.\
+        format(symbol*num_of_symbols,title,symbol*num_of_symbols)
+
+    return result
+
+
 def print_meta_data(cls):
     for key, value in cls.meta_data.items():
         if type(value) == dict:

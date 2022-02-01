@@ -609,7 +609,7 @@ class Lightcurve(pd.DataFrame):
             # resolution is the one specified by the user.
             # Events partially covered by a bin are excluded
             n_bins = int(local_user_dur/time_res)
-            print('n_bins',local_user_dur,time_res,n_bins)
+            # print('n_bins',local_user_dur,time_res,n_bins)
         
             start_time = local_user_start_time
             stop_time = start_time + n_bins*time_res

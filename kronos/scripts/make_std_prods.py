@@ -24,7 +24,7 @@ from kronos.core.gti import Gti
 from kronos.core.lightcurve import LightcurveList
 from kronos.core.power import PowerList
 from kronos.utils.my_logging import make_logger, LoggingWrapper
-from kronos.utils.generic import chunks, my_cdate, is_number
+from kronos.utils.generic import chunks, my_cdate, str_title
 from kronos.utils.pdf import pdf_page
 from kronos.utils.nicer_functions import all_det
 from kronos.utils.xray import get_cr
@@ -654,7 +654,7 @@ def make_hxmt_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
 
     
 
-def make_nicer_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
+def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
     rebin=-30,data_dir=pathlib.Path.cwd()):
     '''
@@ -859,16 +859,17 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     rebin=-30,data_dir=pathlib.Path.cwd()):
     '''
     Makes plots and a dictionary with information according to user 
-    settings
+    settings. Standard plots and dictionary will be stored in a std_plots
+    directory created inside obs_id_dir
 
     This function is specific for NICER reduced products. It assumes
-    that products (lightcurve lists and power list for the selected 
+    that products (lightcurve lists,power list, and gti for the selected 
     energy bands and time settings) are already computed. If the 
     function does not find the products, it will produce a plot anyway,
     but it will be empty.
     These products are expected to have a format E<1>_<2>_T<3>_<4>, 
-    where 1 and 2 are the energy band boundary and 3 and 4 are time
-    resolution and time segment, respectively. 
+    where 1 and 2 are the energy band boundaries and 3 and 4 are the 
+    time resolution and time segment, respectively. 
     The first two bands of this list are soft and hard band to compute
     the hardness ratio
 
@@ -886,23 +887,16 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         list with low and high main energy band
         (default is ['0.5','10.0'])
     en_bands: list (optional)
-        list of lists, containes low and high energy band boundaries
+        list of lists, contains low and high energy band boundaries
         for each sub (different and smaller than main) energy band
-        (default is [['0.5','2.0'],['2.0','10.0']])
+        (default is [['0.5','2.0'],['2.0','10.0']]).
+        The maximum number of energy bands is five.
     rebin: int (optional)
         rebin factor for plotting the power spectra
         (default is -30)
     data_dir: string or pathlib.Path (optional)
         folder containing the energy spectrum
         (default is pathlib.Path.cwd())
-    rmf: string (optional)
-        full path of the response matrix (for plotting with xspec)
-    arf: string (optional)
-        full path of the ancillary response file (for plotting with 
-        xspec)
-    log_name: string or None (optional)
-        name of the log file
-        (default is None)
 
     RETURNS
     -------
@@ -933,7 +927,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     if type(data_dir) == str: data_dir = pathlib.Path(data_dir)
 
     mylogging.info('*'*72)
-    mylogging.info('{:22} {:^26} {:22}'.format('*'*22,'make_nicer_std_prod_single','*'*22))
+    mylogging.info(str_title('make_nicer_std_prod_single'))
     mylogging.info('*'*72+'\n')
 
     obs_id = obs_id_dir.name
@@ -942,10 +936,10 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # -----------------------------------------------------------------
     std_plot_dir = obs_id_dir/'std_plots'
     if not std_plot_dir.is_dir():
-        mylogging.info('std_plots does not exist, creating one...')
+        mylogging.info('std_plots directory does not exist, creating one...')
         os.mkdir(std_plot_dir)
     else:
-        mylogging.info('std_plots already exists.')
+        mylogging.info('std_plots directory already exists.')
     # -----------------------------------------------------------------
     
 
@@ -1003,14 +997,14 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # =================================================================
     # For each plot I will create the figure anyway, to preserve the 
     # page layout. Then, if a file does not exist or something goes 
-    # wrong, the figure will be empty
-    # The array plots will contain the full path of the just created
-    # plot:
-    # PLOT1: Count rate per segment in different energy band
-    # PLOT2: Energy spectrum
-    # PLOT3: Full energy band average power spectrum
-    # PLOT4: Average power spectra in different energy bands
-    # PLOT5: Full energy band power spectrum per GTI
+    # wrong, the figure will be empty.
+    # The array "plots" will contain the full path of the names of 
+    # created plots:
+    # PLOT1 (plots[0]): Count rate per segment in different energy band
+    # PLOT2 (plots[1]): Energy spectrum
+    # PLOT3 (plots[2]): Full energy band average power spectrum
+    # PLOT4 (plots[3]): Average power spectra in different energy bands
+    # PLOT5 (plots[4]): Full energy band power spectrum per GTI
 
 
     plots = []

@@ -237,6 +237,9 @@ def run_xselect(cl_event_file_fp,binsize=16,
     2021 11 03, Stefano Rapisarda (Uppsala)
         Introduced the wrapper LoggingWrapper and removed the
         (now useless) function argument mylogging_on
+    2022 02 01, Stefano Rapisarda (Uppsala)
+        Bug on saving lightcurve corrected (xselect wanted to read 
+        "curve" not lightcurve when saving...)
     '''
 
     mylogging = LoggingWrapper()
@@ -267,8 +270,10 @@ def run_xselect(cl_event_file_fp,binsize=16,
     # -----------------------------------------------------------------
     if ext == '.pha':
         opt = 'spectrum'
+        save_opt = 'spectrum'
     elif ext == '.lc':
         opt = 'lightcurve'
+        save_opt = 'curve'
     else:
         mylogging.error('run_xselect: wrong option')
         return False
@@ -287,7 +292,7 @@ def run_xselect(cl_event_file_fp,binsize=16,
              f'read events {cl_event_file}',
              '.','Y',f'set binsize {binsize}',
              f'extract {opt}',
-             f'save {opt} {outfile}',
+             f'save {save_opt} {outfile}',
              'exit','N']
 
     with open(infile_name,'w') as outfile:
