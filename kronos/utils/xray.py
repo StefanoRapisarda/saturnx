@@ -208,7 +208,7 @@ def get_cr(spec_file, low_en=0.5, high_en=10., mission='NICER',instrument='HE'):
     return cr,cr_err
 
 def run_xselect(cl_event_file_fp,binsize=16,
-    outfile='spectrum.pha'):
+    outfile='spectrum.pha',overwrite=False):
     '''
     Runs xselect with specified options
 
@@ -224,8 +224,9 @@ def run_xselect(cl_event_file_fp,binsize=16,
         the script will automatically select if extracting an 
         energy spectrum (.pha) or a lightcurve (.lc)
         (default is spectrum.pha)
-    logging_on: boolean (optional)
-        True if you already initialised a logger (default is False)
+    overwrite: boolean (optional)
+        If True and an outfile is found, the existing outfile is first
+        deleted (default is False)
 
     RETURNS
     -------
@@ -239,10 +240,23 @@ def run_xselect(cl_event_file_fp,binsize=16,
         (now useless) function argument mylogging_on
     2022 02 01, Stefano Rapisarda (Uppsala)
         Bug on saving lightcurve corrected (xselect wanted to read 
-        "curve" not lightcurve when saving...)
+        "curve" not lightcurve when saving...). 
+        Overwrite option added
     '''
 
     mylogging = LoggingWrapper()
+
+    if type(outfile) == str:
+        outfile = pathlib.Path(outfile)
+
+    if outfile.is_file():
+        mylogging.info('run_xselect: Output file already exists')
+        if overwrite:
+            mylogging.info('run_xselect: Overwrite option is True, removing it...')
+            os.system('rm -f {}'.format(outfile))
+        else:
+            mylogging.info('run_xselect: Overwrite option is False, skipping operations')
+            return True
 
     # Recording date and time
     now = datetime.now()
@@ -270,10 +284,8 @@ def run_xselect(cl_event_file_fp,binsize=16,
     # -----------------------------------------------------------------
     if ext == '.pha':
         opt = 'spectrum'
-        save_opt = 'spectrum'
     elif ext == '.lc':
-        opt = 'lightcurve'
-        save_opt = 'curve'
+        opt = 'curve'
     else:
         mylogging.error('run_xselect: wrong option')
         return False
@@ -292,12 +304,12 @@ def run_xselect(cl_event_file_fp,binsize=16,
              f'read events {cl_event_file}',
              '.','Y',f'set binsize {binsize}',
              f'extract {opt}',
-             f'save {save_opt} {outfile}',
+             f'save {opt} {outfile}',
              'exit','N']
 
-    with open(infile_name,'w') as outfile:
+    with open(infile_name,'w') as output:
         for line in lines:
-            outfile.write(line+'\n')
+            output.write(line+'\n')
     # -----------------------------------------------------------------
 
     # Running xselect
@@ -308,6 +320,12 @@ def run_xselect(cl_event_file_fp,binsize=16,
         message = 'run_xselect: Something went wrong running xselect'
         mylogging.error(message)
         return False
+
+    # Checking if file was created
+    if not outfile.is_file():
+        message = 'run_xselect: output file not created'
+        mylogging.error(message)
+        return False        
     # -----------------------------------------------------------------
 
     # Going back home

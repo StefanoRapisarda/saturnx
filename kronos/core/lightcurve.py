@@ -732,7 +732,7 @@ class Lightcurve(pd.DataFrame):
         elif rate_col in data.columns.names:
             print('Reading RATE column')
             rate = data[rate_col]
-            print(rate)
+            #print(rate)
         elif rate_col.lower().capitalize() in data.columns.names:
             rate = data[rate_col.lower().capitalize()]
             print('Reading Rate column')  
