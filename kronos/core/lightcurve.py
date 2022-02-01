@@ -119,6 +119,9 @@ class Lightcurve(pd.DataFrame):
     2020 04 ##, Stefano Rapisarda (Uppsala)
     2021 03 01, Stefano Rapisarda (Uppsala)
         Last day of a week of updates
+    2021 02 01, Stefano Rapisarda (Uppsala)
+        Corrected bug about splitting with time segment equal or larger
+        than the time resolution
     '''
 
     _metadata = ['_low_en','_high_en','meta_data','notes']
@@ -375,9 +378,16 @@ class Lightcurve(pd.DataFrame):
                 raise ValueError('Time segment cannot be zero')
 
             if time_seg >= self.texp:
-                print('Lightcurve duration is less than the specfied segment ({} < {})'.format(time_seg,self.texp))
+                print('Lightcurve duration is less or equal than the specfied segment ({} < {})'.\
+                    format(time_seg,self.texp))
                 print('Returning original Lightcurve')
                 return LightcurveList([self])
+
+            if time_seg <= self.tres:
+                print('Lightcurve time resolution is larger or equal than the specfied segment ({} > {})'.\
+                    format(self.tres,time_seg))
+                print('Returning original Lightcurve')
+                return LightcurveList([self])                
 
             seg_bins = int(time_seg/self.tres)
             n_segs = int(len(self)/seg_bins)           
