@@ -378,13 +378,13 @@ class Lightcurve(pd.DataFrame):
                 raise ValueError('Time segment cannot be zero')
 
             if time_seg >= self.texp:
-                print('Lightcurve duration is less or equal than the specfied segment ({} < {})'.\
-                    format(time_seg,self.texp))
+                print('Lightcurve duration is less or equal than the specified segment ({} < {})'.\
+                    format(self.texp,time_seg))
                 print('Returning original Lightcurve')
                 return LightcurveList([self])
 
             if time_seg <= self.tres:
-                print('Lightcurve time resolution is larger or equal than the specfied segment ({} > {})'.\
+                print('Lightcurve time resolution is larger or equal than the specified segment ({} > {})'.\
                     format(self.tres,time_seg))
                 print('Returning original Lightcurve')
                 return LightcurveList([self])                
