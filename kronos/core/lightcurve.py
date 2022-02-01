@@ -974,6 +974,30 @@ class LightcurveList(list):
             raise TypeError('The item must be a Lightcurve object')
         super(LightcurveList, self).__setitem__(index,lc)
 
+    def __lt__(self,value):
+        if isinstance(value,str): value = eval(value)
+        return LightcurveList([l for l in self if self.texp < value])
+
+    def __le__(self,value):
+        if isinstance(value,str): value = eval(value)
+        return LightcurveList([l for l in self if self.texp <= value]) 
+
+    def __eq__(self,value):
+        if isinstance(value,str): value = eval(value)
+        return LightcurveList([l for l in self if self.texp == value])
+
+    def __gt__(self,value):
+        if isinstance(value,str): value = eval(value)
+        return LightcurveList([l for l in self if self.texp > value])
+
+    def __ge__(self,value):
+        if isinstance(value,str): value = eval(value)
+        return LightcurveList([l for l in self if self.texp >= value]) 
+
+    def __ne__(self,value):
+        if isinstance(value,str): value = eval(value)
+        return LightcurveList([l for l in self if self.texp != value])                
+
     def join(self,mask=None):
         '''
         Joins lightcurve in a LightcurveList along the time axis
