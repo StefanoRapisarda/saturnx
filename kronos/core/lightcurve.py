@@ -491,7 +491,8 @@ class Lightcurve(pd.DataFrame):
             meta_data = meta_data, notes = self.notes)
         return lc
 
-    def plot(self,norm=None,ax=False,cr=True,title=False,lfont=16,**kwargs):
+    def plot(self,norm=None,ax=False,cr=True,title=False,lfont=16,
+        norm_ylabel='',zero_start=True,**kwargs):
         '''
         Plots lightcurve on a new or user defined ax
 
@@ -510,6 +511,16 @@ class Lightcurve(pd.DataFrame):
             Title of the plot (defalt is False)
         lfont: int (optional)
             Font of x and y label (default is 16)
+        norm_ylabel: str (optional)
+            This label is used in case a normalization is specified.
+            If empty (default), the value of the normalization will be
+            added to the y label
+        zero_start: boolean (optional)
+            If True (default) the time axis will start from zero, 
+            otherwise the original time tag is used. This option is 
+            intended to be used (setting it to False) when comparing
+            lightcurves from different files, but with time tag 
+            belonging to the same system (e.g. solar system barycenter)
         kwargs: dictionary
             Dictionary of keyword arguments for plot()
         '''
@@ -533,10 +544,24 @@ class Lightcurve(pd.DataFrame):
         if not norm is None:
             if type(norm) == str: norm = eval(norm)
             y /= norm
-        x = self.time-start
+            if norm_ylabel == '':
+                ylabel = 'Count rate / {} [c/s]'.format(norm)
+            else:
+                ylabel = norm_ylabel
 
-        ax.plot(x,y,label='{}_{}'.format(self.low_en,self.high_en),**kwargs)
-        ax.set_xlabel('Time [{} s]'.format(start),fontsize=lfont)
+        x = self.time
+        xlabel = 'Time [s]'
+        if zero_start: 
+            x -=start
+            xlabel = 'Time [{} s]'.format(start)
+
+        if 'label' in kwargs.keys():
+            print('WARNING! label argument specified, overwriting default option (energy)')
+            ax.plot(x,y,**kwargs)
+        else:
+            ax.plot(x,y,label='{}_{}'.format(self.low_en,self.high_en),**kwargs)
+
+        ax.set_xlabel(xlabel,fontsize=lfont)
         ax.set_ylabel(ylabel,fontsize=lfont)
         ax.grid()
         ax.legend(title='[keV]')
@@ -1035,7 +1060,17 @@ class LightcurveList(list):
             return LightcurveList(lc_list)        
 
     def plot(self,norm=None,ax=False,cr=True,title=False,lfont=16,
-        vlines=False,ndet=True,**kwargs):
+        vlines=False,ndet=True,zero_start=True,**kwargs):
+        '''
+        PARAMETERS
+        ----------
+        zero_start: boolean (optional)
+            If True (default) the time axis will start from zero, 
+            otherwise the original time tag is used. This option is 
+            intended to be used (setting it to False) when comparing
+            lightcurves from different files, but with time tag 
+            belonging to the same system (e.g. solar system barycenter)
+        '''
 
         if not 'marker' in kwargs.keys(): kwargs['marker']='o'
         if not 'color' in kwargs.keys(): kwargs['color']='k'
@@ -1059,15 +1094,21 @@ class LightcurveList(list):
             if not norm is None:
                 if type(norm) == str: norm = eval(norm)
                 y /= norm  
+            
             mid_time = (self[i].time.iloc[-1]+self[i].time.iloc[0])/2.          
-            x = mid_time - start
+            x = mid_time 
+            if zero_start: x-= start
             ax.plot(x,y,**kwargs)
 
             if i > 0 and vlines:
                 xline = (self[i].time.iloc[0]+self[i-1].time.iloc[-1])/2. - start
                 ax.axvline(xline,color='brown',ls='--',lw=2)
 
-        ax.set_xlabel('Time [{} s]'.format(start),fontsize=lfont)
+        xlabel = 'Time [s]'
+        if zero_start:
+            xlabel = 'Time [{} s]'.format(start)
+        ax.set_xlabel(xlabel,fontsize=lfont)
+        
         ax.set_ylabel(label,fontsize=lfont)
         ax.grid()
 
