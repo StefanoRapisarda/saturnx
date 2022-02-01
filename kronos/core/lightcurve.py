@@ -1098,6 +1098,10 @@ class LightcurveList(list):
             mid_time = (self[i].time.iloc[-1]+self[i].time.iloc[0])/2.          
             x = mid_time 
             if zero_start: x-= start
+            # This is for avoiding printing a label for each
+            # Lightcurve
+            if i > 0 and 'label'  in kwargs.keys():
+                del kwargs['label']
             ax.plot(x,y,**kwargs)
 
             if i > 0 and vlines:
