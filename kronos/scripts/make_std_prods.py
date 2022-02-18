@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from astropy.time import Time
+from datetime import datetime
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
 
@@ -704,7 +705,7 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     # Recording date and time
     # -----------------------------------------------------------------
     now = datetime.now()
-    date = ('%d_%d_%d') % (now.day,now.month,now.year)
+    date = ('%d_%d_%d') % (now.year,now.month,now.day)
     time = ('%d_%d') % (now.hour,now.minute)
     # -----------------------------------------------------------------
 
