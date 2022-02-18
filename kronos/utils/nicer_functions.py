@@ -326,7 +326,6 @@ def check_nicer_data(obs_id_dir,files_to_check={}):
             'arf':['arf_bdc.arf','xti/event_cl'],
             'rmf':['rmf_bdc.rmf','xti/event_cl'],
             'lis':['arf_bdc.lis','xti/event_cl'],
-            'bkg':['_bkg.','xti/event_cl']
             }
 
     # Checking files

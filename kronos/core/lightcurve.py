@@ -599,6 +599,9 @@ class Lightcurve(pd.DataFrame):
         if isinstance(time_res,str): time_res = eval(time_res)
         if isinstance(user_start_time,str): user_start_time = eval(user_start_time)
         if isinstance(user_dur,str): user_dur = eval(user_dur)
+
+        if type(low_en) == str: low_en = float(low_en)
+        if type(high_en) == str: high_en = float(high_en)
     
         if not type(events) in [type(Event()),type(EventList())]:
             raise TypeError('Input must be an Event or an EventList object')
@@ -976,27 +979,27 @@ class LightcurveList(list):
 
     def __lt__(self,value):
         if isinstance(value,str): value = eval(value)
-        return LightcurveList([l for l in self if self.texp < value])
+        return LightcurveList([l for l in self if l.texp < value])
 
     def __le__(self,value):
         if isinstance(value,str): value = eval(value)
-        return LightcurveList([l for l in self if self.texp <= value]) 
+        return LightcurveList([l for l in self if l.texp <= value]) 
 
     def __eq__(self,value):
         if isinstance(value,str): value = eval(value)
-        return LightcurveList([l for l in self if self.texp == value])
+        return LightcurveList([l for l in self if l.texp == value])
 
     def __gt__(self,value):
         if isinstance(value,str): value = eval(value)
-        return LightcurveList([l for l in self if self.texp > value])
+        return LightcurveList([l for l in self if l.texp > value])
 
     def __ge__(self,value):
         if isinstance(value,str): value = eval(value)
-        return LightcurveList([l for l in self if self.texp >= value]) 
+        return LightcurveList([l for l in self if l.texp >= value]) 
 
     def __ne__(self,value):
         if isinstance(value,str): value = eval(value)
-        return LightcurveList([l for l in self if self.texp != value])                
+        return LightcurveList([l for l in self if l.texp != value])                
 
     def join(self,mask=None):
         '''

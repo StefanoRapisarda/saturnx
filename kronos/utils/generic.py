@@ -17,9 +17,10 @@ def str_title(title,total_characters=72,symbol='*'):
     if len_title%2 != 0:
         len_title += 1
 
-    num_of_symbols = (total_characters - len_title - 2)/2
-    result = '{:num_of_symbols} {:^title } {:num_of_symbols}'.\
-        format(symbol*num_of_symbols,title,symbol*num_of_symbols)
+    num_of_symbols = int((total_characters - len_title - 2)/2)
+    result = '{:^{l}} {:^{c}} {:^{r}}'.\
+        format(symbol*num_of_symbols,title,symbol*num_of_symbols,
+            l = num_of_symbols,c = len_title, r = num_of_symbols)
 
     return result
 

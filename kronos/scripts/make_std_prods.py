@@ -21,8 +21,9 @@ import xspec
 from sherpa.astro import ui
 
 from kronos.core.gti import Gti
-from kronos.core.lightcurve import LightcurveList
-from kronos.core.power import PowerList
+from kronos.core.event import Event
+from kronos.core.lightcurve import Lightcurve, LightcurveList
+from kronos.core.power import PowerList, PowerSpectrum
 from kronos.utils.my_logging import make_logger, LoggingWrapper
 from kronos.utils.generic import chunks, my_cdate, str_title
 from kronos.utils.pdf import pdf_page
@@ -660,6 +661,37 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     '''
     Runs make_nicer_std_prod_single for each obs_ID in obs_id_dirs
 
+    PARAMETERS
+    ----------
+    obs_id_dirs: list
+        List of the FULL PATH of observational ID dirs.
+        These folders are supposed to contain timing data products
+        (lightcurves and power spectra) and to be inside an analysis
+        folder
+    tres: str
+        Time resolution of the timing products as it appears in their
+        name. This is not used for computation, but just to identify
+        the right file
+    tseg: str
+        Time segment of the timing products as it appears in their
+        name. This is not used for computation, but just to identify
+        the right file
+    main_en_band: list
+        2-element list containing lower and upper main energy band,
+        the boundaries are specified as strings
+    en_bands: list 
+        n-element list containing lower and upper energy bands.
+        The first two energy bands will be considered to compute the
+        hardness ratio and have to be listed in ascending order of 
+        energy
+    rebin: str
+        Rebin factor used to rebin frequency bin in the power spectra.
+        If negative, logarithmic binning will be applied.
+    data_dir: str or pathlib.Path()
+        Full path of the dir containing data. Thi folder should contain
+        obs. ID dirs containing the first products of data reduction
+        (cleaned event files and energy spectra)
+
     HISTORY
     -------
     2021 03 18, Stefano Rapisarda (Uppsala), creation date
@@ -685,6 +717,23 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     mylogging = LoggingWrapper() 
     # -----------------------------------------------------------------
 
+    # Printing info
+    # -----------------------------------------------------------------
+    mylogging.info(72*'*')
+    mylogging.info(str_title('make_nicer_std_prods'))
+    mylogging.info(72*'*'+'\n')
+    mylogging.info(f'Number of observations: {len(obs_id_dirs)}')
+    mylogging.info(f'Selected time resolution: {tres} [s]')
+    mylogging.info(f'Selected time segment: {tseg} [s]')
+    mylogging.info(f'Selected main energy band: {main_en_band[0]}-{main_en_band[1]} [keV]')
+    mylogging.info(f'Other selected energy bands:')
+    for i,en_band in enumerate(en_bands):
+        mylogging.info(f'{i+1}) {en_band[0]}-{en_band[1]} [keV]')
+    mylogging.info(f'Selected rebin factor: {rebin}')
+    mylogging.info(f'Data dir: {data_dir}'+'\n')
+    # -----------------------------------------------------------------
+
+
     for obs_id_dir in obs_id_dirs:
 
         if obs_id_dir.is_dir():
@@ -694,6 +743,11 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
         else:
             mylogging.info('{} does not exist'.format(obs_id_dir))
 
+    mylogging.info('Everything is done. Goodnight!\n')
+
+    mylogging.info(72*'*')
+    mylogging.info(72*'*')
+    mylogging.info(72*'*')
 
 def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     time_window = 20,plt_x_dim = 8,plt_y_dim = 8,
@@ -950,6 +1004,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_prod_name = 'E{}_{}_T{}_{}'.format(main_en_band[0],main_en_band[1],tres,tseg)
     main_lc_list_file = obs_id_dir/'lc_list_{}.pkl'.format(main_prod_name)
     main_pw_list_file = obs_id_dir/'power_list_{}.pkl'.format(main_prod_name)
+    ufa_lc_list_file = obs_id_dir/'ufa_lc_list_{}.pkl'.format(main_prod_name)
 
     # Full energy band GTI name
     main_gti_name = 'gti_E{}_{}.gti'.format(main_en_band[0],main_en_band[1])
@@ -973,6 +1028,9 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # arf and rmf files
     arf_file = data_dir/obs_id/'xti'/'event_cl'/f'arf_bdc.arf'
     rmf_file = data_dir/obs_id/'xti'/'event_cl'/f'rmf_bdc.rmf'
+
+    # ufa file
+    ufa_evt_file = data_dir/obs_id/'xti'/'event_cl'/f'ni{obs_id}_0mpu7_ufa.evt.gz'
     # -----------------------------------------------------------------
 
 
@@ -1000,11 +1058,13 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # wrong, the figure will be empty.
     # The array "plots" will contain the full path of the names of 
     # created plots:
-    # PLOT1 (plots[0]): Count rate per segment in different energy band
-    # PLOT2 (plots[1]): Energy spectrum
-    # PLOT3 (plots[2]): Full energy band average power spectrum
-    # PLOT4 (plots[3]): Average power spectra in different energy bands
-    # PLOT5 (plots[4]): Full energy band power spectrum per GTI
+    # PLOT1    (plots[0]): Count rate per segment in different energy band
+    # PLOT2    (plots[1]): Energy spectrum
+    # PLOT(S)3 (plots[2-3]): Comparison between ufa and cl lightcurve and 
+    #                       power spectra
+    # PLOT4    (plots[4]): Full energy band average power spectrum
+    # PLOT5    (plots[5]): Average power spectra in different energy bands
+    # PLOT6    (plots[6-n]): Full energy band power spectrum per GTI
 
 
     plots = []
@@ -1169,7 +1229,93 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # -----------------------------------------------------------------
     
 
-    # PLOT3: Full power spectrum
+    # PLOT(S)3: Comparing ufa and lc data
+    # -----------------------------------------------------------------
+    mylogging.info('Plotting comparing plots between ufa and cl')
+    # a) Lightcurve
+    # *****************************************************************
+    # Computing lightcurve list
+    if not ufa_lc_list_file.is_file():
+        mylogging.info('ufa Lightcurve does not exist. Computing it..')
+        ufa_gti = Gti.read_fits(ufa_evt_file)
+        ufa_event_list = Event.read_fits(ufa_evt_file).split(ufa_gti)
+        ufa_lcs = Lightcurve.from_event(ufa_event_list,time_res=tres,
+            low_en=main_en_band[0],high_en=main_en_band[1]) 
+        ufa_lcs.save(ufa_lc_list_file)
+    else:
+        ufa_lcs = LightcurveList.load(ufa_lc_list_file)
+
+    # Splitting lightcurves into 16s bins
+    ufa_lcs16 = ufa_lcs.split(16)
+    cl_lcs16 = main_lc_list.split(16)
+
+    mylogging.info('Plotting ufa/cl count rate')
+    fig,ax = plt.subplots(figsize=(8,5))
+    fig.suptitle('16s bin lightcurves',fontsize=14)
+    ufa_lcs16.plot(ax=ax,label='ufa',color='k',zero_start=False)
+    cl_lcs16.plot(ax=ax,label='cl',color='orange',zero_start=False)
+    ax.grid(b=True, which='major', color='grey', linestyle='-')
+    ax.legend(title='File')
+
+    plot3a = std_plot_dir/'ufa_vs_cl_16lc_T{}_{}.jpeg'.format(tres,tseg)
+    plots += [plot3a]
+    fig.savefig(plot3a, dpi=300)
+    # *****************************************************************
+
+    # b) Power Spectrum
+    # *****************************************************************
+
+    # Computing power
+    # (I want lightcurve of exactly 128 s)
+    mylogging.info('Computing ufa/cl power spectra')
+    ufa_lcs128 = ufa_lcs.split(128) >= 128
+    cl_lcs128 = main_lc_list.split(128) >= 128
+
+    ufa_power_list = PowerSpectrum.from_lc(ufa_lcs128)
+    cl_power_list = PowerSpectrum.from_lc(cl_lcs128)
+
+    ufa_leahy = ufa_power_list.average('leahy')
+    ufa_leahy_rebin = ufa_leahy.rebin(rebin)
+    if max(ufa_leahy_rebin.freq) > 3500:
+        ufa_sub_poi = ufa_leahy.sub_poi(low_freq=3000)
+    else:
+        ufa_sub_poi = ufa_leahy.sub_poi(value=2.)
+    ufa_rms = ufa_sub_poi.normalize('rms')
+    ufa_rms_rebin = ufa_rms.rebin(rebin)
+
+    cl_leahy = cl_power_list.average('leahy')
+    cl_leahy_rebin = cl_leahy.rebin(rebin)
+    if max(cl_leahy_rebin.freq) > 3500:
+        cl_sub_poi = cl_leahy.sub_poi(low_freq=3000)
+    else:
+        cl_sub_poi = cl_leahy.sub_poi(value=2.)
+    cl_rms = cl_sub_poi.normalize('rms')
+    cl_rms_rebin = cl_rms.rebin(rebin)
+
+    # Plotting
+    mylogging.info('Plotting ufa/cl power spectra')
+    fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,5))
+    fig.suptitle('Full energy band power spectra', fontsize=14)
+    ufa_leahy_rebin.plot(ax=ax1,label='ufa',color='k')
+    cl_leahy_rebin.plot(ax=ax1,label='cl',color='orange')
+    ufa_rms_rebin.plot(ax=ax2,label='ufa',color='k',xy=True)
+    cl_rms_rebin.plot(ax=ax2,label='cl',color='orange',xy=True)
+    ax1.legend(title='Event file')
+    ax1.grid(b=True, which='major', color='grey', linestyle='-')
+    ax2.grid(b=True, which='major', color='grey', linestyle='-')
+    ax.legend(title='Event file')
+
+    fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
+    
+    plot3b = std_plot_dir/'ufa_vs_cl_power_spectrum_{}_T{}_{}.jpeg'.\
+                            format(i,tres,tseg)
+    plots += [plot3b]
+    fig.savefig(plot3b, dpi=300)
+    # *****************************************************************
+    # -----------------------------------------------------------------
+    
+
+    # PLOT4: Full power spectrum
     # -----------------------------------------------------------------
     mylogging.info('Plotting full power spectrum')
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
@@ -1203,15 +1349,14 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         
     ax1.grid(b=True, which='major', color='grey', linestyle='-')
     ax2.grid(b=True, which='major', color='grey', linestyle='-')
-    fig.tight_layout(w_pad=1,rect=[0,0,1,0.9])
+    fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
     
-    plot3 = std_plot_dir/'full_power_spectrum_T{}_{}.jpeg'.format(tres,tseg)
-    plots += [plot3]
-    fig.savefig(plot3, dpi=300)
+    plot4 = std_plot_dir/'full_power_spectrum_T{}_{}.jpeg'.format(tres,tseg)
+    plots += [plot4]
+    fig.savefig(plot4, dpi=300)
     # -----------------------------------------------------------------
-    
-    
-    # PLOT4: different energy bands power spectra
+
+    # PLOT5: different energy bands power spectra
     # -----------------------------------------------------------------
     mylogging.info('Plotting different energy bands power spectra')
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
@@ -1256,15 +1401,15 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     ax1.grid(b=True, which='major', color='grey', linestyle='-')
     ax2.grid(b=True, which='major', color='grey', linestyle='-')
     ax1.legend(title='[keV]')
-    fig.tight_layout(w_pad=1,rect=[0,0,1,0.9])
+    fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
 
-    plot4 = os.path.join(std_plot_dir,'multi_band_power_spectrum_T{}_{}.jpeg'.format(tres,tseg))
-    plots += [plot4]
-    fig.savefig(plot4, dpi=300)
+    plot5 = os.path.join(std_plot_dir,'multi_band_power_spectrum_T{}_{}.jpeg'.format(tres,tseg))
+    plots += [plot5]
+    fig.savefig(plot5, dpi=300)
     # -----------------------------------------------------------------
     
     
-    # PLOT5: Full power spectra per GTI
+    # PLOT6: Full power spectra per GTI
     # ----------------------------------------------------------------- 
     mylogging.info('Plotting Full power spectra per GTI')
     if main_pw_list_file.is_file():
@@ -1302,7 +1447,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             ax1.legend(title='GTI (n. segs)')
             ax1.grid(b=True, which='major', color='grey', linestyle='-')
             ax2.grid(b=True, which='major', color='grey', linestyle='-')
-            fig.tight_layout(w_pad=1,rect=[0,0,1,0.9])
+            fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
             
             plotx = std_plot_dir/'full_power_spectrum_{}_T{}_{}.jpeg'.\
                                  format(i,tres,tseg)
