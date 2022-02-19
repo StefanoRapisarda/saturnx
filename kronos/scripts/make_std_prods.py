@@ -30,11 +30,13 @@ from kronos.utils.generic import chunks, my_cdate, str_title
 from kronos.utils.pdf import pdf_page
 from kronos.utils.nicer_functions import all_det
 from kronos.utils.xray import get_cr
+from kronos.utils.my_functions import list_items
 
 def make_hxmt_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['52.6','188.4'], spec_en_ch = ['26','120'], en_bands = [],
-    rebin=-30,data_dir=pathlib.Path.cwd(),
-    log_name=None):
+    rebin=-30,data_dir=pathlib.Path.cwd()):
+
+    mylogging = LoggingWrapper()
 
     colors = ['red','blue','green','orange','brown']
     markers = ['s','^','p','H','X']
@@ -44,24 +46,20 @@ def make_hxmt_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     if type(obs_id_dir) == str: obs_id_dir = pathlib.Path(obs_id_dir)
     if type(data_dir) == str: data_dir = pathlib.Path(data_dir)
 
-    # Logging
-    if log_name is None:
-        log_name = make_logger('make_hxmt_std_prod_single',outdir=obs_id_dir)
+    mylogging.info('*'*72)
+    mylogging.info(str_title('make_hxmt_std_prod_single'))
+    mylogging.info('*'*72+'\n')
 
-    logging.info('*'*72)
-    logging.info('{:24}{:^24}{:24}'.format('*'*24,'make_hxmt_std_prod_single','*'*24))
-    logging.info('*'*72)
-
-    # Making folders 
-    # -----------------------------------------------------
     obs_id = obs_id_dir.name
-    
+
+    # Making directories
+    # -----------------------------------------------------    
     std_plot_dir = obs_id_dir/'std_plots'
     if not std_plot_dir.is_dir():
-        logging.info('std_plots does not exist, creating one...')
+        logging.info('std_plots directory does not exist, creating one...')
         os.mkdir(std_plot_dir)
     else:
-        logging.info('std_plots already exists.')
+        logging.info('std_plots directory already exists.')
     # -----------------------------------------------------
 
     # Defining names of files to read
@@ -1134,7 +1132,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     fig.suptitle('Energy spectrum', fontsize=14)
     
     # Energy spectrum created via xselect
-    if spec.is_file():
+    if spec.is_file() and rmf_file.is_file() and arf_file.is_file():
         ui.clean()
         ui.load_pha('tot',str(spec))
         ui.load_arf('tot',str(arf_file))
@@ -1151,10 +1149,10 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         else:
             mylogging.error('Background energy spectrum not found')
     else:
-        mylogging.error('Energy spectrum not found')
+        mylogging.error('Either Energy spectrum, RMF, or ARF not found')
 
     # Energy spectrum created via nibackgen3c50
-    if spec_3c50.is_file():
+    if spec_3c50.is_file() and rmf_file.is_file() and arf_file.is_file():
         ui.clean()
         ui.load_pha('3c50',str(spec_3c50))
         ui.load_arf('3c50',str(arf_file))
@@ -1171,7 +1169,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         else:
             mylogging.error('Background energy spectrum (3c50) not found')
     else:
-        mylogging.error('Energy spectrum (3c50) not found')
+        mylogging.error('Either Energy spectrum (3c50), RMF, or ARF not found')
 
     ax.set_xlim([0.15,16])
     ax.set_xlabel('Energy [keV]',fontsize=16)
@@ -1685,14 +1683,37 @@ def print_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
         if isinstance(obs_id_dir,str):
             obs_id_dir = pathlib.Path(obs_id_dir)
         
+        # Extracting obs. ID
         obs_id = obs_id_dir.name
+
+        # Checking existance of std_prods dir inside the obs_id_dir
         std_prod_dir = obs_id_dir/'std_prods'
         if not std_prod_dir.is_dir():
             mylogging.info('std_prods dir does not exist, skipping obs.')
             mylogging.info(std_prod_dir)
             continue
-        pdf_file = std_prod_dir/'{}_std_prods_{}.pdf'.format(obs_id,time_string)
 
+        obs_id_plots = []
+        # Making a general plot
+        plot0 = make_general_plot(an_dir,tres=tres,tseg=tseg,
+            obs_id = obs_id)
+
+        # Reading general info and arranging plots in a pdf file
+        file_name = std_prod_dir / 'info_dict_T{}_{}.pkl'.format(tres,tseg)
+        if file_name.is_file():
+            with open(file_name,'rb') as infile:
+                info_dict = pickle.load(infile)
+            col1 = info_dict['COL1']
+            col2 = info_dict['COL2']
+            other_plots = info_dict['PLOTS']
+
+            obs_id_plots = [plot0]+other_plots
+
+            pdf_file = print_std_prod_single(an_dir,obs_id,col1,col2,
+                obs_id_plots,tres=tres,tseg=tseg)
+
+        # Checking existance of obs. ID PDF file and adding it to the
+        # general document
         if pdf_file.is_file():
 
             with open(pdf_file,'rb') as infile:
