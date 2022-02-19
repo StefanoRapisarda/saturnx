@@ -1092,8 +1092,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         for g in gti_seg.stop.to_numpy():
             ax.axvline(g-start,ls='--',color='orange')
     else:
-        mylogging.info('Main energy band lc_list file not found')
-        mylogging.info(main_lc_list_file)
+        mylogging.error('Main energy band lc_list file not found')
+        mylogging.error(f'({main_lc_list_file})')
        
     # Other energy bands count rate
     other_crs = []
@@ -1107,8 +1107,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             other_crs += [lc_list.cr]
             other_crs_err += [lc_list.cr_std]
         else:
-            mylogging.info('Single energy band lc_list not found')
-            mylogging.info(lc_list_file)
+            mylogging.error('Single energy band lc_list not found')
+            mylogging.error(f'({lc_list_file})')
 
     # I have not idea why I did this, but it works
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -1148,8 +1148,12 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 fmt='--',color='k',label='Bkg',zorder=10)
         else:
             mylogging.error('Background energy spectrum not found')
+            mylogging.error(f'({bkg_spec})')
     else:
         mylogging.error('Either Energy spectrum, RMF, or ARF not found')
+        mylogging.error(f'({spec})')
+        mylogging.error(f'({rmf_file})')
+        mylogging.error(f'({arf_file})')
 
     # Energy spectrum created via nibackgen3c50
     if spec_3c50.is_file() and rmf_file.is_file() and arf_file.is_file():
@@ -1168,8 +1172,12 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 fmt='--',color='purple',label='Bkg (3c50)',zorder=5)
         else:
             mylogging.error('Background energy spectrum (3c50) not found')
+            mylogging.error(f'({bkg_spec_3c50})')
     else:
         mylogging.error('Either Energy spectrum (3c50), RMF, or ARF not found')
+        mylogging.error(f'({spec_3c50})')
+        mylogging.error(f'({rmf_file})')
+        mylogging.error(f'({arf_file})')
 
     ax.set_xlim([0.15,16])
     ax.set_xlabel('Energy [keV]',fontsize=16)
@@ -1244,17 +1252,23 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     else:
         ufa_lcs = LightcurveList.load(ufa_lc_list_file)
 
-    # Splitting lightcurves into 16s bins
-    ufa_lcs16 = ufa_lcs.split(16)
-    cl_lcs16 = main_lc_list.split(16)
-
-    mylogging.info('Plotting ufa/cl count rate')
     fig,ax = plt.subplots(figsize=(8,5))
     fig.suptitle('16s bin lightcurves',fontsize=14)
-    ufa_lcs16.plot(ax=ax,label='ufa',color='k',zero_start=False)
-    cl_lcs16.plot(ax=ax,label='cl',color='orange',zero_start=False)
-    ax.grid(b=True, which='major', color='grey', linestyle='-')
-    ax.legend(title='File')
+    if ufa_lc_list_file.is_file() and main_lc_list_file.is_file():
+        # Splitting lightcurves into 16s bins
+        ufa_lcs16 = ufa_lcs.split(16)
+        cl_lcs16 = main_lc_list.split(16)
+
+        mylogging.info('Plotting ufa/cl count rate')
+
+        ufa_lcs16.plot(ax=ax,label='ufa',color='k',zero_start=False)
+        cl_lcs16.plot(ax=ax,label='cl',color='orange',zero_start=False)
+        ax.grid(b=True, which='major', color='grey', linestyle='-')
+        ax.legend(title='File')
+    else:
+        mylogging.error('Either the ufa or the main_lc_ist_file does not exist.')
+        mylogging.error(f'({ufa_lc_list_file})')
+        mylogging.error(f'({main_lc_list_file})')
 
     plot3a = std_plot_dir/'ufa_vs_cl_16lc_T{}_{}.jpeg'.format(tres,tseg)
     plots += [plot3a]
@@ -1267,45 +1281,55 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # Computing power
     # (I want lightcurve of exactly 128 s)
     mylogging.info('Computing ufa/cl power spectra')
-    ufa_lcs128 = ufa_lcs.split(128) >= 128
-    cl_lcs128 = main_lc_list.split(128) >= 128
+    if ufa_lc_list_file.is_file() and main_lc_list_file.is_file():
+        ufa_lcs128 = ufa_lcs.split(128) >= 128
+        cl_lcs128 = main_lc_list.split(128) >= 128
 
-    ufa_power_list = PowerSpectrum.from_lc(ufa_lcs128)
-    cl_power_list = PowerSpectrum.from_lc(cl_lcs128)
+        ufa_power_list = PowerSpectrum.from_lc(ufa_lcs128)
+        cl_power_list = PowerSpectrum.from_lc(cl_lcs128)
 
-    ufa_leahy = ufa_power_list.average('leahy')
-    ufa_leahy_rebin = ufa_leahy.rebin(rebin)
-    if max(ufa_leahy_rebin.freq) > 3500:
-        ufa_sub_poi = ufa_leahy.sub_poi(low_freq=3000)
+        ufa_leahy = ufa_power_list.average('leahy')
+        ufa_leahy_rebin = ufa_leahy.rebin(rebin)
+        if max(ufa_leahy_rebin.freq) > 3500:
+            ufa_sub_poi = ufa_leahy.sub_poi(low_freq=3000)
+        else:
+            ufa_sub_poi = ufa_leahy.sub_poi(value=2.)
+        ufa_rms = ufa_sub_poi.normalize('rms')
+        ufa_rms_rebin = ufa_rms.rebin(rebin)
+
+        cl_leahy = cl_power_list.average('leahy')
+        cl_leahy_rebin = cl_leahy.rebin(rebin)
+        if max(cl_leahy_rebin.freq) > 3500:
+            cl_sub_poi = cl_leahy.sub_poi(low_freq=3000)
+        else:
+            cl_sub_poi = cl_leahy.sub_poi(value=2.)
+        cl_rms = cl_sub_poi.normalize('rms')
+        cl_rms_rebin = cl_rms.rebin(rebin)
     else:
-        ufa_sub_poi = ufa_leahy.sub_poi(value=2.)
-    ufa_rms = ufa_sub_poi.normalize('rms')
-    ufa_rms_rebin = ufa_rms.rebin(rebin)
-
-    cl_leahy = cl_power_list.average('leahy')
-    cl_leahy_rebin = cl_leahy.rebin(rebin)
-    if max(cl_leahy_rebin.freq) > 3500:
-        cl_sub_poi = cl_leahy.sub_poi(low_freq=3000)
-    else:
-        cl_sub_poi = cl_leahy.sub_poi(value=2.)
-    cl_rms = cl_sub_poi.normalize('rms')
-    cl_rms_rebin = cl_rms.rebin(rebin)
+        mylogging.error('Either the ufa or the main_lc_ist_file does not exist.')
+        mylogging.error(f'({ufa_lc_list_file})')
+        mylogging.error(f'({main_lc_list_file})')
 
     # Plotting
     mylogging.info('Plotting ufa/cl power spectra')
     fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,5))
     fig.suptitle('Full energy band power spectra', fontsize=14)
-    ufa_leahy_rebin.plot(ax=ax1,label='ufa',color='k')
-    cl_leahy_rebin.plot(ax=ax1,label='cl',color='orange')
-    ufa_rms_rebin.plot(ax=ax2,label='ufa',color='k',xy=True)
-    cl_rms_rebin.plot(ax=ax2,label='cl',color='orange',xy=True)
-    ax1.legend(title='Event file')
-    ax1.grid(b=True, which='major', color='grey', linestyle='-')
-    ax2.grid(b=True, which='major', color='grey', linestyle='-')
-    ax.legend(title='Event file')
+    if ufa_lc_list_file.is_file() and main_lc_list_file.is_file():
+        ufa_leahy_rebin.plot(ax=ax1,label='ufa',color='k')
+        cl_leahy_rebin.plot(ax=ax1,label='cl',color='orange')
+        ufa_rms_rebin.plot(ax=ax2,label='ufa',color='k',xy=True)
+        cl_rms_rebin.plot(ax=ax2,label='cl',color='orange',xy=True)
+        ax1.legend(title='Event file')
+        ax1.grid(b=True, which='major', color='grey', linestyle='-')
+        ax2.grid(b=True, which='major', color='grey', linestyle='-')
+        ax.legend(title='Event file')
 
-    fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
-    
+        fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
+    else:
+        mylogging.error('Either the ufa or the main_lc_ist_file does not exist.')
+        mylogging.error(f'({ufa_lc_list_file})')
+        mylogging.error(f'({main_lc_list_file})')
+
     plot3b = std_plot_dir/'ufa_vs_cl_power_spectrum_{}_T{}_{}.jpeg'.\
                             format(i,tres,tseg)
     plots += [plot3b]
@@ -1343,8 +1367,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         rms_rebin = rms.rebin(rebin)
         rms_rebin.plot(ax=ax2,xy=True)
     else:
-        mylogging.info('Full Power spectrum file not found')
-        mylogging.info(main_pw_list_file)
+        mylogging.error('Full Power spectrum file not found')
+        mylogging.error(f'({main_pw_list_file})')
         
     ax1.grid(b=True, which='major', color='grey', linestyle='-')
     ax2.grid(b=True, which='major', color='grey', linestyle='-')
@@ -1394,8 +1418,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             rms_rebin.plot(ax=ax2,xy=True,label='{}-{}'.format(low_en,high_en),color=colors[i])
         
         else:
-            mylogging.info('Single power list file not found')
-            mylogging.info(pw_file)
+            mylogging.error('Single power list file not found')
+            mylogging.error(f'({pw_file})')
 
     ax1.grid(b=True, which='major', color='grey', linestyle='-')
     ax2.grid(b=True, which='major', color='grey', linestyle='-')
@@ -1453,8 +1477,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             plots += [plotx]
             fig.savefig(plotx, dpi=300)
     else:
-        mylogging.info('Main energy band PowerList file not found')
-        mylogging.info(main_pw_list_file)
+        mylogging.error('Main energy band PowerList file not found')
+        mylogging.error(f'({main_pw_list_file})')
     # ----------------------------------------------------------------- 
     
     
@@ -1653,6 +1677,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             df.to_pickle(df_name)
         # -------------------------------------------------------------
     else:
+        mylogging.error('The main_lc_ist_file does not exist.')
+        mylogging.error(f'({main_lc_list_file})')
         first_column = {}
         second_column = {}
 
