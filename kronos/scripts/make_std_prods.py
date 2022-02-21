@@ -1687,7 +1687,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     return plots,first_column,second_column
 
 
-def print_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
+def print_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     add_plot=[]):
 
     mylogging = LoggingWrapper()

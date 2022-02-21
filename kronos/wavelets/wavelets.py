@@ -642,7 +642,7 @@ class WaveletTransform:
             ax.text(mini_x[-1]+step,0.05,s='{} Hz'.format(mini_signal),color='white',transform=trans)
             ax.plot(mini_x,signal,color='white',lw=2,transform=trans)
 
-        return ax
+        return ax, im
 
 
     def save(self,file_name='wavelet_transform.pkl',fold=pathlib.Path.cwd()):
