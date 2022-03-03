@@ -40,25 +40,27 @@ def list_items(path=pathlib.Path.cwd(),itype = 'dir',ext = '',prefix='',
     prefix: string or list of strings, optional
         Only files/dirs beginning with prexix will be returned 
         (default is '')
-    include_or: string or list, optional
+    include_or: string or list (optional)
         Only items including one of the specified string will be
         returned
-    include_all: list, optional
+    include_all: list (optional)
         Only items including all the strings in the list
         will be included
-    exclude_or: string or list, optional
+    exclude_or: string or list (optional)
         Only items excluding at least one of the elements in this 
         list will be returned
-    exclude_and: string or list, optional
+    exclude_and: string or list (optional)
         Only items excluding all the elements in this list will be
         returned
-    digits: boolean, string, or list, optional 
+    digits: boolean, int, string, or list (optional) 
         If True only items whose names contain only digits will 
         be considered (default=False).
         If string or list, the item name will be split excluding 
         the characters in the list. If all the split elements include
-        digits, the item will be returned
-    sort: boolean, optional 
+        digits, the item will be returned.
+        If int, only items containing only digits of len == in will be
+        returned.
+    sort: boolean (optional) 
         If True the returned list of items will be sorted 
         (default=True)
 
@@ -91,8 +93,10 @@ def list_items(path=pathlib.Path.cwd(),itype = 'dir',ext = '',prefix='',
           the item name when checking if all the characters are digits
           (see description of the parameter);
         - Directories now are treated as pathlib.Path(s);
-    2021 12 06 Stefano Rapisarda (Uppsala)
+    2021 12 06, Stefano Rapisarda (Uppsala)
         Added Prefix option
+    2021 03 03, Stefano Rapisarda (Uppsala)
+        Added int option in digits parameter
     '''
 
     if type(path) != type(pathlib.Path()):
@@ -190,6 +194,9 @@ def list_items(path=pathlib.Path.cwd(),itype = 'dir',ext = '',prefix='',
         new_items = []
         if digits is True:
             new_items = [item for item in items if str(item.name).isdigit()]
+        elif type(digits) == int:
+            new_items = [item for item in items if \
+                (str(item.name).isdigit() and len(item.name) == digits)]
         else:
             if type(digits) == str: digits = [digits]
             split_string = '['

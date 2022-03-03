@@ -1,4 +1,3 @@
-from kronos.utils.my_functions import print_history
 import os
 import math
 from os import path
@@ -662,8 +661,9 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
 
     PARAMETERS
     ----------
-    obs_id_dirs: list
-        List of the FULL PATH of observational ID dirs.
+    obs_id_dirs: list or str or pathlib.Path
+        List of the FULL PATH of observational ID dirs or full path of
+        the dir containing all the observational ID dirs.
         These folders are supposed to contain timing data products
         (lightcurves and power spectra) and to be inside an analysis
         folder
@@ -697,6 +697,9 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     2021 12 09, Stefano Rapisarda (Uppsala)
         log_name, rmf, and arf parameters removed
     '''
+
+    if type(obs_id_dirs) in [str,type(pathlib.Path())]:
+        obs_id_dirs = list_items(obs_id_dirs,itype='dir',digits=True)
 
     an_dir = obs_id_dirs[0].parent
 
@@ -766,6 +769,23 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         Adopted LoggingWrapper approach
     '''
 
+    def get_ylims(arr,err=None,min_spacer=16,max_spacer=8):
+        diff=  np.nanmax(arr) - np.nanmin(arr)
+        if err is None:
+            min_y = np.nanmin(arr)-diff/min_spacer
+            max_y = np.nanmax(arr)+diff/max_spacer
+        else:
+            min_arr = np.nanmin(arr-err)
+            max_arr = np.nanmax(arr+err)
+            min_y = min_arr - (max_arr-min_arr)/min_spacer
+            max_y = max_arr + (max_arr-min_arr)/max_spacer
+            if math.isnan(min_y) or math.isinf(min_y): 
+                min_y = np.nanmin(arr)-diff/min_spacer
+            if math.isnan(max_y) or math.isinf(max_y):
+                max_y = np.nanmax(arr)+diff/max_spacer
+
+        return [min_y,max_y]
+
     mylogging = LoggingWrapper()
     
     time_string = 'T{}_{}'.format(tres,tseg)
@@ -775,7 +795,7 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
 
     mylogging.info('*'*72)
     mylogging.info('{:24}{:^24}{:24}'.format('*'*24,'make_general_plot','*'*24))
-    mylogging.info('*'*72)
+    mylogging.info('*'*72+'\n')
 
     # Making general plot folder
     std_plot_dir = an_dir/'std_plots'
@@ -818,9 +838,15 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         target_index = np.where(obs_ids == obs_id)
         time_obs_id = time[target_index]
 
+        x_lims = [int(time_obs_id/time_window)*time_window-time_window/10,
+                int(time_obs_id/time_window+1)*time_window+time_window/10*2]
+
         for ax in axes:
-            ax.set_xlim(int(time_obs_id/time_window)*time_window-time_window/10,\
-                        int(time_obs_id/time_window+1)*time_window+time_window/10*2)
+            ax.set_xlim(x_lims)
+    else:
+        x_lims = [np.min(time),np.max(time)]
+    
+    time_mask = (time >= x_lims[0]) & (time<= x_lims[1])
     
     # Plot1, count rates versurs time
     # --------------------------------------------------------------
@@ -835,7 +861,8 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     cr_err = df['CR_ERR'].to_numpy()/n_act_det
     cr = (tot_cr-bkg)/n_act_det
     axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt='o',color='black',label=main_en_band)
-   
+    y_lims0 = get_ylims([cr[time_mask],cr_err[time_mask]],max_spacer=1.)
+  
     if (not obs_id is None) and (obs_id in obs_ids):
         gold_dot, = axes[0].plot(time_obs_id,cr[target_index],'o',color='goldenrod',ms=12)
         leg2 = axes[0].legend([gold_dot],[obs_id],loc='upper left')
@@ -861,18 +888,22 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     else:
         axes[0].set_ylabel('Count rate [c/s]',fontsize=14)
     axes[0].legend(title='[keV]',loc='upper right')
+    axes[0].set_ylim(y_lims0)
     # --------------------------------------------------------------
     
     if n_en_bands >= 2:
         # Plot2, hardness ratio
         # --------------------------------------------------------------
         hr = df.HR.to_numpy()
+
         axes[1].plot(time,hr,'o',color='black',zorder=4)
         
         if (not obs_id is None) and (obs_id in obs_ids):
             axes[1].plot(time_obs_id,hr[target_index],'o',color='goldenrod',ms=12) 
             
         axes[1].set_ylabel('Hardness',fontsize=14)
+        #axes[1].set_ylim(get_ylims(hr[time_mask]))
+        axes[1].set_ylim([0,1])
         # --------------------------------------------------------------
     
     # Plot3, fractional rms
@@ -881,6 +912,8 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     rms = df.RMS.to_numpy()
     rms_err = df['RMS_ERR'].to_numpy()
     axes[2].errorbar(time,rms*100,rms_err*100,fmt='o',color='black')
+
+    ylims2 = get_ylims(rms[time_mask],rms_err[time_mask])
     
     if (not obs_id is None) and (obs_id in obs_ids):
         gold_dot, = axes[2].plot(time_obs_id,rms[target_index]*100,'o',color='goldenrod',ms=12)   
@@ -897,6 +930,9 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
      
     axes[2].set_ylabel('Frac. RMS [%]',fontsize=14)
     axes[2].set_xlabel('Time [MJD, {}]'.format(start_mjd),fontsize=14)
+    #print(rms)
+    axes[2].set_ylim([-5,70])
+    #axes[2].set_ylim([r*100 for r in ylims2])
     # --------------------------------------------------------------
     
     for ax in axes: ax.grid()
@@ -1270,7 +1306,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         mylogging.error(f'({ufa_lc_list_file})')
         mylogging.error(f'({main_lc_list_file})')
 
-    plot3a = std_plot_dir/'ufa_vs_cl_16lc_T{}_{}.jpeg'.format(tres,tseg)
+    plot3a = std_plot_dir/'ufa_vs_cl_lc_T{}_{}.jpeg'.format(tres,16)
     plots += [plot3a]
     fig.savefig(plot3a, dpi=300)
     # *****************************************************************
@@ -1282,11 +1318,11 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # (I want lightcurve of exactly 128 s)
     mylogging.info('Computing ufa/cl power spectra')
     if ufa_lc_list_file.is_file() and main_lc_list_file.is_file():
-        ufa_lcs128 = ufa_lcs.split(128) >= 128
-        cl_lcs128 = main_lc_list.split(128) >= 128
+        ufa_lcs_tseg = ufa_lcs.split(tseg) >= tseg
+        cl_lcs_tseg = main_lc_list.split(tseg) >= tseg
 
-        ufa_power_list = PowerSpectrum.from_lc(ufa_lcs128)
-        cl_power_list = PowerSpectrum.from_lc(cl_lcs128)
+        ufa_power_list = PowerSpectrum.from_lc(ufa_lcs_tseg)
+        cl_power_list = PowerSpectrum.from_lc(cl_lcs_tseg)
 
         ufa_leahy = ufa_power_list.average('leahy')
         ufa_leahy_rebin = ufa_leahy.rebin(rebin)
@@ -1330,8 +1366,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         mylogging.error(f'({ufa_lc_list_file})')
         mylogging.error(f'({main_lc_list_file})')
 
-    plot3b = std_plot_dir/'ufa_vs_cl_power_spectrum_{}_T{}_{}.jpeg'.\
-                            format(i,tres,tseg)
+    plot3b = std_plot_dir/'ufa_vs_cl_power_spectrum_T{}_{}.jpeg'.\
+                            format(tres,tseg)
     plots += [plot3b]
     fig.savefig(plot3b, dpi=300)
     # *****************************************************************
@@ -1463,8 +1499,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 local_rms = local_sub_poi.normalize('rms',bkg_cr=full_bkg_cr)
                 local_rms_rebin = local_rms.rebin(rebin)   
 
-                local_leahy_rebin.plot(ax=ax1,color=colors2[j],label = f'{gti_index} ({n_segs})')
-                local_rms_rebin.plot(ax=ax2,xy=True,color=colors2[j],label = f'{gti_index} ({n_segs})')
+                local_leahy_rebin.plot(ax=ax1,color=colors2[j],label = f'{gti_index+1} ({n_segs})')
+                local_rms_rebin.plot(ax=ax2,xy=True,color=colors2[j],label = f'{gti_index+1} ({n_segs})')
                 #ax2.set_ylabel('')
 
             ax1.legend(title='GTI (n. segs)')
@@ -1704,13 +1740,16 @@ def print_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
         for plot_to_add in add_plot:
             merger.append(PdfFileReader(plot_to_add[0]),bookmark=plot_to_add[1])
 
-    for obs_id_dir in obs_id_dirs:
+    for o,obs_id_dir in enumerate(obs_id_dirs):
 
         if isinstance(obs_id_dir,str):
             obs_id_dir = pathlib.Path(obs_id_dir)
         
         # Extracting obs. ID
         obs_id = obs_id_dir.name
+
+        mylogging.info('Printing std prods for obs. ID {} ({}/{})'.\
+            format(obs_id,o+1,len(obs_id_dirs)))
 
         # Checking existance of std_prods dir inside the obs_id_dir
         std_prod_dir = obs_id_dir/'std_prods'
@@ -1766,6 +1805,12 @@ def print_std_prod_single(an_dir,obs_id,col1,col2,plots,
     mylogging.info('*'*72)
     mylogging.info('{:24}{:^24}{:24}'.format('*'*24,'print_std_prod','*'*24))
     mylogging.info('*'*72)
+
+    if 'IDET' in col1.keys():
+        if len(col1['IDET'][1].split(',')) > 6:
+
+            col1['IDET'][1] = '!!! > 6 ({}) !!!'.\
+                format(len(col1['IDET'][1].split(',')))
     
     if type(col1) == list:
         info1 = {i[0]:i[1] for i in col1}
@@ -1805,3 +1850,7 @@ def print_std_prod_single(an_dir,obs_id,col1,col2,plots,
     pdf.output(output_file,'F')
 
     return output_file
+
+
+
+
