@@ -699,7 +699,7 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     '''
 
     if type(obs_id_dirs) in [str,type(pathlib.Path())]:
-        obs_id_dirs = list_items(obs_id_dirs,itype='dir',digits=True)
+        obs_id_dirs = list_items(obs_id_dirs,itype='dir',digits=10)
 
     an_dir = obs_id_dirs[0].parent
 
