@@ -17,14 +17,14 @@ import matplotlib.colors as mcolors
 from matplotlib.patches import Rectangle
 from matplotlib import pyplot
 
-from kronos.core.gti import Gti
-from kronos.core.lightcurve import LightcurveList
-from kronos.core.power import PowerList
-from kronos.utils.my_logging import make_logger,get_logger_name,LoggingWrapper
-from kronos.utils.generic import str_title
-from kronos.wavelets.wavelets import WaveletTransform
-from kronos.wavelets.functions import comp_scales
-from kronos.utils.pdf import pdf_page
+from saturnx.core.gti import Gti
+from saturnx.core.lightcurve import LightcurveList
+from saturnx.core.power import PowerList
+from saturnx.utils.my_logging import make_logger,get_logger_name,LoggingWrapper
+from saturnx.utils.generic import str_title
+from saturnx.wavelets.wavelets import WaveletTransform
+from saturnx.wavelets.functions import comp_scales
+from saturnx.utils.pdf import pdf_page
 
 def make_wlt_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], 

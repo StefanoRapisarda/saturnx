@@ -6,7 +6,7 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 
-from kronos.core.power import PowerSpectrum,PowerList
+from saturnx.core.power import PowerSpectrum,PowerList
 
 # Fitting data
 import lmfit

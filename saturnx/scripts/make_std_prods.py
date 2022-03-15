@@ -20,16 +20,16 @@ from matplotlib.patches import Rectangle
 import xspec
 from sherpa.astro import ui
 
-from kronos.core.gti import Gti
-from kronos.core.event import Event
-from kronos.core.lightcurve import Lightcurve, LightcurveList
-from kronos.core.power import PowerList, PowerSpectrum
-from kronos.utils.my_logging import make_logger, LoggingWrapper
-from kronos.utils.generic import chunks, my_cdate, str_title
-from kronos.utils.pdf import pdf_page
-from kronos.utils.nicer_functions import all_det
-from kronos.utils.xray import get_cr
-from kronos.utils.my_functions import list_items
+from saturnx.core.gti import Gti
+from saturnx.core.event import Event
+from saturnx.core.lightcurve import Lightcurve, LightcurveList
+from saturnx.core.power import PowerList, PowerSpectrum
+from saturnx.utils.my_logging import make_logger, LoggingWrapper
+from saturnx.utils.generic import chunks, my_cdate, str_title
+from saturnx.utils.pdf import pdf_page
+from saturnx.utils.nicer_functions import all_det
+from saturnx.utils.xray import get_cr
+from saturnx.utils.my_functions import list_items
 
 def make_hxmt_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['52.6','188.4'], spec_en_ch = ['26','120'], en_bands = [],
@@ -1143,10 +1143,6 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # PLOT1: count rate per GTI 
     # -----------------------------------------------------------------
     mylogging.info('Plotting count rate per GTI')
-
-    # Reading GTI 
-    gti = Gti.load(main_gti_file)
-    gti_seg = gti>=float(tseg)
     
     # As GTIs are selected ALSO according to the selected segment
     # length, this plot depends both on tres and tseg
@@ -1155,13 +1151,22 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     if plot_name.is_file() and not override:
         mylogging.info('Count rate per GTI plot already exists')
         plots += [plot_name]
+        # Reading GTI 
+        gti = Gti.load(main_gti_file)
+        gti_seg = gti>=float(tseg)
     else:
         
         fig,ax = plt.subplots(figsize=(8,5))
         #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-        fig.suptitle(f'Count rate per GTI (GTI n.: {len(gti)})',fontsize=14)
+        fig.suptitle(f'Count rate per GTI',fontsize=14)
 
-        if main_gti_lc_list_file.is_file():
+        if main_gti_lc_list_file.is_file() and main_gti_file.is_file():
+
+            # Reading GTI 
+            gti = Gti.load(main_gti_file)
+            gti_seg = gti>=float(tseg)
+
+            fig.suptitle(f'Count rate per GTI (GTI n.: {len(gti)})',fontsize=14)
 
             # Loading file
             gti_lc_list = LightcurveList.load(main_gti_lc_list_file)
@@ -1208,7 +1213,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 mylogging.error('Single energy band gti_lc_list not found')
                 mylogging.error(f'({gti_lc_list_file})')
 
-            del gti_lc_list_file
+            del lc_list
      
         # I have not idea why I did this, but it works
         handles, labels = plt.gca().get_legend_handles_labels()
@@ -1303,6 +1308,12 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     del seg_lc_lists
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++          
 
+    # Reading parameters from main_seg_lc_list before closing it
+    if main_seg_lc_list_file.is_file():
+        n_act_det = main_seg_lc_list[0].meta_data['N_ACT_DET']
+        inact_det_list = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
+        info_dict = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
+    del main_seg_lc_list
     # -----------------------------------------------------------------
     
     
@@ -1429,8 +1440,10 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         mylogging.info('ufa Lightcurve does not exist. Computing it..')
         ufa_gti = Gti.read_fits(ufa_evt_file)
         ufa_event_list = Event.read_fits(ufa_evt_file).split(ufa_gti)
+        print('Ufa event read')
         ufa_lcs = Lightcurve.from_event(ufa_event_list,time_res=tres,
             low_en=main_en_band[0],high_en=main_en_band[1]) 
+        print('ufa lightcurve computed')
         ufa_lcs.save(ufa_lc_list_file)
         #ufa_gti.save(ufa_gti_file)
     else:
@@ -1685,8 +1698,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
         # Information from lightcurve metadata
         # -------------------------------------------------------------
-        n_act_det = main_seg_lc_list[0].meta_data['N_ACT_DET']
-        inact_det_list = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
+        #n_act_det = main_seg_lc_list[0].meta_data['N_ACT_DET']
+        #inact_det_list = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
         parent_info['N_ACT_DET'] = n_act_det
         inact_det_list_str = ''
         for el in inact_det_list: inact_det_list_str += f'{el},'
@@ -1694,7 +1707,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
         parent_info['INACT_DET_LIST'] = inact_det_list_str
     
-        info_dict = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
+        #info_dict = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
 
         for key,item in info_dict.items():
             parent_info[key] = item
@@ -1703,7 +1716,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         parent_info['N_EN_BANDS'] = len(en_bands)
     
         # Computing fractional rms
-        # -----------------------------------------------------------------
+        # --------------------------------------------------------------
         def comp_rms(power_list_file,bkg_cr):
             pw_list = PowerList.load(power_list_file)
             power = pw_list.average('leahy')

@@ -42,15 +42,15 @@ import glob
 from functools import partial
 
 import sys
-sys.path.append('/Volumes/Samsung_T5/kronos')
-import kronos
-from kronos.fitting.fitting_functions import lorentzian
-from kronos.utils.rxte_functions import list_modes
-from kronos.utils.generic import plt_color
-from kronos.gui.tabs import FittingTab, TimingTab
-from kronos.fitting.astropy_custom_models import *
-from kronos.fitting.sherpa_custom_models import *
-from kronos.utils.pdf import pdf_page
+sys.path.append('/Volumes/Samsung_T5/saturnx')
+import saturnx
+from saturnx.fitting.fitting_functions import lorentzian
+from saturnx.utils.rxte_functions import list_modes
+from saturnx.utils.generic import plt_color
+from saturnx.gui.tabs import FittingTab, TimingTab
+from saturnx.fitting.astropy_custom_models import *
+from saturnx.fitting.sherpa_custom_models import *
+from saturnx.utils.pdf import pdf_page
 
 __all__ = ['MakePowerWin','LogWindow','TestButton','RxteModes',
             'FitWindow_sherpa','PlotFitWindow']
@@ -180,7 +180,7 @@ class MakePowerWin(tk.Tk):
  
         super().__init__(*args,**kwargs)
 
-        self.configure(bg='burlywood3')
+        #self.configure(bg='burlywood3')
 
         self._obs_id = ''
 
@@ -192,18 +192,18 @@ class MakePowerWin(tk.Tk):
         # s.configure('Red.TLabelframe.Label', font=('courier', 15, 'bold'))
         # s.configure('Red.TLabelframe.Label', foreground ='red')
         # s.configure('Red.TLabelframe.Label', background='blue')
-        s = ttk.Style()
+        s = ttk.Style(self)
         s.configure('Black.TLabelframe.Label',
                     font=('times', 16, 'bold'))
         self._head_style = 'Black.TLabelframe'
 
         # Frame for obs ID list
-        left_frame = tk.Frame(self)
+        left_frame = ttk.Frame(self)
         left_frame.grid(row=0,column=0,padx=5,pady=5,sticky='nswe') 
         self._init_left_frame(left_frame)
 
         # Frame for settings
-        right_frame = tk.Frame(self)
+        right_frame = ttk.Frame(self)
         right_frame.grid(row=0,column=1,padx=5,pady=5,sticky='nswe') 
         self._init_right_frame(right_frame)  
 

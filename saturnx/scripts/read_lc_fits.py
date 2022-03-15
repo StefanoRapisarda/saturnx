@@ -3,9 +3,9 @@ import logging
 import pathlib
 from astropy.io.fits import getval
 
-from kronos.utils.my_logging import make_logger
-from kronos.core.lightcurve import Lightcurve
-from kronos.core.gti import Gti
+from saturnx.utils.my_logging import make_logger
+from saturnx.core.lightcurve import Lightcurve
+from saturnx.core.gti import Gti
 
 def read_lc(fits_file, ext='COUNTS',destination=pathlib.Path.cwd(),
     mission='HXMT',output_suffix='',single_gti = True, log_name=None):

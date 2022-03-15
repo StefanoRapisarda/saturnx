@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 from astropy.io.fits import getdata,getval
 from astropy.io import fits
 
-from kronos.core.gti import Gti
-from kronos.core.event import Event, EventList
-from kronos.utils.time_series import my_rebin, rebin_arrays
-from kronos.utils.fits import read_fits_keys, get_basic_info
-from kronos.utils.generic import is_number, my_cdate
+from saturnx.core.gti import Gti
+from saturnx.core.event import Event, EventList
+from saturnx.utils.time_series import my_rebin, rebin_arrays
+from saturnx.utils.fits import read_fits_keys, get_basic_info
+from saturnx.utils.generic import is_number, my_cdate
 
 class Lightcurve(pd.DataFrame):
     '''
@@ -314,7 +314,7 @@ class Lightcurve(pd.DataFrame):
 
         PARAMETERS
         ----------
-        time_seg: float, string, or kronos.core.Gti (optional)
+        time_seg: float, string, or saturnx.core.Gti (optional)
             Time segment (duration) or Gti object (default is 16)
 
         RETURNS
@@ -574,7 +574,7 @@ class Lightcurve(pd.DataFrame):
 
         PARAMETERS
         ----------
-        events: kronos.core.Event
+        events: saturnx.core.Event
             Event object (must contain time and pi columns)
         time_res: float or string (optional)
             Time resolution of the binned lightcurve (default is 1)
@@ -593,7 +593,7 @@ class Lightcurve(pd.DataFrame):
         
         RETURNS
         -------
-        kronos.core.Lightcurve
+        saturnx.core.Lightcurve
         '''
 
         if isinstance(time_res,str): time_res = eval(time_res)
@@ -711,7 +711,7 @@ class Lightcurve(pd.DataFrame):
 
         RETURNS
         -------
-        kronos.core.Lightcurve
+        saturnx.core.Lightcurve
         '''
 
         if not type(fits_file) in [type(pathlib.Path.cwd()),str]:

@@ -1,6 +1,6 @@
 import os
 from astropy.io import fits
-from kronos.core.gti import clean_gti
+from saturnx.core.gti import clean_gti
 import logging
 
 def list_modes(obs_id_dir=os.getcwd()):

@@ -10,13 +10,13 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 
-sys.path.append('/Volumes/Samsung_T5/kronos')
-from kronos.gui.windows import MakePowerWin, LogWindow
-from kronos.utils.my_logging import make_logger, LoggingWrapper
+sys.path.append('/Volumes/Samsung_T5/saturnx')
+from saturnx.gui.windows import MakePowerWin, LogWindow
+from saturnx.utils.my_logging import make_logger, LoggingWrapper
 
-from kronos.scripts.make_lc import make_nicer_lc
-from kronos.scripts.make_power import make_power
-from kronos.scripts.read_lc_fits import read_lc
+from saturnx.scripts.make_lc import make_nicer_lc
+from saturnx.scripts.make_power import make_power
+from saturnx.scripts.read_lc_fits import read_lc
 
 class TimingApp:
     def __init__(self):
@@ -27,10 +27,12 @@ class TimingApp:
         #self.ui._button1['command'] = self._compute_power
         #self.ui._button2['command'] = self._compute_lightcurve
 
-        self.s = ttk.Style(self.ui)
-        # self.ui.tk.call('lappend','auto_path','/Volumes/Samsung_T5/kronos/kronos/gui/awthemes-10.4.0')
+        self.ui.s = ttk.Style(self)
+        # self.ui.tk.call('source','sun-valley.tcl')
+        # self.ui.tk.call('set_theme','light')
+        # self.ui.tk.call('lappend','auto_path','/Volumes/Samsung_T5/saturnx/kronos/gui/awthemes-10.4.0')
         # self.ui.tk.call('package','require','awdark')
-        # self.s.theme_use('awdark')
+        self.ui.s.theme_use('classic')
 
     def _compute(self):
         if self.ui._timing_tab._comp_lc.get(): self._compute_lightcurve()

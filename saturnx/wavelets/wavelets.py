@@ -18,13 +18,13 @@ from scipy.signal import savgol_filter
 from shapely.geometry import Polygon, Point
 from skimage import measure
 
-from kronos.core.lightcurve import Lightcurve
-from kronos.utils.generic import my_cdate
+from saturnx.core.lightcurve import Lightcurve
+from saturnx.utils.generic import my_cdate
 
 import numpy
 import pyximport
 pyximport.install({"include_dirs":numpy.get_include()})
-from kronos.wavelets.cextract_mask import extract_mask_cython
+from saturnx.wavelets.cextract_mask import extract_mask_cython
 
 class BaseWavelet:
     '''
@@ -1063,4 +1063,4 @@ class Patches:
         
         return wt   
 
-from kronos.wavelets.functions import cwt,comp_scales
+from saturnx.wavelets.functions import cwt,comp_scales

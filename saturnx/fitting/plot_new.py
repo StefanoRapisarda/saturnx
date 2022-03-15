@@ -17,10 +17,10 @@ import pandas as pd
 
 import os
 import sys
-sys.path.append('/Volumes/Samsung_T5/kronos')
-import kronos as kr
-from kronos.core.power import PowerSpectrum
-from kronos.functions.my_functions import my_rebin as rebin
+sys.path.append('/Volumes/Samsung_T5/saturnx')
+import saturnx as kr
+from saturnx.core.power import PowerSpectrum
+from saturnx.functions.my_functions import my_rebin as rebin
 import matplotlib 
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt

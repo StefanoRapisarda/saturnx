@@ -5,7 +5,7 @@ from astropy.io.fits import getdata,getval
 import pandas as pd
 import os
 
-from kronos.utils.generic import my_cdate
+from saturnx.utils.generic import my_cdate
 
 def clean_gti(start,stop):
     '''

@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.signal import chirp
-from kronos.core.lightcurve import Lightcurve
-from kronos.core.power import PowerSpectrum
+from saturnx.core.lightcurve import Lightcurve
+from saturnx.core.power import PowerSpectrum
 
 def sin_signal_from_bkg_lc(bkg_lc,freq=1,snr=1,mean=0):
     '''
-    Returns a sinusoid signal in the form of a kronos.Lightcurve
+    Returns a sinusoid signal in the form of a saturnx.Lightcurve
     with the specified frequency and signal to noise ratio
     relative to the given background level
 
@@ -16,7 +16,7 @@ def sin_signal_from_bkg_lc(bkg_lc,freq=1,snr=1,mean=0):
 
     PARAMETERS
     ----------
-    bkg_lc: kronos.Lightcurve 
+    bkg_lc: saturnx.Lightcurve 
         Background lightcurve 
     freq: float
         Frequency of the sinusoid
@@ -27,8 +27,8 @@ def sin_signal_from_bkg_lc(bkg_lc,freq=1,snr=1,mean=0):
 
     RETURNS
     -------
-    signal_lc: kronos.Lightcurve
-        kronos.Lightcurve object containing the sinusoid signal
+    signal_lc: saturnx.Lightcurve
+        saturnx.Lightcurve object containing the sinusoid signal
 
     HISTORY
     -------
@@ -57,7 +57,7 @@ def sin_signal_from_bkg_lc(bkg_lc,freq=1,snr=1,mean=0):
 
 def chirp_signal_from_bkg_lc(bkg_lc,freq1=1,freq2=2,snr=1,mean=0):
     '''
-    Returns a chirp signal in the form of a kronos.Lightcurve
+    Returns a chirp signal in the form of a saturnx.Lightcurve
     with the specified frequencies and signal to noise ratio
     relative to the given background level
 
@@ -68,7 +68,7 @@ def chirp_signal_from_bkg_lc(bkg_lc,freq1=1,freq2=2,snr=1,mean=0):
 
     PARAMETERS
     ----------
-    bkg_lc: kronos.Lightcurve 
+    bkg_lc: saturnx.Lightcurve 
         Background lightcurve 
     freq1: float
         Start frequency of the chirp signal
@@ -81,8 +81,8 @@ def chirp_signal_from_bkg_lc(bkg_lc,freq1=1,freq2=2,snr=1,mean=0):
 
     RETURNS
     -------
-    signal_lc: kronos.Lightcurve
-        kronos.Lightcurve object containing the sinusoid signal
+    signal_lc: saturnx.Lightcurve
+        saturnx.Lightcurve object containing the sinusoid signal
 
     HISTORY
     -------

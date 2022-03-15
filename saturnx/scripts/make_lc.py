@@ -2,10 +2,10 @@ import os
 import pathlib
 import logging
 
-from kronos.utils.my_logging import make_logger
-from kronos.core.event import Event,EventList
-from kronos.core.gti import Gti,GtiList
-from kronos.core.lightcurve import Lightcurve,LightcurveList
+from saturnx.utils.my_logging import make_logger
+from saturnx.core.event import Event,EventList
+from saturnx.core.gti import Gti,GtiList
+from saturnx.core.lightcurve import Lightcurve,LightcurveList
 
 def make_nicer_lc(event_file,tres=1.,en_bands=[[0.5,10.]],
             split_event = False,destination=pathlib.Path.cwd(),

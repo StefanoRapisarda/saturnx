@@ -16,10 +16,10 @@ from scipy.fftpack import fftfreq, fft
 from astropy.io import fits
 from astropy.io.fits import getdata, getval
 
-from kronos.core.lightcurve import Lightcurve, LightcurveList
-from kronos.utils.time_series import rebin_xy, rebin_arrays
-from kronos.utils.fits import read_fits_keys, get_basic_info
-from kronos.utils.generic import is_number, my_cdate
+from saturnx.core.lightcurve import Lightcurve, LightcurveList
+from saturnx.utils.time_series import rebin_xy, rebin_arrays
+from saturnx.utils.fits import read_fits_keys, get_basic_info
+from saturnx.utils.generic import is_number, my_cdate
 
 
 
@@ -241,7 +241,7 @@ class PowerSpectrum(pd.DataFrame):
 
         RETURNS
         -------
-        pw_poi: kronos.core.PowerSpectrum
+        pw_poi: saturnx.core.PowerSpectrum
             PowerSpectrum with subtracted power and updated meta_data
 
         '''

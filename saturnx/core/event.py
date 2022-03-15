@@ -3,11 +3,12 @@ import pandas as pd
 import numpy as np
 
 from astropy.io.fits import getdata,getval
+from astropy.io import fits
 
-from kronos.utils.generic import clean_expr, is_number, my_cdate
-from kronos.utils.fits import get_basic_info, read_fits_keys
-from kronos.utils.nicer_functions import all_det
-from kronos.core.gti import Gti
+from saturnx.utils.generic import clean_expr, is_number, my_cdate
+from saturnx.utils.fits import get_basic_info, read_fits_keys
+from saturnx.utils.nicer_functions import all_det
+from saturnx.core.gti import Gti
 
 class Event(pd.DataFrame):
     '''
@@ -218,7 +219,7 @@ class Event(pd.DataFrame):
 
         RETURNS
         -------
-        event: kronos.core.Event
+        event: saturnx.core.Event
             Event object
 
         HISTORY
@@ -243,38 +244,42 @@ class Event(pd.DataFrame):
             print('File {} does not exist'.format(file_name))
 
         # Reading data
-        data = getdata(file_name,extname=ext,meta_data=False,memmap=True)
+        #data = getdata(file_name,extname=ext,meta_data=False,memmap=True)
+        hdulist = fits.open(file_name,memmap=True)
 
         # Initializing meta_data
-        mission =  getval(file_name,'TELESCOP',1)
+        # mission =  getval(file_name,'TELESCOP',1)
+        mission = hdulist[ext].header['TELESCOP']
         meta_data = {}
         meta_data['EVT_CRE_MODE'] = 'Event created from fits file'
-        meta_data['EVT_FILE_NAME'] = os.path.basename(file_name)
-        meta_data['DIR'] = os.path.dirname(file_name)
+        meta_data['EVT_FILE_NAME'] = os.path.basename(file_name.name)
+        meta_data['DIR'] = os.path.dirname(file_name.parent)
+
 
         # Reading meaningfull information from event file
-        info = get_basic_info(file_name,ext=ext)
+        info = get_basic_info(hdulist,ext=ext)
         if not keys_to_read is None:
             if type(keys_to_read) in [str,list]: 
-                user_info = read_fits_keys(file_name,keys_to_read,ext=ext)
+                user_info = read_fits_keys(hdulist,keys_to_read,ext=ext)
             else:
                 raise TypeError('keys to read must be str or list')
         else: user_info = {}
         total_info = {**info,**user_info}
         meta_data['INFO_FROM_HEADER'] = total_info
+        print('Read meaningfull information')
 
         # Initializing Event object
         if mission == 'NICER':
-            times = data['TIME']
+            times = hdulist[ext].data['TIME']
             try:
-                det_id = data['DET_ID']
+                det_id = hdulist[ext].data['DET_ID']
             except Exception as e:
                 print('Could not find DET_ID column')
                 print(e)
                 det_id = np.zeros(len(times))
-            times = data['TIME']
+            times = hdulist[ext].data['TIME']
             try:
-                pi = data['PI']
+                pi = hdulist[ext].data['PI']
             except Exception as e:
                 print('Could not find PI column')
                 print(e)
@@ -286,12 +291,19 @@ class Event(pd.DataFrame):
             meta_data['N_ACT_DET'] = n_act_det
             meta_data['N_INACT_DET'] = list(inact_det_list)
 
+            print('Initializing event object')
             event = Event(time_array=times,det_array=det_id,pi_array=pi,
                         mission=mission,meta_data=meta_data)
         elif mission == 'SWIFT':
-            event = Event(time_array=data['TIME'],detx_array=data['DETX'],dety_array=data['DETY'],
-                        pi_array=data['PI'],grade_array=data['GRADE'],
-                        mission=mission)   
+            event = Event(time_array=hdulist[ext].data['TIME'],
+                detx_array=hdulist[ext].data['DETX'],
+                dety_array=hdulist[ext].data['DETY'],
+                pi_array=hdulist[ext].data['PI'],
+                grade_array=hdulist[ext].data['GRADE'],
+                mission=mission)  
+
+        hdulist.close()
+        del hdulist 
 
         return event
 

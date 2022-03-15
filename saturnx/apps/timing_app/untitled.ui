@@ -1,0 +1,990 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>847</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>11</y>
+      <width>631</width>
+      <height>731</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>2</number>
+    </property>
+    <widget class="QWidget" name="DataReduction">
+     <attribute name="title">
+      <string>Data Reduction</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="Diagnostic">
+     <attribute name="title">
+      <string>Diagnostic</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="Timing">
+     <attribute name="title">
+      <string>Timing</string>
+     </attribute>
+     <widget class="QGroupBox" name="timeSettingsBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>611</width>
+        <height>341</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Timing Settings</string>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+      <widget class="QGroupBox" name="timeResBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>241</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Time Resolution [s]</string>
+       </property>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>23</y>
+          <width>231</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLineEdit" name="timeResLineEdit">
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="timeResCheckBox">
+           <property name="text">
+            <string>Fix</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="freqResBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>241</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Frequency resolution [Hz]</string>
+       </property>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>23</y>
+          <width>231</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QLineEdit" name="freqResLineEdit">
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="freqResCheckBox">
+           <property name="text">
+            <string>Fix</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="timeSegBox">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>30</y>
+         <width>141</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Segment length [s]</string>
+       </property>
+       <widget class="QGroupBox" name="nyqFreqBox_2">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>80</y>
+          <width>141</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Nyq. frequency [Hz]</string>
+        </property>
+        <widget class="QLineEdit" name="nyqFreqLineEdit_2">
+         <property name="geometry">
+          <rect>
+           <x>7</x>
+           <y>23</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="nyqFreqCheckBox_2">
+         <property name="geometry">
+          <rect>
+           <x>93</x>
+           <y>23</y>
+           <width>41</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Fix</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>23</y>
+          <width>131</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="timeSegLineEdit">
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="timeSegCheckBox">
+           <property name="text">
+            <string>Fix</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="nyqFreqBox">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>90</y>
+         <width>141</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Nyq. frequency [Hz]</string>
+       </property>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>23</y>
+          <width>131</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLineEdit" name="nyqFreqLineEdit">
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="nyqFreqCheckBox">
+           <property name="text">
+            <string>Fix</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="timeBinsBox">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>30</y>
+         <width>171</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Time bins</string>
+       </property>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>23</y>
+          <width>161</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLineEdit" name="timeBinsLineEdit">
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="timeBinsCheckBox">
+           <property name="text">
+            <string>Fix</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="freqBinsBox">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>90</y>
+         <width>171</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Frequency bins</string>
+       </property>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>23</y>
+          <width>161</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLineEdit" name="freqBinsLineEdit">
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="freqBinsCheckBox">
+           <property name="text">
+            <string>Fix</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="selTimeModesBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>160</y>
+         <width>591</width>
+         <height>141</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Selected Timing modes</string>
+       </property>
+       <widget class="QListView" name="selTimeModesListView">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>24</y>
+          <width>551</width>
+          <height>111</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="addTimeModeButton">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>26</y>
+          <width>21</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>+</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="delTimeModeButton">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>80</y>
+          <width>21</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="loadTimeModesButton">
+        <property name="geometry">
+         <rect>
+          <x>520</x>
+          <y>1</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QCheckBox" name="splitEventCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>310</y>
+         <width>281</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Split Event Files into GTIs (recommended)</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="saveTimeModesButton">
+       <property name="geometry">
+        <rect>
+         <x>468</x>
+         <y>161</y>
+         <width>61</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>360</x>
+         <y>310</y>
+         <width>241</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="minGtiLabel">
+          <property name="text">
+           <string>Min. GTI duration [s]:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="minGtiDurLineEdit"/>
+        </item>
+       </layout>
+      </widget>
+      <zorder>freqBinsBox</zorder>
+      <zorder>timeResBox</zorder>
+      <zorder>freqResBox</zorder>
+      <zorder>timeSegBox</zorder>
+      <zorder>nyqFreqBox</zorder>
+      <zorder>timeBinsBox</zorder>
+      <zorder>selTimeModesBox</zorder>
+      <zorder>splitEventCheckBox</zorder>
+      <zorder>minGtiDurLineEdit</zorder>
+      <zorder>minGtiLabel</zorder>
+      <zorder>saveTimeModesButton</zorder>
+     </widget>
+     <widget class="QGroupBox" name="energySettingsBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>350</y>
+        <width>611</width>
+        <height>118</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Energy Settings</string>
+      </property>
+      <widget class="QLabel" name="energyRangesLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>141</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Energy range(s) [keV]</string>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="selEnergyRangesBox">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>30</y>
+         <width>301</width>
+         <height>80</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Selected energy ranges</string>
+       </property>
+       <widget class="QListView" name="energyRangesListView">
+        <property name="geometry">
+         <rect>
+          <x>39</x>
+          <y>23</y>
+          <width>256</width>
+          <height>51</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="addEnergyRangeButton">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>23</y>
+          <width>31</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>+</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="delEnergyRangeButton">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>51</y>
+          <width>31</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="saveEnergyRangesButton">
+        <property name="geometry">
+         <rect>
+          <x>172</x>
+          <y>0</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="loadEnergyRangesButton">
+        <property name="geometry">
+         <rect>
+          <x>234</x>
+          <y>0</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>162</x>
+         <y>30</y>
+         <width>121</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QLineEdit" name="lowEnLineEdit1"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="minusLabel1">
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="highEnLineEdit1"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>162</x>
+         <y>58</y>
+         <width>121</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QLineEdit" name="lowEnLineEdit2"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="minusLabel2">
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="highEnLineEdit2"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>162</x>
+         <y>86</y>
+         <width>121</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QLineEdit" name="lowEnLineEdit3"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="minusLabel2_2">
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="highEnLineEdit3"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="inputSettingsBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>480</y>
+        <width>611</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Input Settings</string>
+      </property>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>440</x>
+         <y>60</y>
+         <width>161</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_14">
+        <item>
+         <widget class="QLabel" name="outputSuffixLabel">
+          <property name="text">
+           <string>Output Suffix:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outputSuffixlineEdit"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>26</y>
+         <width>591</width>
+         <height>33</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <item>
+         <widget class="QLabel" name="dataDirLabel">
+          <property name="text">
+           <string>Data DIR:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="dataDirLineEdit"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="setDataDirButton">
+          <property name="text">
+           <string>SET</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>221</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <item>
+         <widget class="QLabel" name="fileExtensionLabel">
+          <property name="text">
+           <string>Input Event File Extension:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="fileExtensionLineEdit"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>250</x>
+         <y>60</y>
+         <width>161</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_13">
+        <item>
+         <widget class="QLabel" name="fileIdentifierLabel">
+          <property name="text">
+           <string>File Identifier:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="fileIdentifierLineEdit"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="outputSettingsBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>580</y>
+        <width>611</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Output Settings</string>
+      </property>
+      <widget class="QCheckBox" name="computeLightcurvesCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>55</y>
+         <width>161</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Compute LightCurves</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="computePowerSpectraCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>250</x>
+         <y>55</y>
+         <width>171</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Compute PowerSpectra</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="overrideCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>520</x>
+         <y>55</y>
+         <width>81</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Override</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>20</y>
+         <width>591</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_16">
+        <item>
+         <widget class="QLabel" name="outputDirLabel">
+          <property name="text">
+           <string>Output DIR:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outputDirLineEdit"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="analysisLabel">
+          <property name="text">
+           <string>/analysis</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="setOutoutDirButton">
+          <property name="text">
+           <string>SET</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="computeButton">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>670</y>
+        <width>622</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>COMPUTE</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="StdProds">
+     <attribute name="title">
+      <string>Std. Prods</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="Fitting">
+     <attribute name="title">
+      <string>Plotting</string>
+     </attribute>
+    </widget>
+   </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>780</y>
+      <width>881</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="statusTextBrowser">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>745</y>
+      <width>881</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="missionBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>241</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="title">
+     <string>Mission</string>
+    </property>
+    <widget class="QComboBox" name="missionComboBox">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>24</y>
+       <width>241</width>
+       <height>26</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="obsIdsBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>241</width>
+      <height>671</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="title">
+     <string>Observational IDs</string>
+    </property>
+    <widget class="QListView" name="obsIdsListView">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>20</y>
+       <width>241</width>
+       <height>651</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="readObsIdsButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>0</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>READ</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>900</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

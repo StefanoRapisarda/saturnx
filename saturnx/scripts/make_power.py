@@ -3,12 +3,12 @@ import pathlib
 from datetime import datetime
 import logging
 
-from kronos.utils.my_logging import make_logger
-from kronos.utils.generic import my_cdate
-from kronos.core.event import Event,EventList
-from kronos.core.gti import Gti, GtiList
-from kronos.core.lightcurve import Lightcurve,LightcurveList
-from kronos.core.power import PowerList,PowerSpectrum
+from saturnx.utils.my_logging import make_logger
+from saturnx.utils.generic import my_cdate
+from saturnx.core.event import Event,EventList
+from saturnx.core.gti import Gti, GtiList
+from saturnx.core.lightcurve import Lightcurve,LightcurveList
+from saturnx.core.power import PowerList,PowerSpectrum
 
 def make_power(lc_list_file,destination=pathlib.Path.cwd(),
               tseg=16.,log_name=None, override=False):

@@ -2,7 +2,7 @@ import os
 import pathlib
 import logging
 
-from kronos.utils.my_logging import make_logger
+from saturnx.utils.my_logging import make_logger
 
 def make_nicer_spectrum(event_file, low_en = 0.2, high_en=12.,
     destination=pathlib.Path.cwd(),override=False,log_name=None):
