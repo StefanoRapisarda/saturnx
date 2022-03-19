@@ -141,6 +141,8 @@ class Lightcurve(pd.DataFrame):
                 self.rate = self.counts/self.tres
             elif self.rate.any():
                 self.counts = self.rate*self.tres
+            elif np.all((self.counts == 0.)):
+                self.rate = self.counts
 
         # Energy range
         if not low_en is None and type(low_en) == str: 
@@ -890,15 +892,16 @@ class Lightcurve(pd.DataFrame):
         if self.counts.empty: return None
         if self.counts.iloc[0] is None: return None
         if len(self.counts) == 0:
-            return 0
+            return 0.
         else:
             return self.counts.std()
 
     @property
     def cr_std(self):
+        if np.all((self.counts==0.)): return 0.
         if not self.rate.any(): return None
         if len(self.rate) == 0:
-            return 0
+            return 0.
         else:
             return self.rate.std()    
 
@@ -1120,6 +1123,7 @@ class LightcurveList(list):
                 y = self[i].cr
                 yerr = self[i].cr_std
                 label = 'Count Rate [c/s]'
+            print(i,yerr,self[i].meta_data['N_ACT_DET'])
 
             if ndet:
                 y /= float(self[i].meta_data['N_ACT_DET'])

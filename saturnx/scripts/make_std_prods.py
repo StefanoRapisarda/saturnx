@@ -1890,7 +1890,7 @@ def old_make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0
 
 def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
-    rebin=-30,data_dir=pathlib.Path.cwd(),override=True,dpi=200):
+    rebin=-30,data_dir=pathlib.Path.cwd(),override=True,dpi=200,suffix=None):
     '''
     Makes plots and a dictionary with information according to user 
     settings. 
@@ -1933,6 +1933,10 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     dpi: int (optional)
         dpi of output format. Default is 200. 100 is good enough for 
         screen visualization, 300 for laser printing.
+    suffix: str or None (optional)
+        if not None and if std_prods/plots sub-directories already exist,
+        it will make a new folder attaching the suffix at the end of the
+        default sub-directory name
 
     RETURNS
     -------
@@ -1959,11 +1963,12 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     2022 03 19, Stefano Rapisarda (Uppsala)
         Big rennovation. Now the routine does just what it says: it 
         computes standard products, i.e. plots stored in jpeg and a 
-        dictionary with meaningful information. How to arrange this 
-        information if a PDF page will be delegated to other routines.
+        dictionary with meaningful information. Arranging this information 
+        in a PDF page or in pandas dataframe will be delegated to other 
+        routines.
         Efficiency has been improved, now information is read as soon as
-        the corresponding data product is open. Data products are and
-        plots are manually cleaned from memory after use.
+        the corresponding data product is open. Data products and plots 
+        are manually cleaned from memory after use.
     '''
 
     def save_and_clear(fig,plot_name,dpi=dpi):
@@ -2068,13 +2073,19 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         os.mkdir(std_plot_dir)
     else:
         mylogging.info('std_plots sub-directory already exists.')
+        if not suffix is None:
+            mylogging.info(f'Creating std_plots sub-directory with {suffix} suffix')
+            os.mkdir(std_plot_dir.parent/std_plot_dir.name+f'_{suffix}')
 
     std_prod_dir = root_std_prod_dir/main_str_identifier
     if not std_prod_dir.is_dir():
         mylogging.info('std_prods directory does not exist, creating one...')
         os.mkdir(std_prod_dir)
     else:
-        mylogging.info('std_prods sub-directory already exists.')        
+        mylogging.info('std_prods sub-directory already exists.')  
+        if not suffix is None:
+            mylogging.info(f'Creating std_prods sub-directory with {suffix} suffix')
+            os.mkdir(std_prod_dir.parent/std_prod_dir.name+f'_{suffix}')      
     # -----------------------------------------------------------------
 
 
@@ -2230,6 +2241,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 if gti_lc_list_file.is_file():
                     lc_list = LightcurveList.load(gti_lc_list_file)
                     label = '{}-{}'.format(low_en,high_en)
+                    print('here',en_band,gti_lc_list_file.name)
                     lc_list.plot(ax=ax,color=col,label=label,marker=marker,
                         lfont=14,ybar=8)
                     del lc_list
@@ -2825,21 +2837,44 @@ def print_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     merger.write(str(output_file))
 
 
-def print_std_prod_single(an_dir,obs_id,col1,col2,plots,
-    tres='0.0001220703125',tseg='128.0'):
+def print_std_prod_single(an_dir,obs_id,main_en_band=['0.5','10.0'],
+    tres='0.0001220703125',tseg='128.0',suffix=None):
     '''
+    It creates PDF pages containing information and plots
     '''
 
     mylogging = LoggingWrapper()
 
-    time_string = 'T{}_{}'.format(tres,tseg)
-    
-    if type(an_dir) == str: an_dir = pathlib.Path(an_dir)
-    obs_id_dir = an_dir/obs_id
-
     mylogging.info('*'*72)
     mylogging.info('{:24}{:^24}{:24}'.format('*'*24,'print_std_prod','*'*24))
     mylogging.info('*'*72)
+
+    time_string = 'T{}_{}'.format(tres,tseg)
+    dir_string = 'E{}_{}_{}_{}'.format(
+        main_en_band[0],main_en_band[1],time_string,suffix)
+    
+    if type(an_dir) == str: an_dir = pathlib.Path(an_dir)
+    
+    obs_id_dir = an_dir/obs_id
+    std_plot_dir = obs_id_dir/'std_plots'/dir_string
+    std_prod_dir = obs_id_dir/'std_prods'/dir_string
+
+    # First PDF, data and general plot
+    # ------------------------------------------------------------------
+    # Extracting information into two columns
+    std_prod_file = std_prod_dir/f'std_prods_{time_string}.pkl'
+    if std_prods_file.is_file():
+        with open(std_prods_file,'rb') as infile:
+            std_prods = pickle.load(std_prod_file)
+        col1 = {
+
+        }
+        col2 = {}
+
+    df_file = an_dir/'std_prods'/dir_string/f'info_data_frame_{time_string}.pkl'
+    if df_file.is_file():
+        # Make general plot
+        pass
 
     if 'IDET' in col1.keys():
         if len(col1['IDET'][1].split(',')) > 6:
