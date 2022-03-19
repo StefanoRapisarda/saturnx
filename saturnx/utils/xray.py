@@ -154,6 +154,9 @@ def get_cr(spec_file, low_en=0.5, high_en=10., mission='NICER',instrument='HE'):
 
     mylogging = LoggingWrapper()
 
+    if isinstance(low_en,str): low_en = eval(low_en)
+    if isinstance(high_en,str): high_en = eval(high_en)
+
     factor = 1
     if mission == 'NICER':
         factor = 100

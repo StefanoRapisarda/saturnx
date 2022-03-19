@@ -660,7 +660,7 @@ def make_hxmt_std_prod(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
 
 def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
-    rebin=-30,data_dir=pathlib.Path.cwd(),override=False):
+    rebin=-30,data_dir=pathlib.Path.cwd(),override=False,dpi=200):
     '''
     Runs make_nicer_std_prod_single for each obs_ID in obs_id_dirs
 
@@ -746,7 +746,7 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
         if obs_id_dir.is_dir():
             make_nicer_std_prod_single(obs_id_dir,tres=tres,tseg=tseg,
                 main_en_band = main_en_band, en_bands = en_bands,
-                rebin=rebin,data_dir=data_dir,override=override)
+                rebin=rebin,data_dir=data_dir,override=override,dpi=dpi)
         else:
             mylogging.info('{} does not exist'.format(obs_id_dir))
 
@@ -948,7 +948,7 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     
     return plot_name
 
-def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
+def old_make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
     rebin=-30,data_dir=pathlib.Path.cwd(),override=False):
     '''
@@ -1060,8 +1060,6 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
     # Full energy band GTI name
     main_gti_file = obs_id_dir/'gti_E{}_{}.gti'.\
-        format(main_en_band[0],main_en_band[1])
-    ufa_gti_file = obs_id_dir/'gti_ufa_E{}_{}.gti'.\
         format(main_en_band[0],main_en_band[1])
 
     # Other energy band names
@@ -1198,7 +1196,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
         else:
             mylogging.error('Main energy band gti_lc_list file not found')
-            mylogging.error(f'({gti_lc_list_file})')
+            mylogging.error(f'({main_gti_lc_list_file})')
 
         # Other energy bands count rate
         for gti_lc_list_file, en_band, col, marker in \
@@ -1209,11 +1207,12 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 label = '{}-{}'.format(low_en,high_en)
                 lc_list.plot(ax=ax,color=col,label=label,marker=marker,
                     lfont=14,ybar=8)
+                del lc_list
             else:
                 mylogging.error('Single energy band gti_lc_list not found')
-                mylogging.error(f'({gti_lc_list_file})')
+                mylogging.error(f'({main_gti_lc_list_file})')
 
-            del lc_list
+            
      
         # I have not idea why I did this, but it works
         handles, labels = plt.gca().get_legend_handles_labels()
@@ -1309,11 +1308,11 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++          
 
     # Reading parameters from main_seg_lc_list before closing it
-    if main_seg_lc_list_file.is_file():
-        n_act_det = main_seg_lc_list[0].meta_data['N_ACT_DET']
-        inact_det_list = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
-        info_dict = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
-    del main_seg_lc_list
+    #if main_seg_lc_list_file.is_file():
+    #    n_act_det = main_seg_lc_list[0].meta_data['N_ACT_DET']
+    #    inact_det_list = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
+    #    info_dict = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
+    #del main_seg_lc_list
     # -----------------------------------------------------------------
     
     
@@ -1536,6 +1535,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     plots += [plot3b]
     fig.savefig(plot3b, dpi=300)
     # *****************************************************************
+    del ufa_lcs
+    del ufa_lcs_tseg
     # -----------------------------------------------------------------
     
 
@@ -1698,8 +1699,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
         # Information from lightcurve metadata
         # -------------------------------------------------------------
-        #n_act_det = main_seg_lc_list[0].meta_data['N_ACT_DET']
-        #inact_det_list = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
+        n_act_det = main_seg_lc_list[0].meta_data['N_ACT_DET']
+        inact_det_list = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
         parent_info['N_ACT_DET'] = n_act_det
         inact_det_list_str = ''
         for el in inact_det_list: inact_det_list_str += f'{el},'
@@ -1707,7 +1708,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
         parent_info['INACT_DET_LIST'] = inact_det_list_str
     
-        #info_dict = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
+        info_dict = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
 
         for key,item in info_dict.items():
             parent_info[key] = item
@@ -1887,6 +1888,875 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     return plots,first_column,second_column
 
+def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
+    main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
+    rebin=-30,data_dir=pathlib.Path.cwd(),override=True,dpi=200):
+    '''
+    Makes plots and a dictionary with information according to user 
+    settings. 
+
+    This function is specific for NICER reduced products. It assumes
+    that data products (lightcurve lists, power lists, and gti) are 
+    already computed. If the function does not find the products, it 
+    will produce a plot anyway, but it will be empty.
+    These products are expected to have a format E<1>_<2>_T<3>_<4>, 
+    where 1 and 2 are the energy band boundaries and 3 and 4 are time 
+    resolution and time segment, respectively. 
+
+    PARAMETERS
+    ----------
+    obs_id_dir: string or pathlib.Path
+        full path of the obs ID folder
+    tres: string (optional)
+        time resolution of the reduced products
+        (default is 0.0001220703125)
+    tseg: string (optional)
+        time segment of the reduced products
+        (default is 128.0)
+    main_en_band: list (optional)
+        list with low and high main energy band
+        (default is ['0.5','10.0'])
+    en_bands: list (optional)
+        list of lists, it contains low and high energy band boundaries
+        for each sub (different and smaller than main) energy band
+        (default is [['0.5','2.0'],['2.0','10.0']]).
+        The maximum number of energy bands is five.
+    rebin: int (optional)
+        rebin factor for plotting the power spectra
+        (default is -30)
+    data_dir: string or pathlib.Path (optional)
+        folder containing the energy spectrum
+        (default is pathlib.Path.cwd())
+    override: boolean (optional)
+        If False existing plots will NOT be overwrittern (default is
+        True)
+    dpi: int (optional)
+        dpi of output format. Default is 200. 100 is good enough for 
+        screen visualization, 300 for laser printing.
+
+    RETURNS
+    -------
+    std_prods: dict
+        Dictionary containing the full path of std_plots 
+        (std_prods['plots']) and extracted data (std_prods['data'])
+
+    TODO
+    ----
+    2022 03 19, Stefano Rapisarda (Uppsala)
+        The override option is not very well implemented. For the plots,
+        information is extracted and plotted after a conditional. If the
+        plot exists, plot should NOT be performed and information should
+        be read from existing products.
+
+    HISTORY
+    -------
+    2020 12 ##, Stefano Rapisarda (Uppsala), creation date
+    2020 03 10, Stefano Rapisarda (Uppsala)
+        Cleaned up. Now it returns objects to be used directly
+        in print_std_prods
+    2021 09 12, Stefano Rapisarda (Uppsala)
+        Removed arf, rmf, and log_name, adopted LoggingWrapper approach
+    2022 03 19, Stefano Rapisarda (Uppsala)
+        Big rennovation. Now the routine does just what it says: it 
+        computes standard products, i.e. plots stored in jpeg and a 
+        dictionary with meaningful information. How to arrange this 
+        information if a PDF page will be delegated to other routines.
+        Efficiency has been improved, now information is read as soon as
+        the corresponding data product is open. Data products are and
+        plots are manually cleaned from memory after use.
+    '''
+
+    def save_and_clear(fig,plot_name,dpi=dpi):
+        fig.savefig(plot_name, dpi=dpi)
+        fig.clear()
+        plt.close()
+
+    mylogging = LoggingWrapper()
+
+    if type(obs_id_dir) == str: obs_id_dir = pathlib.Path(obs_id_dir)
+    if type(data_dir) == str: data_dir = pathlib.Path(data_dir)
+
+    obs_id = obs_id_dir.name
+  
+    # You can specify a maximum of five energy bands
+    colors = ['red','blue','green','orange','brown']
+    markers = ['s','^','p','H','X']
+    if len(en_bands) > len(colors):
+        raise ValueError('Energy bands cannot be more than 5')
+
+    mylogging.info('*'*72)
+    mylogging.info(str_title('make_nicer_std_prod_single'))
+    mylogging.info('*'*72+'\n')
+
+
+    # Making directories
+    # -----------------------------------------------------------------
+    root_std_plot_dir = obs_id_dir/'std_plots'
+    if not root_std_plot_dir.is_dir():
+        mylogging.info('root std_plots directory does not exist, creating one...')
+        os.mkdir(root_std_plot_dir)
+    else:
+        mylogging.info('root std_plots directory already exists.')
+
+    root_std_prod_dir = obs_id_dir/'std_prods'
+    if not root_std_prod_dir.is_dir():
+        mylogging.info('root std_prods directory does not exist, creating one...')
+        os.mkdir(root_std_prod_dir)
+    else:
+        mylogging.info('root std_prods directory already exists.')    
+    # -----------------------------------------------------------------
+    
+
+    # Defining names of files to read
+    # -----------------------------------------------------------------
+    
+    # Main energy band str identifier
+    main_root_str_identifier = 'E{}_{}_T{}'.\
+        format(main_en_band[0],main_en_band[1],tres)
+    main_str_identifier = main_root_str_identifier + f'_{tseg}'
+
+    # Main energy band lc_list files 
+    main_gti_lc_list_file = obs_id_dir/'lc_list_{}.pkl'.\
+        format(main_root_str_identifier)
+    main_seg_lc_list_file = obs_id_dir/'lc_list_{}.pkl'.\
+        format(main_str_identifier)
+    ufa_lc_list_file = obs_id_dir/'ufa_lc_list_{}.pkl'.\
+        format(main_root_str_identifier)
+
+    main_pw_list_file = obs_id_dir/'power_list_{}.pkl'.\
+        format(main_str_identifier)
+
+    # Full energy band GTI name
+    main_gti_file = obs_id_dir/'gti_E{}_{}.gti'.\
+        format(main_en_band[0],main_en_band[1])
+
+    # Other energy band names
+    seg_lc_list_files = []
+    gti_lc_list_files = []
+    power_list_files = []
+    for en_band in en_bands:
+        low_en, high_en = en_band[0], en_band[1]
+        seg_lc_list_files += [obs_id_dir/'lc_list_E{}_{}_T{}_{}.pkl'.\
+            format(low_en,high_en,tres,tseg)]
+        gti_lc_list_files += [obs_id_dir/'lc_list_E{}_{}_T{}.pkl'.\
+            format(low_en,high_en,tres)]   
+        power_list_files += [obs_id_dir/'power_list_E{}_{}_T{}_{}.pkl'.\
+            format(low_en,high_en,tres,tseg)]
+    
+    event_cl_dir = data_dir/obs_id/'xti'/'event_cl'
+
+    # Energy spectrum name
+    spec = event_cl_dir/f'{obs_id}_spectrum_bdc.pha'
+    bkg_spec = event_cl_dir/f'{obs_id}_spectrum_bdc_bkg.pha'
+    spec_3c50 = event_cl_dir/f'{obs_id}_spectrum_bdc_3C50_tot.pi'
+    bkg_spec_3c50 = event_cl_dir/f'{obs_id}_spectrum_bdc_3C50_bkg.pi'
+
+    # arf and rmf files
+    arf_file = event_cl_dir/f'arf_bdc.arf'
+    rmf_file = event_cl_dir/f'rmf_bdc.rmf'
+
+    # ufa file
+    ufa_evt_file = list_items(event_cl_dir,itype='file',
+        include_and=[f'ni{obs_id}_0mpu7_ufa.evt'])[0]
+    # -----------------------------------------------------------------
+
+    # Making std_prods and std_plots sub directories
+    # -----------------------------------------------------------------
+    std_plot_dir = root_std_plot_dir/main_str_identifier
+    if not std_plot_dir.is_dir():
+        mylogging.info('std_plots sub-directory does not exist, creating one...')
+        os.mkdir(std_plot_dir)
+    else:
+        mylogging.info('std_plots sub-directory already exists.')
+
+    std_prod_dir = root_std_prod_dir/main_str_identifier
+    if not std_prod_dir.is_dir():
+        mylogging.info('std_prods directory does not exist, creating one...')
+        os.mkdir(std_prod_dir)
+    else:
+        mylogging.info('std_prods sub-directory already exists.')        
+    # -----------------------------------------------------------------
+
+
+    # Printing some info
+    # -----------------------------------------------------------------
+    mylogging.info('')
+    mylogging.info('Obs ID: {}'.format(obs_id))
+    mylogging.info('Settings:')
+    mylogging.info('-'*72)
+    mylogging.info('Selected main energy band: {}-{} keV'.\
+        format(main_en_band[0],main_en_band[1]))
+    for i,en_band in enumerate(en_bands):
+        mylogging.info('Selected energy band {}: {}-{} keV'.\
+            format(i,en_band[0],en_band[1]))        
+    mylogging.info('Selected time resolution: {} s'.format(tres)) 
+    mylogging.info('Selected time segment: {} s'.format(tseg)) 
+    mylogging.info('-'*72)
+    mylogging.info('')
+    # -----------------------------------------------------------------
+    
+    # Initializing std_prods
+    std_prods = {'plots':{},'data':{}}
+    std_prods['plots'] = {
+        'Count rate per GTI': None,
+        'Count rate per segment': [],
+        'Energy spectrum': None,
+        'ufa/cl count rate per segment': None,
+        'ufa/cl power spectra': None,
+        'Main Power Spectrum': None,
+        'Other Power Spectra': None,
+        'Power Spectra per GTI': []
+        }
+    std_prods['data'] = {
+        'main_cr' : None,
+        'main_cr_err' : None,
+        'other_crs' : [None for e in en_bands],
+        'other_cr_err' : [None for e in en_bands],
+        'main_bkg_cr' : 0,
+        'main_bkg_cr_err': 0,
+        'other_bkg_crs' : [0 for e in en_bands],
+        'other_bkg_cr_err' : [0 for e in en_bands],
+        'main_frac_rms' : None,
+        'main_frac_rms_err' : None,
+        'other_frac_rms' : [0 for e in en_bands],
+        'other_frac_rms_err' : [0 for e in en_bands],
+        'n_act_det' : None,
+        'inact_det_list': None,
+        'info_dict' : None,
+        'n_gtis' : None,
+        'n_fgtis' : None,
+        'n_segs' : None,
+        'n_en_bands': len(en_bands),
+        'main_en_band': '{} - {}'.\
+            format(main_en_band[0],main_en_band[1]),
+        'other_en_bands': ['{} - {}'.format(low,high) for low,high in en_bands],
+        'tres': tres,
+        'tseg': tseg,
+        'std_plot_dir': std_plot_dir,
+        'std_prod_dir': std_prod_dir,
+        'creation_date': my_cdate()
+        }
+
+    # Plotting
+    # =================================================================
+    # For each plot I will create the figure anyway, to preserve the 
+    # std_prod page layout. Then, if a file does not exist or something 
+    # goes wrong, the figure will be empty.
+    # PLOT1: Count rate per GTI in different energy band
+    # PLOT(S)1x : x count rate per segment in different energy bands
+    # PLOT2: Energy spectrum
+    # PLOT(S)3: Comparison between ufa and cl lightcurve and power spectra
+    # PLOT4: Main energy band average power spectrum
+    # PLOT5: Average power spectra in different energy bands
+    # PLOT6x: x Main energy band power spectrum per GTI
+
+    plt.tight_layout()
+    
+    # PLOT1: count rate per GTI 
+    # -----------------------------------------------------------------
+    mylogging.info('Plotting count rate per GTI')
+    
+    # As GTIs are selected ALSO according to the selected segment
+    # length, this plot depends both on tres and tseg
+    plot_name = std_plot_dir/'cr_per_GTI_T{}_{}.jpeg'.format(tres,tseg)
+    std_prods['plots']['Count rate per GTI'] = plot_name
+
+    gti_seg_flag = True
+    if plot_name.is_file() and not override:
+        
+        mylogging.info('Count rate per GTI plot already exists')
+        
+        # Reading GTI 
+        gti = Gti.load(main_gti_file)
+        gti_seg = gti>=float(tseg)
+        
+        # Saving GTI data
+        std_prods['data']['n_gtis'] = len(gti)
+        std_prods['data']['n_fgtis'] = len(gti_seg)
+    
+    else:
+        
+        fig,ax = plt.subplots(figsize=(8,5))
+        #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+        fig.suptitle(f'Count rate per GTI',fontsize=14)
+
+        if main_gti_lc_list_file.is_file() and main_gti_file.is_file():
+
+            # Loading GTI and saving GTI data
+            gti = Gti.load(main_gti_file)
+            std_prods['data']['n_gtis'] = len(gti)
+            gti_seg = gti>=float(tseg)
+            std_prods['data']['n_fgtis'] = len(gti_seg)
+
+            fig.suptitle(f'Count rate per GTI (GTI n.: {len(gti)})',fontsize=14)
+
+            # Loading file
+            gti_lc_list = LightcurveList.load(main_gti_lc_list_file)
+            gti_start = gti_lc_list[0].time.iloc[0]
+
+            # Plotting
+            label = '{}-{}'.format(main_en_band[0],main_en_band[1])
+            gti_lc_list.plot(ax=ax,color='k',lfont=14,label=label,
+                xbar=True,ybar=6)
+            del gti_lc_list
+
+            # Drawing marks for each GTI
+            # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            bottom,top = ax.get_ylim()
+            for gstart,gstop,gdur in zip(gti.start,gti.stop,gti.dur):
+                
+                mid_point = (gstart+gstop)/2-gti_start
+                
+                color = 'forestgreen'
+                bottom_marker = '^'
+                if gdur < float(tseg): 
+                    color = 'orange'
+                    bottom_marker = 'o'
+                
+                #ax.axvline(g-start,ls='--',color='orange')
+                ax.plot([mid_point],[bottom],
+                    color=color,marker=bottom_marker)
+                ax.plot([mid_point],[top],
+                    color=color,marker='|')
+            # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+            # Other energy bands count rate
+            # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            for gti_lc_list_file, en_band, col, marker in \
+                zip(gti_lc_list_files, en_bands, colors, markers):
+                
+                low_en, high_en = en_band[0], en_band[1]
+                
+                if gti_lc_list_file.is_file():
+                    lc_list = LightcurveList.load(gti_lc_list_file)
+                    label = '{}-{}'.format(low_en,high_en)
+                    lc_list.plot(ax=ax,color=col,label=label,marker=marker,
+                        lfont=14,ybar=8)
+                    del lc_list
+                else:
+                    mylogging.error('Single energy band gti_lc_list not found')
+                    mylogging.error(f'({gti_lc_list_file})') 
+            # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+            # I have not idea why I did this, but it works
+            handles, labels = plt.gca().get_legend_handles_labels()
+            by_label = dict(zip(labels, handles))
+            ax.legend(by_label.values(), by_label.keys())
+            ax.grid(b=True, which='major', color='grey', linestyle='-')
+            
+            save_and_clear(fig,plot_name)   
+
+        else:
+
+            gti_seg_flag = False
+            # If there is not main_gti_lc_list file, the plot will be 
+            # empty
+            save_and_clear(fig,plot_name)   
+            mylogging.error('Main energy band gti_lc_list file not found')
+            mylogging.error(f'({main_gti_lc_list_file})')           
+    # -----------------------------------------------------------------
+
+
+    # PLOT1x: Count rate per segment for each GTI
+    # -----------------------------------------------------------------
+    mylogging.info('Plotting count rate per segment')
+
+    # Opening Lightcurve list files
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+    # Main en band
+    mylogging.info('Reading LightcurveList(s)')
+
+    plot_main_seg_cr_flag = True
+    if main_seg_lc_list_file.is_file():
+
+        main_seg_lc_list = LightcurveList.load(main_seg_lc_list_file)
+        
+        # Reading data
+        std_prods['data']['main_cr'] = main_seg_lc_list.cr
+        std_prods['data']['main_cr_err'] = main_seg_lc_list.cr_std
+        std_prods['data']['n_act_det'] = main_seg_lc_list[0].meta_data['N_ACT_DET']
+        std_prods['data']['inact_det_list'] = main_seg_lc_list[0].meta_data['INACT_DET_LIST']
+        std_prods['data']['info_dict'] = main_seg_lc_list[0].meta_data['INFO_FROM_HEADER']
+        std_prods['data']['n_segs'] = str(len(main_seg_lc_list))
+
+        obs_start = main_seg_lc_list[0].time.iloc[0]
+
+    else:
+
+        mylogging.error('Main energy band seg_lc_list file not found')
+        mylogging.error(f'({main_seg_lc_list_file})')
+        plot_main_seg_cr_flag = False
+
+    # Other bands
+    seg_lc_lists = []
+    plot_seg_cr_flag = True
+    for e,seg_lc_list_file in enumerate(seg_lc_list_files):
+        if seg_lc_list_file.is_file():
+
+            seg_lc_list = LightcurveList.load(seg_lc_list_file)
+            seg_lc_lists += [seg_lc_list]
+
+            # Reading data
+            std_prods['data']['other_crs'][e] = seg_lc_list.cr
+            std_prods['data']['other_cr_err'][e] = seg_lc_list.cr_std
+            del seg_lc_list
+
+        else:
+
+            mylogging.error('Single energy band lc_list not found')
+            mylogging.error(f'({seg_lc_list_file})')
+            plot_seg_cr_flag = False
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            
+    # Plotting
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    if gti_seg_flag:
+        for g,(gti_start,gti_stop) in enumerate(zip(gti_seg.start,gti_seg.stop)):
+
+            mylogging.info(f'Plotting GTI {g+1}/{len(gti_seg)}')
+
+            plot_name = std_plot_dir/'cr_per_seg_T{}_{}_{}.jpeg'.format(tres,tseg,g+1)
+            std_prods['plots']['Count rate per segment'] += [plot_name]
+            
+            if plot_name.is_file() and not override:
+                mylogging.info(f'Count rate per segment plot n. {g+1} already exists')
+            else:
+                fig,ax = plt.subplots(figsize=(8,5))
+                #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+                fig.suptitle(f'Count rate per segment (GTI {g+1}/{len(gti_seg)})',
+                    fontsize=14)  
+
+                # Main band
+                if plot_main_seg_cr_flag:
+                    label = f'{main_en_band[0]}-{main_en_band[1]}'
+                    main_seg_lc_list.plot(ax=ax,color='k',marker='o',
+                        lfont=14,label=label,ybar=4) 
+
+                # Other bands
+                if plot_seg_cr_flag:
+                    for e,(en_band, col, marker) in \
+                        enumerate(zip(en_bands, colors, markers)):
+                        label='{}-{}'.format(en_band[0],en_band[1])
+                        seg_lc_lists[e].plot(ax=ax,color=col,marker=marker,
+                            lfont=14,label=label)
+
+                ax.set_xlim([gti_start-obs_start,gti_stop-obs_start])
+
+                # I have not idea why I did this, but it works
+                handles, labels = plt.gca().get_legend_handles_labels()
+                by_label = dict(zip(labels, handles))
+                ax.legend(by_label.values(), by_label.keys())
+                ax.grid(b=True, which='major', color='grey', linestyle='-')
+                #fig.tight_layout(0.5)
+
+                save_and_clear(fig,plot_name)
+        
+        # Cleaning up
+        if plot_main_seg_cr_flag: del main_seg_lc_list
+        if plot_seg_cr_flag: del seg_lc_lists
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++          
+    # ------------------------------------------------------------------
+    
+
+    # PLOT2: Energy spectrum 
+    # ------------------------------------------------------------------
+    mylogging.info('Plotting energy spectrum')
+
+    plot_name = root_std_plot_dir/'energy_spectrum.jpeg'
+    std_prods['plots']['Energy spectrum'] = plot_name
+    fig,ax = plt.subplots(figsize=(8,5))
+    #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig.suptitle('Energy spectrum', fontsize=14)
+    
+    # Energy spectrum created via xselect
+    if spec.is_file() and rmf_file.is_file() and arf_file.is_file():
+        ui.clean()
+        ui.load_pha('tot',str(spec))
+        ui.load_arf('tot',str(arf_file))
+        ui.load_rmf('tot',str(rmf_file))
+        spectrum_data = ui.get_data_plot('tot')
+        ax.errorbar(spectrum_data.x,spectrum_data.y,spectrum_data.yerr,
+            color='k',label='Spectrum',zorder=10)
+        
+        if bkg_spec.is_file():
+            ui.load_bkg('tot',str(bkg_spec))
+            bkg_spectrum_data = ui.get_bkg_plot('tot')
+            ax.errorbar(bkg_spectrum_data.x,bkg_spectrum_data.y,bkg_spectrum_data.yerr,
+                fmt='--',color='k',label='Bkg',zorder=10)
+            
+            # Reading background count rate
+            main_bkg_cr, main_bkg_cr_err = get_cr(
+                bkg_spec,low_en=main_en_band[0],high_en=main_en_band[1]
+                )
+            std_prods['data']['main_bkg_cr'] = main_bkg_cr
+            std_prods['data']['main_bkg_cr_err'] = main_bkg_cr_err
+            del main_bkg_cr, main_bkg_cr_err
+
+            # Reading other en bands count rate
+            for e,(low_en,high_en) in enumerate(en_bands):
+                bkg_cr, bkg_cr_err = get_cr(
+                    bkg_spec,low_en=float(low_en),high_en=float(high_en)
+                    )
+                std_prods['data']['other_bkg_crs'][e] = bkg_cr
+                std_prods['data']['other_bkg_cr_err'][e] = bkg_cr_err
+                del bkg_cr, bkg_cr_err
+        else:
+            mylogging.error('Background energy spectrum not found')
+            mylogging.error(f'({bkg_spec})')
+    
+    else:
+
+        mylogging.error('Either Energy spectrum, RMF, or ARF not found')
+        mylogging.error(f'({spec})')
+        mylogging.error(f'({rmf_file})')
+        mylogging.error(f'({arf_file})')
+
+    # Energy spectrum created via nibackgen3c50
+    if spec_3c50.is_file() and rmf_file.is_file() and arf_file.is_file():
+        ui.clean()
+        ui.load_pha('3c50',str(spec_3c50))
+        ui.load_arf('3c50',str(arf_file))
+        ui.load_rmf('3c50',str(rmf_file)) 
+        spectrum_data_3c50 = ui.get_data_plot('3c50')
+        ax.errorbar(spectrum_data_3c50.x,spectrum_data_3c50.y,spectrum_data_3c50.yerr,
+            color='purple',label='Spectrum (3c50)',zorder=5)
+
+        if bkg_spec_3c50.is_file(): 
+            ui.load_bkg('3c50',str(bkg_spec_3c50))
+            bkg_spectrum_data_3c50 = ui.get_bkg_plot('3c50')
+            ax.errorbar(bkg_spectrum_data_3c50.x,bkg_spectrum_data_3c50.y,bkg_spectrum_data_3c50.yerr,
+                fmt='--',color='purple',label='Bkg (3c50)',zorder=5)
+        else:
+            mylogging.error('Background energy spectrum (3c50) not found')
+            mylogging.error(f'({bkg_spec_3c50})')
+    else:
+        mylogging.error('Either Energy spectrum (3c50), RMF, or ARF not found')
+        mylogging.error(f'({spec_3c50})')
+        mylogging.error(f'({rmf_file})')
+        mylogging.error(f'({arf_file})')
+
+    ax.set_xlim([0.15,16])
+    ax.set_xlabel('Energy [keV]',fontsize=16)
+    ax.set_ylabel('Counts/Sec/keV',fontsize=16)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.grid(b=True, which='major', color='grey', linestyle='-')
+    ax.legend()
+
+    # Plotting selected energy bands references   
+    for i,en_band in enumerate(en_bands):
+        low_en = float(en_band[0])
+        high_en = float(en_band[1])
+        ylims = ax.get_ylim()
+        rect = Rectangle((low_en,ylims[0]),high_en-low_en,
+            ylims[0]+10**(math.log10(ylims[0])+1/2),
+            color=colors[i],fill=True)
+        ax.add_patch(rect)
+        
+    save_and_clear(fig,plot_name)
+    # -----------------------------------------------------------------
+    
+
+    # PLOT(S)3: Comparing ufa and lc data
+    # -----------------------------------------------------------------
+    
+    mylogging.info('Plotting comparing plots between ufa and cl')
+    
+    # a) Lightcurve
+    # *****************************************************************
+    
+    # Computing (or loading) ufa lightcurve list
+    if not ufa_lc_list_file.is_file():
+        mylogging.info('ufa Lightcurve does not exist. Computing it..')
+        
+        ufa_gti = Gti.read_fits(ufa_evt_file)
+        ufa_event_list = Event.read_fits(ufa_evt_file).split(ufa_gti)
+        ufa_lcs = Lightcurve.from_event(ufa_event_list,time_res=tres,
+            low_en=main_en_band[0],high_en=main_en_band[1]) 
+        
+        mylogging.info('Saving ufa Lightcurve')
+        ufa_lcs.save(ufa_lc_list_file)
+
+    else:
+        ufa_lcs = LightcurveList.load(ufa_lc_list_file)
+
+    fig,ax = plt.subplots(figsize=(8,5))
+    fig.suptitle(f'{tseg} s bin lightcurve',fontsize=14)
+    plot_name = std_plot_dir/'ufa_vs_cl_lc_T{}_{}.jpeg'.format(tres,tseg)
+    std_prods['plots']['ufa/cl count rate per segment'] = plot_name
+        
+    if ufa_lc_list_file.is_file() and main_seg_lc_list_file.is_file() \
+        and main_gti_file.is_file():
+        
+        # Splitting lightcurve into specified segments
+        # (the >= sign is because if a Lightcurve in a Lightcurve list 
+        # has a duration smaller than tseg, then the split method would
+        # return that shorter-than-tseg lightcurve. >= tseg, therefore,
+        # will ensure that all Lightcurves in ufa_lcs_tseg are longer 
+        # than tseg)
+        ufa_lcs_tseg = ufa_lcs.split(tseg) >= tseg
+
+        cl_lcs_tseg = Lightcurve.load(main_seg_lc_list_file)
+        gti = Gti.load(main_gti_file)
+        gti_seg = gti>=float(tseg)
+
+        mylogging.info('Plotting ufa/cl count rate')
+
+        ufa_lcs_tseg.plot(ax=ax,label='ufa',color='k',zero_start=False,
+            ybar=False)
+        cl_lcs_tseg.plot(ax=ax,label='cl',color='orange',zero_start=False,
+            ybar=False) 
+
+        # Printing GTI bars
+        for stop in gti_seg.stop:
+            ax.axvline(stop,ymin=0,ymax=1,ls='--',color='forestgreen')
+
+        ax.grid(b=True, which='major', color='grey', linestyle='-')
+        ax.legend(title='File')
+
+    else:
+        mylogging.error('Either the ufa or the main_lc_ist_file does not exist.')
+        mylogging.error(f'({ufa_lc_list_file})')
+        mylogging.error(f'({main_seg_lc_list_file})')
+
+    save_and_clear(fig,plot_name)
+    # *****************************************************************
+
+    # b) Power Spectrum
+    # *****************************************************************
+
+    plot_name = std_plot_dir/'ufa_vs_cl_power_spectrum_T{}_{}.jpeg'.format(tres,tseg)
+    std_prods['plots']['ufa/cl power spectra'] = plot_name
+    
+    fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,5))
+    fig.suptitle('Full energy band power spectra', fontsize=14)
+    
+    if ufa_lc_list_file.is_file() and main_pw_list_file.is_file():
+        
+        # Computing power
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        mylogging.info('Computing ufa/cl power spectra')
+        
+        ufa_power_list = PowerSpectrum.from_lc(ufa_lcs_tseg)  
+        cl_power_list = PowerList.load(main_pw_list_file)
+
+        ufa_leahy = ufa_power_list.average('leahy')
+        ufa_leahy_rebin = ufa_leahy.rebin(rebin)
+        if max(ufa_leahy_rebin.freq) > 3500:
+            ufa_sub_poi = ufa_leahy.sub_poi(low_freq=3000)
+        else:
+            ufa_sub_poi = ufa_leahy.sub_poi(value=2.)
+        ufa_rms = ufa_sub_poi.normalize('rms')
+        ufa_rms_rebin = ufa_rms.rebin(rebin)
+
+        cl_leahy = cl_power_list.average('leahy')
+        cl_leahy_rebin = cl_leahy.rebin(rebin)
+        if max(cl_leahy_rebin.freq) > 3500:
+            cl_sub_poi = cl_leahy.sub_poi(low_freq=3000)
+        else:
+            cl_sub_poi = cl_leahy.sub_poi(value=2.)
+        cl_rms = cl_sub_poi.normalize('rms')
+        cl_rms_rebin = cl_rms.rebin(rebin)
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        
+        # Plotting
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        mylogging.info('Plotting ufa/cl power spectra')
+
+        ufa_leahy_rebin.plot(ax=ax1,label='ufa',color='k')
+        cl_leahy_rebin.plot(ax=ax1,label='cl',color='orange')
+        ufa_rms_rebin.plot(ax=ax2,label='ufa',color='k',xy=True)
+        cl_rms_rebin.plot(ax=ax2,label='cl',color='orange',xy=True)
+        ax1.legend(title='Event file')
+        ax1.grid(b=True, which='major', color='grey', linestyle='-')
+        ax2.grid(b=True, which='major', color='grey', linestyle='-')
+        ax.legend(title='Event file')
+
+        fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+        del ufa_lcs,ufa_lcs_tseg,ufa_power_list,cl_power_list
+        del ufa_leahy,ufa_leahy_rebin,ufa_sub_poi,ufa_rms,ufa_rms_rebin
+        del cl_leahy,cl_leahy_rebin,cl_sub_poi,cl_rms,cl_rms_rebin
+    
+    else:
+    
+        mylogging.error('Either the ufa or the main_lc_ist_file does not exist.')
+        mylogging.error(f'({ufa_lc_list_file})')
+        mylogging.error(f'({main_seg_lc_list_file})')
+
+    save_and_clear(fig,plot_name)
+    # ******************************************************************
+    # ------------------------------------------------------------------
+    
+
+    # PLOT4: Full power spectrum
+    # ------------------------------------------------------------------
+    mylogging.info('Plotting full power spectrum')
+    
+    fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
+    #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig.suptitle('Full Power spectrum',fontsize=14)
+    plot_name = std_plot_dir/'main_power_spectrum_T{}_{}.jpeg'.\
+            format(tres,tseg) 
+    std_prods['plots']['Main Power Spectrum'] = plot_name
+           
+    if main_pw_list_file.is_file():
+        # Leahy power
+        power_list = PowerList.load(main_pw_list_file)
+        leahy = power_list.average('leahy')
+        leahy_rebin = leahy.rebin(rebin)
+        leahy_rebin.plot(ax=ax1)
+        
+        # RMS power
+        if max(leahy.freq) > 3500:
+            sub_poi = leahy.sub_poi(low_freq=3000)
+        else:
+            sub_poi = leahy.sub_poi(value=2)
+        
+        rms_power = sub_poi.normalize('rms',
+            bkg_cr=std_prods['data']['main_bkg_cr'])
+        rms_rebin = rms_power.rebin(rebin)
+        rms_rebin.plot(ax=ax2,xy=True)
+
+        # Extracting information
+        rms, rms_err = rms_power.comp_frac_rms(high_freq=60) 
+        std_prods['data']['main_frac_rms'] = rms
+        std_prods['data']['main_frac_rms_err'] = rms_err
+
+        del power_list, leahy, leahy_rebin, sub_poi, rms_power,\
+            rms_rebin, rms, rms_err
+    else:
+        mylogging.error('Main Power spectrum file not found')
+        mylogging.error(f'({main_pw_list_file})')
+        
+    ax1.grid(b=True, which='major', color='grey', linestyle='-')
+    ax2.grid(b=True, which='major', color='grey', linestyle='-')
+    fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
+    save_and_clear(fig,plot_name)
+    # -----------------------------------------------------------------
+
+
+    # PLOT5: different energy bands power spectra
+    # -----------------------------------------------------------------
+    mylogging.info('Plotting different energy bands power spectra')
+    
+    fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
+    fig.suptitle('Multi-band Power spectrum',fontsize=14)  
+    plot_name = std_plot_dir/'multi_band_power_spectrum_T{}_{}.jpeg'.\
+            format(tres,tseg)
+    std_prods['plots']['Other Power Spectra'] = plot_name
+        
+    for i,pw_file in enumerate(power_list_files):
+        
+        low_en, high_en = en_bands[i][0],en_bands[i][1]
+        
+        if pw_file.is_file():
+            
+            # Leahy power
+            power_list = PowerList.load(pw_file)
+            leahy = power_list.average('leahy')
+            leahy_rebin = leahy.rebin(rebin)
+            leahy_rebin.plot(ax=ax1,label='{}-{}'.\
+                format(low_en,high_en),color=colors[i])
+            
+            # RMS power
+            if max(leahy.freq) > 3500:
+                sub_poi = leahy.sub_poi(low_freq=3000)
+            else:
+                sub_poi = leahy.sub_poi(value=2)
+
+            rms_power = sub_poi.normalize('rms',
+                bkg_cr=std_prods['data']['other_bkg_crs'][i])
+            rms_rebin = rms_power.rebin(rebin)
+            rms_rebin.plot(ax=ax2,xy=True,label='{}-{}'.format(low_en,high_en),color=colors[i])
+            
+            # Extracting information
+            rms, rms_err = rms_power.comp_frac_rms(high_freq=60)
+            std_prods['data']['other_frac_rms'][i] = rms
+            std_prods['data']['other_frac_rms_err'][i] = rms_err
+
+            del power_list, leahy, leahy_rebin, sub_poi, rms_power,\
+                rms_rebin, rms, rms_err
+        else:
+            mylogging.error('Single power list file not found')
+            mylogging.error(f'({pw_file})')
+
+    ax1.grid(b=True, which='major', color='grey', linestyle='-')
+    ax2.grid(b=True, which='major', color='grey', linestyle='-')
+    ax1.legend(title='[keV]')
+    fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
+    save_and_clear(fig,plot_name)
+    # -----------------------------------------------------------------
+    
+    
+    # PLOT6: Full power spectra per GTI
+    # ----------------------------------------------------------------- 
+    mylogging.info('Plotting Full power spectra per GTI')
+    
+    if main_pw_list_file.is_file():
+        
+        power_list = PowerList.load(main_pw_list_file)
+        
+        n_gtis = power_list[0].meta_data['N_GTIS']
+        n_plots_pp = 3 # Gti plots per ax
+        chunkss = chunks(n_gtis,n_plots_pp)
+
+        colors2 = [item for key,item in mcolors.TABLEAU_COLORS.items()]
+
+        for i,chunk in enumerate(chunkss):
+            
+            fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,5))
+            fig.suptitle('Power spectra per GTI ({}/{})'.\
+                format(i+1,len(chunkss)), fontsize=14)
+            plot_name = std_plot_dir/'full_power_spectrum_T{}_{}_{}.jpeg'.\
+                format(tres,tseg,i)
+            std_prods['plots']['Power Spectra per GTI'] += [plot_name]
+            
+            for j,gti_index in enumerate(chunk):
+                
+                local_pw_list = PowerList([pw for pw in power_list if pw.meta_data['GTI_INDEX']==gti_index])
+                n_segs = len(local_pw_list)
+
+                local_leahy = local_pw_list.average('leahy')
+                local_leahy_rebin = local_leahy.rebin(rebin)
+                if max(local_leahy.freq) > 3500:
+                    local_sub_poi = local_leahy.sub_poi(low_freq=3000)
+                else:
+                    local_sub_poi = leahy.sub_poi(value=2.)
+                local_rms = local_sub_poi.normalize('rms',
+                    bkg_cr=std_prods['data']['main_bkg_cr'])
+                local_rms_rebin = local_rms.rebin(rebin)   
+
+                local_leahy_rebin.plot(ax=ax1,color=colors2[j],label = f'{gti_index+1} ({n_segs})')
+                local_rms_rebin.plot(ax=ax2,xy=True,color=colors2[j],label = f'{gti_index+1} ({n_segs})')
+                
+                del local_pw_list, local_leahy, local_leahy_rebin,\
+                    local_sub_poi, local_rms, local_rms_rebin
+
+            ax1.legend(title='GTI (n. segs)')
+            ax1.grid(b=True, which='major', color='grey', linestyle='-')
+            ax2.grid(b=True, which='major', color='grey', linestyle='-')
+            fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
+        
+            save_and_clear(fig,plot_name)
+    else:
+        mylogging.error('Main energy band PowerList file not found')
+        mylogging.error(f'({main_pw_list_file})')
+    # ----------------------------------------------------------------- 
+    
+    # Saving standard produts
+    mylogging.info('Saving std_prods dictionary')
+    dict_name = std_prod_dir/'std_prods_T{}_{}.pkl'.format(tres,tseg)
+    with open(dict_name, 'wb') as output:
+        pickle.dump(std_prods, output, pickle.HIGHEST_PROTOCOL)
+
+    mylogging.info('*'*72)
+    mylogging.info(str_title(f'exiting make_std_prod_single'))
+    mylogging.info('*'*72+'\n')    
+
+    return dict_name
 
 def print_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     add_plot=[]):
