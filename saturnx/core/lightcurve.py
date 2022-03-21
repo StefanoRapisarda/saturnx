@@ -139,10 +139,12 @@ class Lightcurve(pd.DataFrame):
         if len(time_array) != 0:
             if self.counts.any():
                 self.rate = self.counts/self.tres
-            elif self.rate.any():
-                self.counts = self.rate*self.tres
             elif np.all((self.counts == 0.)):
                 self.rate = self.counts
+            elif self.rate.any():
+                self.counts = self.rate*self.tres
+            elif np.all((self.rate == 0.)):
+                self.counts = self.rate
 
         # Energy range
         if not low_en is None and type(low_en) == str: 
@@ -348,14 +350,17 @@ class Lightcurve(pd.DataFrame):
             lcs = []
             for gti_index,(start,stop) in enumerate(zip(gti.start,gti.stop)):
                 mask = (self.time>= start) & (self.time<stop)
-                time=self.time[mask]
-                meta_data_gti = meta_data.copy()
-                meta_data_gti['GTI_INDEX{}'.format(suffix)] = gti_index
-                counts = self.counts[mask]
-                lc = Lightcurve(time_array = time, count_array = counts,
-                    low_en = self.low_en, high_en = self.high_en,
-                    meta_data = meta_data_gti, notes = self.notes)
-                lcs += [lc]
+                if np.sum(mask) != 0:
+                    time=self.time[mask]
+                    meta_data_gti = meta_data.copy()
+                    meta_data_gti['GTI_INDEX{}'.format(suffix)] = gti_index
+                    counts = self.counts[mask]
+                    lc = Lightcurve(time_array = time, count_array = counts,
+                        low_en = self.low_en, high_en = self.high_en,
+                        meta_data = meta_data_gti, notes = self.notes)
+                    lcs += [lc]
+                else:
+                    print(f'WARNING! GTI {gti_index}(+1) does not contain data')
 
         else:
             print('===> Splitting Segment')
@@ -1069,7 +1074,6 @@ class LightcurveList(list):
 
         return LightcurveList(new_lcs)
 
-
     def split(self,time_seg=16):
         '''
         Splits lightcurves in a LightcurveList according to a segment
@@ -1123,7 +1127,6 @@ class LightcurveList(list):
                 y = self[i].cr
                 yerr = self[i].cr_std
                 label = 'Count Rate [c/s]'
-            print(i,yerr,self[i].meta_data['N_ACT_DET'])
 
             if ndet:
                 y /= float(self[i].meta_data['N_ACT_DET'])

@@ -756,9 +756,9 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     mylogging.info(72*'*')
     mylogging.info(72*'*')
 
-def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
+def make_general_plot(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     time_window = 20,plt_x_dim = 8,plt_y_dim = 8,
-    obs_id = None,mission='NICER'):
+    mission='NICER', suffix=None):
     '''
     It reads a pandas data frame containing information about all the 
     OBS_ID and makes a plot with count rate, hardness ratio, and 
@@ -791,44 +791,35 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
 
         return [min_y,max_y]
 
-    mylogging = LoggingWrapper()
-    
-    time_string = 'T{}_{}'.format(tres,tseg)
-    
-    if type(an_dir) == str: an_dir = pathlib.Path(an_dir)
-    obs_id_dir = an_dir/obs_id
-
     mylogging.info('*'*72)
-    mylogging.info('{:24}{:^24}{:24}'.format('*'*24,'make_general_plot','*'*24))
+    mylogging.info(str_title('make_general_plot'))
     mylogging.info('*'*72+'\n')
 
-    # Making general plot folder
-    std_plot_dir = an_dir/'std_plots'
-    if not std_plot_dir.is_dir():
-        mylogging.info('std_plot folder does not exist. Creating it')
-        os.mkdir(std_plot_dir)
+    mylogging = LoggingWrapper()
+    
+    if type(obs_id_dir) == str: obs_id_dir = pathlib.Path(obs_id_dir)
+    an_dir = obs_id_dir.parent
+    obs_id = obs_id_dir.name
 
-    # Reading info
-    info_df_name = an_dir/'std_prods'/'info_data_frame_{}.pkl'.format(time_string)
+    # Setting directory identifiers
+    time_string = 'T{}_{}'.format(tres,tseg)
+    if suffix is None:
+        dir_string = 'E{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string)
+    else:
+        dir_string = 'E{}_{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string,suffix)
+
+    # Reading data frame
+    info_df_name = an_dir/'std_prods'/dir_string/'general_info_data_frame.pkl'
     if info_df_name.is_file():
         df = pd.read_pickle(info_df_name)
     else:
-        mylogging.error('I could not finde a {} file'.format(info_df_name.name))
-        
+        mylogging.error('I could not finde a {} file'.format(info_df_name.name))   
     df=df.drop_duplicates(subset=['OBS_ID'])
-        
-    # Plotting
-    # =======================================
-    
-    # General settings
-    colors = ['red','blue','green','orange','brown']
-    markers = ['s','^','p','H','X']
-    n_en_bands = df['N_EN_BANDS'].iloc[0]
-    
-    fig, axes = plt.subplots(3,1,figsize=(plt_x_dim,plt_y_dim))
-    plt.subplots_adjust(hspace=0)
     
     # Defining time ax
+    # ------------------------------------------------------------------
     start_dates = df['DATE-OBS']
     stop_dates = df['DATE-END']
     start_dates_mjd = Time(start_dates.to_list(),format='isot',scale='utc').mjd
@@ -839,7 +830,7 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     time = mid_dates_mjd-start_mjd
     
     obs_ids = df['OBS_ID'].to_numpy()
-    if (not obs_id is None) and (obs_id in obs_ids): 
+    if obs_id in obs_ids: 
         target_index = np.where(obs_ids == obs_id)
         time_obs_id = time[target_index]
 
@@ -852,20 +843,34 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         x_lims = [np.min(time),np.max(time)]
     
     time_mask = (time >= x_lims[0]) & (time<= x_lims[1])
+    # ------------------------------------------------------------------
+
+    # Plotting
+    # ==================================================================
+        
+    # General settings
+    colors = ['red','blue','green','orange','brown']
+    markers = ['s','^','p','H','X']
+    n_en_bands = df['n_en_bands'].iloc[0]
     
+    fig, axes = plt.subplots(3,1,figsize=(plt_x_dim,plt_y_dim))
+    plt.subplots_adjust(hspace=0)
+
     # Plot1, count rates versurs time
-    # --------------------------------------------------------------
+    # ------------------------------------------------------------------
     # Main energy band
-    main_en_band = str(df['MAIN_EN_BAND'].iloc[0])
-    tot_cr = df.CR.to_numpy()
-    bkg = df['BKG_CR'].to_numpy()
+    main_en_band = str(df['main_en_band'].iloc[0])
+    tot_cr = df['main_cr'].to_numpy()
+    bkg = df['main_bkg_cr'].to_numpy()
     if mission == 'NICER':
-        n_act_det = df['N_ACT_DET'].to_numpy()
+        n_act_det = df['n_act_det'].to_numpy()
     else:
         n_act_det = 1
-    cr_err = df['CR_ERR'].to_numpy()/n_act_det
+    cr_err = df['main_cr_err'].to_numpy()/n_act_det
     cr = (tot_cr-bkg)/n_act_det
-    axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt='o',color='black',label=main_en_band)
+    
+    axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt='o',
+        color='black',label=main_en_band)
     y_lims0 = get_ylims([cr[time_mask],cr_err[time_mask]],max_spacer=1.)
   
     if (not obs_id is None) and (obs_id in obs_ids):
@@ -873,12 +878,16 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         leg2 = axes[0].legend([gold_dot],[obs_id],loc='upper left')
         axes[0].add_artist(leg2)
         
+    def slice_df(df,col,index):
+        array = np.array([df[col].iloc[i][index] for i in range(len(df))])
+        return array
+
     # Other energy bands
     for e in range(n_en_bands):
-        en_band = str(df[f'EN_BAND{e+1}'].iloc[0])
-        tot_cr = df[f'CR{e+1}'].to_numpy()  
-        bkg = df[f'BKG_CR{e+1}'].to_numpy()
-        cr_err = df[f'CR_ERR{e+1}'].to_numpy()/n_act_det
+        en_band = str(df['other_en_bands'].iloc[0][e])
+        tot_cr = slice_df(df,'other_crs',e) 
+        bkg = slice_df(df,'other_bkg_crs',e)
+        cr_err = slice_df(df,'other_cr_err',e)/n_act_det
         cr = (tot_cr-bkg)/n_act_det
         axes[0].errorbar(time,cr,yerr=cr_err,xerr=half_dur_mjd,fmt=markers[e],color=colors[e],label=en_band)
         
@@ -894,43 +903,49 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
         axes[0].set_ylabel('Count rate [c/s]',fontsize=14)
     axes[0].legend(title='[keV]',loc='upper right')
     axes[0].set_ylim(y_lims0)
-    # --------------------------------------------------------------
+    # ------------------------------------------------------------------
     
+    # Plot2, hardness ratio
+    # ------------------------------------------------------------------
     if n_en_bands >= 2:
-        # Plot2, hardness ratio
-        # --------------------------------------------------------------
-        hr = df.HR.to_numpy()
+        net_cr_hard = slice_df(df,'other_crs',1)-slice_df(df,'other_bkg_crs',1)
+        net_cr_soft = slice_df(df,'other_crs',0)-slice_df(df,'other_bkg_crs',0)
+        hr = net_cr_hard/net_cr_soft
+        hr_sigma2 = (
+            slice_df(df,'other_cr_err',1)**2 + slice_df(df,'other_bkg_cr_err',1)**2 +
+            hr**2 * (slice_df(df,'other_cr_err',0)**2 + slice_df(df,'other_bkg_cr_err',0)**2)
+            ) / net_cr_soft**2
 
-        axes[1].plot(time,hr,'o',color='black',zorder=4)
+        axes[1].errorbar(time,hr,yerr=np.sqrt(hr_sigma2),fmt='o',color='black',zorder=4)
         
-        if (not obs_id is None) and (obs_id in obs_ids):
+        if obs_id in obs_ids:
             axes[1].plot(time_obs_id,hr[target_index],'o',color='goldenrod',ms=12) 
             
         axes[1].set_ylabel('Hardness',fontsize=14)
         #axes[1].set_ylim(get_ylims(hr[time_mask]))
         axes[1].set_ylim([0,1])
-        # --------------------------------------------------------------
+    # ------------------------------------------------------------------
     
     # Plot3, fractional rms
-    # --------------------------------------------------------------
+    # ------------------------------------------------------------------
     # Main energy band
-    rms = df.RMS.to_numpy()
-    rms_err = df['RMS_ERR'].to_numpy()
+    rms = df['main_frac_rms'].to_numpy()
+    rms_err = df['main_frac_rms_err'].to_numpy()
     axes[2].errorbar(time,rms*100,rms_err*100,fmt='o',color='black')
 
     ylims2 = get_ylims(rms[time_mask],rms_err[time_mask])
     
-    if (not obs_id is None) and (obs_id in obs_ids):
+    if obs_id in obs_ids:
         gold_dot, = axes[2].plot(time_obs_id,rms[target_index]*100,'o',color='goldenrod',ms=12)   
         
     # Other energy bands
     for e in range(n_en_bands):
-        en_band = str(df[f'EN_BAND{e+1}'].iloc[0]) 
-        rms = df[f'RMS{e+1}'].to_numpy()
-        rms_err = df[f'RMS_ERR{e+1}'].to_numpy()
+        en_band = str(df['other_en_bands'].iloc[0][e])
+        rms = slice_df(df,'other_frac_rms',e)
+        rms_err = slice_df(df,'other_frac_rms_err',e)
         axes[2].errorbar(time,rms*100,rms_err*100,fmt=markers[e],color=colors[e])
         
-        if (not obs_id is None) and (obs_id in obs_ids):
+        if obs_id in obs_ids:
             gold_dot, = axes[2].plot(time_obs_id,rms[target_index]*100,'o',color='goldenrod',ms=12)
      
     axes[2].set_ylabel('Frac. RMS [%]',fontsize=14)
@@ -943,7 +958,7 @@ def make_general_plot(an_dir,tres='0.0001220703125',tseg='128.0',
     for ax in axes: ax.grid()
         
     # Saving file
-    plot_name = an_dir/obs_id/'std_plots'/'global_info_{}.jpeg'.format(time_string)
+    plot_name = an_dir/obs_id/'std_plots'/'global_info.jpeg'.format(time_string)
     fig.savefig(plot_name, dpi=300)
     
     return plot_name
@@ -1890,7 +1905,7 @@ def old_make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0
 
 def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     main_en_band = ['0.5','10.0'], en_bands = [['0.5','2.0'],['2.0','10.0']],
-    rebin=-30,data_dir=pathlib.Path.cwd(),override=True,dpi=200,suffix=None):
+    rebin=-30,data_dir=pathlib.Path.cwd(),override=True,dpi=150,suffix=None):
     '''
     Makes plots and a dictionary with information according to user 
     settings. 
@@ -2109,8 +2124,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # Initializing std_prods
     std_prods = {'plots':{},'data':{}}
     std_prods['plots'] = {
-        'Count rate per GTI': None,
-        'Count rate per segment': [],
+        'Obs. ID count rate': None,
+        'Count rate per GTI': [],
         'Energy spectrum': None,
         'ufa/cl count rate per segment': None,
         'ufa/cl power spectra': None,
@@ -2165,17 +2180,17 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     # PLOT1: count rate per GTI 
     # -----------------------------------------------------------------
-    mylogging.info('Plotting count rate per GTI')
+    mylogging.info('Plotting Obs. ID count rate')
     
     # As GTIs are selected ALSO according to the selected segment
     # length, this plot depends both on tres and tseg
-    plot_name = std_plot_dir/'cr_per_GTI_T{}_{}.jpeg'.format(tres,tseg)
-    std_prods['plots']['Count rate per GTI'] = plot_name
+    plot_name = std_plot_dir/'obs_id_cr.jpeg'
+    std_prods['plots']['Obs. ID count rate'] = plot_name
 
     gti_seg_flag = True
     if plot_name.is_file() and not override:
         
-        mylogging.info('Count rate per GTI plot already exists')
+        mylogging.info('Obs. ID count rate plot already exists')
         
         # Reading GTI 
         gti = Gti.load(main_gti_file)
@@ -2189,7 +2204,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         
         fig,ax = plt.subplots(figsize=(8,5))
         #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-        fig.suptitle(f'Count rate per GTI',fontsize=14)
+        fig.suptitle(f'Obs. ID count rate',fontsize=14)
 
         if main_gti_lc_list_file.is_file() and main_gti_file.is_file():
 
@@ -2199,7 +2214,10 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             gti_seg = gti>=float(tseg)
             std_prods['data']['n_fgtis'] = len(gti_seg)
 
-            fig.suptitle(f'Count rate per GTI (GTI n.: {len(gti)})',fontsize=14)
+            fig.suptitle(
+                f'Obs. ID count rate (total GTI: {len(gti)}, filt. GTI: {len(gti_seg)})',
+                fontsize=14
+                )
 
             # Loading file
             gti_lc_list = LightcurveList.load(main_gti_lc_list_file)
@@ -2222,7 +2240,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 bottom_marker = '^'
                 if gdur < float(tseg): 
                     color = 'orange'
-                    bottom_marker = 'o'
+                    bottom_marker = 'x'
                 
                 #ax.axvline(g-start,ls='--',color='orange')
                 ax.plot([mid_point],[bottom],
@@ -2241,7 +2259,6 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
                 if gti_lc_list_file.is_file():
                     lc_list = LightcurveList.load(gti_lc_list_file)
                     label = '{}-{}'.format(low_en,high_en)
-                    print('here',en_band,gti_lc_list_file.name)
                     lc_list.plot(ax=ax,color=col,label=label,marker=marker,
                         lfont=14,ybar=8)
                     del lc_list
@@ -2328,15 +2345,15 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
             mylogging.info(f'Plotting GTI {g+1}/{len(gti_seg)}')
 
-            plot_name = std_plot_dir/'cr_per_seg_T{}_{}_{}.jpeg'.format(tres,tseg,g+1)
-            std_prods['plots']['Count rate per segment'] += [plot_name]
+            plot_name = std_plot_dir/'cr_per_gti_{}.jpeg'.format(g+1)
+            std_prods['plots']['Count rate per GTI'] += [plot_name]
             
             if plot_name.is_file() and not override:
-                mylogging.info(f'Count rate per segment plot n. {g+1} already exists')
+                mylogging.info(f'Count rate per GTI plot n. {g+1} already exists')
             else:
                 fig,ax = plt.subplots(figsize=(8,5))
                 #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-                fig.suptitle(f'Count rate per segment (GTI {g+1}/{len(gti_seg)})',
+                fig.suptitle(f'Count rate per GTI (GTI {g+1}/{len(gti_seg)})',
                     fontsize=14)  
 
                 # Main band
@@ -2495,7 +2512,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
     fig,ax = plt.subplots(figsize=(8,5))
     fig.suptitle(f'{tseg} s bin lightcurve',fontsize=14)
-    plot_name = std_plot_dir/'ufa_vs_cl_lc_T{}_{}.jpeg'.format(tres,tseg)
+    plot_name = std_plot_dir/'ufa_vs_cl_lc.jpeg'
     std_prods['plots']['ufa/cl count rate per segment'] = plot_name
         
     if ufa_lc_list_file.is_file() and main_seg_lc_list_file.is_file() \
@@ -2538,7 +2555,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     # b) Power Spectrum
     # *****************************************************************
 
-    plot_name = std_plot_dir/'ufa_vs_cl_power_spectrum_T{}_{}.jpeg'.format(tres,tseg)
+    plot_name = std_plot_dir/'ufa_vs_cl_power_spectrum.jpeg'
     std_prods['plots']['ufa/cl power spectra'] = plot_name
     
     fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,5))
@@ -2610,8 +2627,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
     #fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.suptitle('Full Power spectrum',fontsize=14)
-    plot_name = std_plot_dir/'main_power_spectrum_T{}_{}.jpeg'.\
-            format(tres,tseg) 
+    plot_name = std_plot_dir/'main_power_spectrum.jpeg' 
     std_prods['plots']['Main Power Spectrum'] = plot_name
            
     if main_pw_list_file.is_file():
@@ -2656,8 +2672,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     fig,(ax1,ax2) = plt.subplots(1,2,figsize=(8,5))
     fig.suptitle('Multi-band Power spectrum',fontsize=14)  
-    plot_name = std_plot_dir/'multi_band_power_spectrum_T{}_{}.jpeg'.\
-            format(tres,tseg)
+    plot_name = std_plot_dir/'multi_band_power_spectrum.jpeg'
     std_prods['plots']['Other Power Spectra'] = plot_name
         
     for i,pw_file in enumerate(power_list_files):
@@ -2722,8 +2737,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
             fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,5))
             fig.suptitle('Power spectra per GTI ({}/{})'.\
                 format(i+1,len(chunkss)), fontsize=14)
-            plot_name = std_plot_dir/'full_power_spectrum_T{}_{}_{}.jpeg'.\
-                format(tres,tseg,i)
+            plot_name = std_plot_dir/'full_power_spectrum_per_gti_{}.jpeg'.\
+                format(i)
             std_prods['plots']['Power Spectra per GTI'] += [plot_name]
             
             for j,gti_index in enumerate(chunk):
@@ -2836,88 +2851,324 @@ def print_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
 
     merger.write(str(output_file))
 
+def make_general_info(obs_id_dirs,main_en_band=['0.5','10.0'],
+    tres='0.0001220703125',tseg='128.0',suffix=None,override=True):
 
-def print_std_prod_single(an_dir,obs_id,main_en_band=['0.5','10.0'],
+    mylogging = LoggingWrapper()
+
+    mylogging.info('*'*72)
+    mylogging.info(str_title('print_std_prod'))
+    mylogging.info('*'*72)
+
+    # Setting directory identifiers
+    time_string = 'T{}_{}'.format(tres,tseg)
+    if suffix is None:
+        dir_string = 'E{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string)
+    else:
+        dir_string = 'E{}_{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string,suffix)
+    
+    # Setting directories
+    an_dir = obs_id_dirs[0].parent
+    if (an_dir/'std_prods').is_dir():
+        mylogging.info('general_std_prod_dir already exists')
+    else:
+        mylogging.info('Creating general_std_prod_dir')
+        os.mkdir(an_dir/'std_prods')
+    general_std_prod_dir = an_dir/'std_prods'/dir_string
+    if general_std_prod_dir.is_dir():
+        mylogging.info('general_std_prod_dir sub-dir already exists')
+    else:
+        mylogging.info('Creating general_std_prod_dir sub-dir')
+        os.mkdir(general_std_prod_dir)
+
+    df_name = general_std_prod_dir/'general_info_data_frame.pkl'
+    first_good = True
+    for obs_id_dir in obs_id_dirs:
+
+        obs_id_full_info = {}
+
+        # Setting directories
+        obs_id = obs_id_dir.name
+        an_dir = obs_id_dir.parent
+        std_prod_dir = obs_id_dir/'std_prods'/dir_string
+
+        if std_prod_file.is_file():
+            std_prod_file = std_prod_dir/f'std_prods.pkl'
+            with open(std_prod_file,'rb') as infile:
+                std_prods = pickle.load(infile)
+            
+            data = std_prods['data']
+            for key,item in data.items():
+                if type(item) is dict:
+                    for keykey,itemitem in item.items():
+                        obs_id_full_info[keykey] = itemitem
+                else:
+                    obs_id_full_info[key] = item
+
+            if first_good:
+                df = pd.DataFrame(columns=obs_id_full_info.keys())
+                first_good = False
+            else:
+                df = pd.read_pickle(df_name)
+            df = df.append(obs_id_full_info,ignore_index=True)
+            df.to_pickle(df_name)                   
+
+def make_info_columns(std_prods):
+    '''
+    It extracts information from std_prods returning data formatted into
+    two columns to be used in a PDF page object
+
+    HISTORY
+    -------
+    2022 03 19, Stefano Rapisarda, Uppsala (creation date)
+    '''
+
+    def truncate(n, decimals=0):
+        multiplier = 10 ** decimals
+        return int(n * multiplier) / multiplier
+
+    data = std_prods['data']
+    info = data['info_dict']
+
+    # Computing exposition and filtered exposure
+    ori_exp = info['TSTOP']-info['TSTART']
+    filt_exp = truncate((ori_exp-info['ONTIME'])/ori_exp*100,1)
+
+    # Formatting inact_det_list
+    inact_det_list = data['inact_det_list']
+    if len(inact_det_list) > 6:
+        inact_det_list_to_print = '!!! > 6 ({}) !!!'.\
+            format(len(inact_det_list))
+    else:
+        inact_det_list_to_print = ''
+        for det in inact_det_list:
+            inact_det_list_to_print += f'{det}, '
+        inact_det_list_to_print = inact_det_list_to_print[:-2]
+
+    # Computing hardness ratio with corresponding error
+    net_cr_hard = data['other_crs'][1]-data['other_bkg_crs'][1]
+    net_cr_soft = data['other_crs'][0]-data['other_bkg_crs'][0]
+    hr = net_cr_hard/net_cr_soft
+    hr_sigma2 = (
+        data['other_cr_err'][1]**2 + data['other_bkg_cr_err'][1]**2 +
+        hr**2 * (data['other_cr_err'][0]**2 + data['other_bkg_cr_err'][0]**2)
+        ) / net_cr_soft**2
+
+    # Initializing columns
+    col1 = {
+        'Cre. date (this file):': data['creation_date'],
+        'Mission:'              : info['TELESCOP'],
+        'Target:'               : info['OBJECT'],
+        'Obs. ID:'              : info['OBS_ID'],
+        'Start obs. time:'      : info['DATE-OBS'],
+        'Stop  obs. time:'      : info['DATE-END'],
+        'Clean exposure [s]:'   : str(info['ONTIME']),
+        'N. raw events:'        : str(info['NAXIS2']),
+        'Filtered exp. [%]:'    : str(filt_exp),
+        'N. act. det.:'         : str(data['n_act_det']),
+        'Inactive det. list:'   : inact_det_list_to_print,
+        'Main energy band:'     : '{} [keV]'.format(data['main_en_band'])
+        }
+    for e,band in enumerate(data['other_en_bands']):
+        col1[f'Energy band {e+1}:'] = f'{band} [keV]'
+
+    col2 = {
+        'N. GTIs:'                  : str(data['n_gtis']),
+        'N. filtered GTIs (>{}):'.format(data['tseg'])  : str(data['n_fgtis']),
+        'N. of segments:'           : str(data['n_segs']),
+        'Time resolution [s]:'      : str(data['tres']),
+        'Time segment [s]:'         : str(data['tseg']),
+        'Main count rate [c/s]:'    : '{} '.\
+            format(truncate(data['main_cr'],1))+u'\u00B1'+\
+            ' {}'.format(truncate(data['main_cr_err'],1)),
+        'Main bkg count rate [c/s]:': '{} '.\
+            format(truncate(data['main_bkg_cr'],1))+u'\u00B1'+\
+            ' {}'.format(truncate(data['main_bkg_cr_err'],1))
+        }
+    for e,(cr,cr_err,bkg,bkg_err) in \
+        enumerate(zip(data['other_crs'],data['other_cr_err'],
+                    data['other_bkg_crs'],data['other_bkg_cr_err'])):
+        key1 = f'Count rate b{e+1} [c/s]:'
+        key2 = f'Bkg count rate b{e+1} [c/s]:'
+        item1 = '{} '.format(truncate(cr,1))+u'\u00B1'+\
+            ' {}'.format(truncate(cr_err,1))
+        item2 = '{} '.format(truncate(bkg,1))+u'\u00B1'+\
+            ' {}'.format(truncate(bkg_err,1))
+        col2[key1] = item1
+        col2[key2] = item2
+    col2['Hard(b2)/Soft(b1) ratio:'] = '{} '.\
+        format(truncate(hr,2))+u'\u00B1'+\
+        ' {}'.format(truncate(math.sqrt(hr_sigma2),2))   
+    col2['Main frac. rms (<60Hz) [%]:'] = '{} '.\
+        format(np.round(data['main_frac_rms']*100,2))+u'\u00B1'+ \
+        ' {}'.format(np.round(data['main_frac_rms_err']*100,2))
+    for e,(rms,rms_err) in \
+        enumerate(zip(data['other_frac_rms'],data['other_frac_rms_err'])):
+        key = f'Frac. rms (<60Hz) b{e+1} [%]'
+        item = '{} '.format(np.round(rms*100,2))+u'\u00B1'+ \
+        ' {}'.format(np.round(rms_err*100,2))
+        col2[key] = item
+
+    return col1, col2
+
+def print_std_prod_single(obs_id_dir,main_en_band=['0.5','10.0'],
     tres='0.0001220703125',tseg='128.0',suffix=None):
     '''
     It creates PDF pages containing information and plots
     '''
 
+    if type(obs_id_dir) is str: obs_id_dir = pathlib.Path(obs_id_dir)
+
     mylogging = LoggingWrapper()
 
     mylogging.info('*'*72)
-    mylogging.info('{:24}{:^24}{:24}'.format('*'*24,'print_std_prod','*'*24))
+    mylogging.info(str_title('print_std_prod_single'))
     mylogging.info('*'*72)
 
+    # Setting directory identifiers
     time_string = 'T{}_{}'.format(tres,tseg)
-    dir_string = 'E{}_{}_{}_{}'.format(
-        main_en_band[0],main_en_band[1],time_string,suffix)
+    if suffix is None:
+        dir_string = 'E{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string)
+    else:
+        dir_string = 'E{}_{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string,suffix)
     
-    if type(an_dir) == str: an_dir = pathlib.Path(an_dir)
-    
-    obs_id_dir = an_dir/obs_id
-    std_plot_dir = obs_id_dir/'std_plots'/dir_string
+    # Setting directories
+    obs_id = obs_id_dir.name
+    an_dir = obs_id_dir.parent
     std_prod_dir = obs_id_dir/'std_prods'/dir_string
 
-    # First PDF, data and general plot
-    # ------------------------------------------------------------------
+    pages = []
+
+    # First PDF page, data and general plot 
+    # ------------------------------------------------------------------   
+    page_name = std_prod_dir/'general_info.pdf'
     # Extracting information into two columns
-    std_prod_file = std_prod_dir/f'std_prods_{time_string}.pkl'
-    if std_prods_file.is_file():
-        with open(std_prods_file,'rb') as infile:
-            std_prods = pickle.load(std_prod_file)
-        col1 = {
+    std_prod_file = std_prod_dir/f'std_prods.pkl'
+    if std_prod_file.is_file():
+        # Reading std_prods dictionary
+        with open(std_prod_file,'rb') as infile:
+            std_prods = pickle.load(infile)
+        col1, col2 = make_info_columns(std_prods)
+        plots = std_prods['plots']
 
-        }
-        col2 = {}
-
-    df_file = an_dir/'std_prods'/dir_string/f'info_data_frame_{time_string}.pkl'
+    df_file = an_dir/'std_prods'/dir_string/f'general_info_data_frame.pkl'
     if df_file.is_file():
-        # Make general plot
-        pass
-
-    if 'IDET' in col1.keys():
-        if len(col1['IDET'][1].split(',')) > 6:
-
-            col1['IDET'][1] = '!!! > 6 ({}) !!!'.\
-                format(len(col1['IDET'][1].split(',')))
+        gplot = make_general_plot(an_dir,tres=tres,tseg=tseg,obs_id=obs_id)
     
-    if type(col1) == list:
-        info1 = {i[0]:i[1] for i in col1}
-    elif type(col1) == dict:
-        if type(col1[list(col1.keys())[0]]) == list:
-            info1 = {item[0]:item[1] for key,item in col1.items()}
-        else:
-            info1 = col1
-    if type(col2) == list:
-        info2 = {i[0]:i[1] for i in col2}
-    elif type(col2) == dict:
-        if type(col2[list(col2.keys())[0]]) == list:
-            info2 = {item[0]:item[1] for key,item in col2.items()}
-        else:
-            info2 = col2
-
-    # Saving
-    std_prod_dir = obs_id_dir/'std_prods'
-    if not std_prod_dir.is_dir():
-        mylogging.info('std_prods dir does not exist, creating it')
-        os.mkdir(std_prod_dir)
-    output_file = std_prod_dir/'{}_std_prods_{}.pdf'.format(obs_id,time_string)
-
+  
     pdf = pdf_page(margins=[10,10,10,10])
     pdf.add_page()
-    pdf.print_key_items(info=info1,grid=[2,2,5,5],sel='11',conv=0.28)
-    pdf.print_key_items(info=info2,grid=[2,2,5,5],sel='12',conv=0.28)
-    coors = pdf.get_grid_coors(grid=[3,1,5,5],sel='21',margins=[5,0,0,0])
-    pdf.image(str(plots[0]),x=coors[0],y=coors[1],w=coors[2]-coors[0])
-    for i in range(1,len(plots)):
-        row=2
-        if i%2 != 0: 
-            pdf.add_page()
-            row=1 
-        coors = pdf.get_grid_coors(grid=[2,1,5,5],sel=f'{row}1',margins=[5,0,0,0])
-        pdf.image(str(plots[i]),x=coors[0],y=coors[1],w=coors[2]-coors[0])
-    pdf.output(output_file,'F')
+    mark_index = 0
+    pages += [[page_name,'general info',mark_index]]
+    mark_index += 1
+    if std_prod_file.is_file():
+        pdf.print_key_items(info=col1,grid=[2,2,5,5],sel='11',conv=0.28)
+        pdf.print_key_items(info=col2,grid=[2,2,5,5],sel='12',conv=0.28)
+    if df_file.is_file():
+        coors = pdf.get_grid_coors(grid=[3,1,5,5],sel='21',margins=[5,0,0,0])
+        pdf.image(str(gplot),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+    pdf.output(page_name,'F')
+    # ------------------------------------------------------------------ 
+
+    # Second PDF page, count rate and energy spectrum
+    # ------------------------------------------------------------------
+    page_name = std_prod_dir/'cr_and_spectrum.pdf'
+    pdf = pdf_page(margins=[10,10,10,10])
+    pdf.add_page()
+    pages += [[page_name,'cr and spectrum',mark_index]]
+    mark_index += 1
+    if std_prod_file.is_file():
+        coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='11',margins=[5,0,0,0])
+        pdf.image(str(plots['Obs. ID count rate']),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+        coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='21',margins=[5,0,0,0])
+        pdf.image(str(plots['Energy spectrum']),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+    pdf.output(page_name,'F')
+    # ------------------------------------------------------------------
+
+    # Third PDF page, count rate per GTI
+    # ------------------------------------------------------------------
+    page_name = std_prod_dir/'cr_per_gti.pdf'
+    pages += [[page_name,'cr per GTI',mark_index]]  
+    pdf = pdf_page(margins=[10,10,10,10])
+    if std_prod_file.is_file():
+        for p,plot in enumerate(plots['Count rate per GTI']):
+            row = 2
+            if p%2 == 0:
+                row = 1
+                pdf.add_page()
+                mark_index += 1
+            coors = pdf.get_grid_coors(grid=[2,1,5,5],sel=f'{row}1',margins=[5,0,0,0])
+            pdf.image(str(plot),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+    pdf.output(page_name,'F')
+    # ------------------------------------------------------------------
+  
+    # Forth PDF page, comparison between ufa and cl
+    # ------------------------------------------------------------------
+    page_name = std_prod_dir/'ufa_cl.pdf'
+    pages += [[page_name,'ufa/cl comparison',mark_index]]
+    mark_index += 1
+    pdf = pdf_page(margins=[10,10,10,10])
+    pdf.add_page()
+    if std_prod_file.is_file():
+        coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='11',margins=[5,0,0,0])
+        pdf.image(str(plots['ufa/cl count rate per segment']),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+        coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='21',margins=[5,0,0,0])
+        pdf.image(str(plots['ufa/cl power spectra']),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+    pdf.output(page_name,'F')
+    # ------------------------------------------------------------------
+
+    # Fifth PDF page, average power spectra
+    # ------------------------------------------------------------------
+    page_name = std_prod_dir/'power_spectra.pdf'
+    pages += [[page_name,'Average Power Spectra',mark_index]]
+    mark_index += 1
+    pdf = pdf_page(margins=[10,10,10,10])
+    pdf.add_page()
+    if std_prod_file.is_file():
+        coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='11',margins=[5,0,0,0])
+        pdf.image(str(plots['Main Power Spectrum']),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+        coors = pdf.get_grid_coors(grid=[2,1,5,5],sel='21',margins=[5,0,0,0])
+        pdf.image(str(plots['Other Power Spectra']),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+    pdf.output(page_name,'F')
+    # ------------------------------------------------------------------
+
+    # Sixth PDF page, power spectra per GTI
+    # ------------------------------------------------------------------
+    page_name = std_prod_dir/'gti_power_spectra.pdf'
+    pages += [[page_name,'Power Spectra per GTI',mark_index]]   
+    pdf = pdf_page(margins=[10,10,10,10])
+    if std_prod_file.is_file():
+        for p,plot in enumerate(plots['Power Spectra per GTI']):
+            row = 2
+            if p%2 == 0:
+                row = 1
+                pdf.add_page()
+                mark_index += 1
+            coors = pdf.get_grid_coors(grid=[2,1,5,5],sel=f'{row}1',margins=[5,0,0,0])
+            pdf.image(str(plot),x=coors[0],y=coors[1],w=coors[2]-coors[0])
+    pdf.output(page_name,'F')
+    # ------------------------------------------------------------------
+
+    # Merging all the pages and assigning bookmarks
+    # ------------------------------------------------------------------
+    output_file = std_prod_dir/f'{obs_id}_std_prods.pdf'
+    merger = PdfFileMerger()
+    for p,(page,title,index) in enumerate(pages):
+        with open(page,'rb') as infile:
+            merger.append(PdfFileReader(infile))
+            if p == 0:
+                parent = merger.addBookmark(obs_id,0)
+            merger.addBookmark(title,index,parent=parent)
+    merger.write(str(output_file))
+    # ------------------------------------------------------------------
+
+    mylogging.info('*'*72)
+    mylogging.info(str_title('quitting print_std_prod'))
+    mylogging.info('*'*72)
 
     return output_file
 

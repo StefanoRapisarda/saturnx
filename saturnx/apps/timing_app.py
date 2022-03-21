@@ -27,12 +27,12 @@ class TimingApp:
         #self.ui._button1['command'] = self._compute_power
         #self.ui._button2['command'] = self._compute_lightcurve
 
-        self.ui.s = ttk.Style(self)
+        # self.ui.s = ttk.Style(self)
         # self.ui.tk.call('source','sun-valley.tcl')
         # self.ui.tk.call('set_theme','light')
         # self.ui.tk.call('lappend','auto_path','/Volumes/Samsung_T5/saturnx/kronos/gui/awthemes-10.4.0')
         # self.ui.tk.call('package','require','awdark')
-        self.ui.s.theme_use('classic')
+        # self.ui.s.theme_use('classic')
 
     def _compute(self):
         if self.ui._timing_tab._comp_lc.get(): self._compute_lightcurve()
