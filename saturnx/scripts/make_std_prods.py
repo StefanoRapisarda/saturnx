@@ -2796,7 +2796,7 @@ def print_std_prods(obs_id_dirs,main_en_band=['0.5','10.0'],
         titles = []
         pages = []
         if len(outlines) > 1:
-            for i in range(1,len(outlines[1])):
+            for i in range(len(outlines[1])):
                 titles += [outlines[1][i]['/Title']]
                 pages  += [outlines[1][i]['/Page']]
         return [parent_title,parent_page],[titles,pages]
