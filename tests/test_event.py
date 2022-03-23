@@ -1,7 +1,7 @@
 
 from numpy.testing._private.nosetester import NoseTester
-from kronos.core import Event, EventList, read_event, Gti
-from kronos.utils.time_series import poi_events
+from saturnx.core import Event, EventList, read_event, Gti
+from saturnx.utils.time_series import poi_events
 from time import ctime
 import numpy as np
 import pandas as pd

@@ -4,8 +4,8 @@ import pandas as pd
 import math
 import pytest
 
-from kronos.core.lightcurve import Lightcurve,LightcurveList
-from kronos.core.power import PowerSpectrum,PowerList
+from saturnx.core.lightcurve import Lightcurve,LightcurveList
+from saturnx.core.power import PowerSpectrum,PowerList
 
 class TestEmptyPower:
 
@@ -37,7 +37,7 @@ class TestEmptyPower:
         assert power.cr == None
     
     def test_empty_power_meta_data(self,mocker):
-        mocker.patch('kronos.core.power.my_cdate',
+        mocker.patch('saturnx.core.power.my_cdate',
             return_value='test_current_date')
         power = PowerSpectrum()
 
@@ -181,7 +181,7 @@ class TestNormalizeLeahy:
     def test_leahy_meta_data(self,mocker,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
         power = PowerSpectrum.from_lc(lc)
-        mocker.patch('kronos.core.power.my_cdate',return_value='Test date')
+        mocker.patch('saturnx.core.power.my_cdate',return_value='Test date')
         leahy = power.normalize()
 
         assert leahy.notes == power.notes
@@ -217,7 +217,7 @@ class TestNormalizeRMS:
     def test_rms_meta_data(self,mocker,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
         power = PowerSpectrum.from_lc(lc)
-        mocker.patch('kronos.core.power.my_cdate',return_value='Test date')
+        mocker.patch('saturnx.core.power.my_cdate',return_value='Test date')
         rms = power.normalize('rms')
 
         assert rms.notes == power.notes
@@ -380,7 +380,7 @@ class TestSubPoi:
         lc = fake_white_noise_lc['lc']
         power = PowerSpectrum.from_lc(lc)
         middle_freq = power.nf/2
-        mocker.patch('kronos.core.power.my_cdate',return_value='Test creation date')
+        mocker.patch('saturnx.core.power.my_cdate',return_value='Test creation date')
         poi_power = power.sub_poi(low_freq=middle_freq)
 
         assert poi_power.meta_data['SUBTRACTING_POI'] == 'Test creation date'
@@ -427,7 +427,7 @@ class TestSubPoi:
         lc = fake_white_noise_lc['lc']
         power = PowerSpectrum.from_lc(lc)
         middle_freq = power.nf/2
-        mocker.patch('kronos.core.power.my_cdate',return_value='Test creation date')
+        mocker.patch('saturnx.core.power.my_cdate',return_value='Test creation date')
         poi_power = power.sub_poi(high_freq=middle_freq)
 
         assert poi_power.meta_data['SUBTRACTING_POI'] == 'Test creation date'

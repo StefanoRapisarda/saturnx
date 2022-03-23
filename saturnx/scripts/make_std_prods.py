@@ -757,7 +757,7 @@ def make_nicer_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
     mylogging.info(72*'*')
 
 def make_general_plot(obs_id_dir,tres='0.0001220703125',tseg='128.0',
-    time_window = 20,plt_x_dim = 8,plt_y_dim = 8,
+    main_en_band=['0.5','10.0'],time_window = 20,plt_x_dim = 8,plt_y_dim = 8,
     mission='NICER', suffix=None):
     '''
     It reads a pandas data frame containing information about all the 
@@ -791,11 +791,11 @@ def make_general_plot(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
         return [min_y,max_y]
 
+    mylogging = LoggingWrapper()
+
     mylogging.info('*'*72)
     mylogging.info(str_title('make_general_plot'))
     mylogging.info('*'*72+'\n')
-
-    mylogging = LoggingWrapper()
     
     if type(obs_id_dir) == str: obs_id_dir = pathlib.Path(obs_id_dir)
     an_dir = obs_id_dir.parent
@@ -818,6 +818,17 @@ def make_general_plot(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         mylogging.error('I could not finde a {} file'.format(info_df_name.name))   
     df=df.drop_duplicates(subset=['OBS_ID'])
     
+    # Plotting
+    # ==================================================================
+        
+    # General settings
+    colors = ['red','blue','green','orange','brown']
+    markers = ['s','^','p','H','X']
+    n_en_bands = df['n_en_bands'].iloc[0]
+    
+    fig, axes = plt.subplots(3,1,figsize=(plt_x_dim,plt_y_dim))
+    plt.subplots_adjust(hspace=0)
+
     # Defining time ax
     # ------------------------------------------------------------------
     start_dates = df['DATE-OBS']
@@ -844,17 +855,6 @@ def make_general_plot(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     time_mask = (time >= x_lims[0]) & (time<= x_lims[1])
     # ------------------------------------------------------------------
-
-    # Plotting
-    # ==================================================================
-        
-    # General settings
-    colors = ['red','blue','green','orange','brown']
-    markers = ['s','^','p','H','X']
-    n_en_bands = df['n_en_bands'].iloc[0]
-    
-    fig, axes = plt.subplots(3,1,figsize=(plt_x_dim,plt_y_dim))
-    plt.subplots_adjust(hspace=0)
 
     # Plot1, count rates versurs time
     # ------------------------------------------------------------------
@@ -2094,7 +2094,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
     std_prod_dir = root_std_prod_dir/main_str_identifier
     if not std_prod_dir.is_dir():
-        mylogging.info('std_prods directory does not exist, creating one...')
+        mylogging.info('std_prods sub-directory does not exist, creating one...')
         os.mkdir(std_prod_dir)
     else:
         mylogging.info('std_prods sub-directory already exists.')  
@@ -2775,7 +2775,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
     
     # Saving standard produts
     mylogging.info('Saving std_prods dictionary')
-    dict_name = std_prod_dir/'std_prods_T{}_{}.pkl'.format(tres,tseg)
+    dict_name = std_prod_dir/'std_prods.pkl'
     with open(dict_name, 'wb') as output:
         pickle.dump(std_prods, output, pickle.HIGHEST_PROTOCOL)
 
@@ -2785,23 +2785,40 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
 
     return dict_name
 
-def print_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
-    add_plot=[]):
+def print_std_prods(obs_id_dirs,main_en_band=['0.5','10.0'],
+    tres='0.0001220703125',tseg='128.0',suffix=None,add_plots=[]):
+
+    def read_bookmark(reader):
+        outlines = reader.outlines
+        
+        parent_title = outlines[0]['/Title']
+        parent_page = outlines[0]['/Page']
+        titles = []
+        pages = []
+        if len(outlines) > 1:
+            for i in range(1,len(outlines[1])):
+                titles += [outlines[1][i]['/Title']]
+                pages  += [outlines[1][i]['/Page']]
+        return [parent_title,parent_page],[titles,pages]
 
     mylogging = LoggingWrapper()
 
     time_string = 'T{}_{}'.format(tres,tseg)
+    if suffix is None:    
+        dir_string = 'E{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string
+            )
+    else:
+        dir_string = 'E{}_{}_{}_{}'.format(
+            main_en_band[0],main_en_band[1],time_string,suffix
+            )        
 
     first_obs_id_dir = obs_id_dirs[0]
     if type(first_obs_id_dir) == str:
         first_obs_id_dir = pathlib.Path(first_obs_id_dir)
     an_dir = first_obs_id_dir.parent
 
-    merger = PdfFileMerger()
-    if add_plot != []:
-        for plot_to_add in add_plot:
-            merger.append(PdfFileReader(plot_to_add[0]),bookmark=plot_to_add[1])
-
+    pdf_files = []
     for o,obs_id_dir in enumerate(obs_id_dirs):
 
         if isinstance(obs_id_dir,str):
@@ -2814,50 +2831,64 @@ def print_std_prods(obs_id_dirs,tres='0.0001220703125',tseg='128.0',
             format(obs_id,o+1,len(obs_id_dirs)))
 
         # Checking existance of std_prods dir inside the obs_id_dir
-        std_prod_dir = obs_id_dir/'std_prods'
+        std_prod_dir = obs_id_dir/'std_prods'/dir_string
         if not std_prod_dir.is_dir():
             mylogging.info('std_prods dir does not exist, skipping obs.')
             mylogging.info(std_prod_dir)
             continue
 
-        obs_id_plots = []
-        # Making a general plot
-        plot0 = make_general_plot(an_dir,tres=tres,tseg=tseg,
-            obs_id = obs_id)
+        try:
+            pdf_file = print_std_prod_single(
+                obs_id_dir,
+                main_en_band=main_en_band,
+                tres=tres,tseg=tseg,suffix=suffix
+                )
+        except:
+            mylogging.error(f'Something went wrong with obs. ID {obs_id}')
+            continue
 
-        # Reading general info and arranging plots in a pdf file
-        file_name = std_prod_dir / 'info_dict_T{}_{}.pkl'.format(tres,tseg)
-        if file_name.is_file():
-            with open(file_name,'rb') as infile:
-                info_dict = pickle.load(infile)
-            col1 = info_dict['COL1']
-            col2 = info_dict['COL2']
-            other_plots = info_dict['PLOTS']
+        pdf_files += [pdf_file]
 
-            obs_id_plots = [plot0]+other_plots
+    mylogging.info('Making total PDF')
 
-            pdf_file = print_std_prod_single(an_dir,obs_id,col1,col2,
-                obs_id_plots,tres=tres,tseg=tseg)
+    current_page = 0
+    merger = PdfFileMerger()
 
-        # Checking existance of obs. ID PDF file and adding it to the
-        # general document
+    if add_plots != []:
+        mylogging.info('Adding additional plots')
+        for plot_to_add in add_plots:
+            reader = PdfFileReader(plot_to_add[0])
+            parent, children = read_bookmark(reader)
+            parent_bookmark = merger.addBookmark(parent[0],parent[1]+current_page)
+            for title,page in zip(children[0],children[1]):
+                merger.addBookmark(title,page+current_page,parent=parent_bookmark)
+            merger.append(reader,bookmark=plot_to_add[1]+current_page)
+            current_page += reader.getNumPages()
+
+    mylogging.info('Merging pdf files')
+    for pdf_file in pdf_files:
         if pdf_file.is_file():
-
             with open(pdf_file,'rb') as infile:
-                merger.append(PdfFileReader(infile),bookmark=obs_id)
+                reader = PdfFileReader(infile)
+                parent, children = read_bookmark(reader)
+                parent_bookmark = merger.addBookmark(parent[0],parent[1]+current_page)
+                for title,page in zip(children[0],children[1]):
+                    merger.addBookmark(title,page+current_page,parent=parent_bookmark)
+                merger.append(PdfFileReader(infile))
+                current_page += reader.getNumPages()
 
     # Saving file
-    output_file = an_dir/'std_prods'/'std_prods_{}.pdf'.format(time_string)
+    output_file = an_dir/'std_prods'/dir_string/'std_prods.pdf'
 
     merger.write(str(output_file))
 
 def make_general_info(obs_id_dirs,main_en_band=['0.5','10.0'],
-    tres='0.0001220703125',tseg='128.0',suffix=None,override=True):
+    tres='0.0001220703125',tseg='128.0',suffix=None,clean=True):
 
     mylogging = LoggingWrapper()
 
     mylogging.info('*'*72)
-    mylogging.info(str_title('print_std_prod'))
+    mylogging.info(str_title('make general info'))
     mylogging.info('*'*72)
 
     # Setting directory identifiers
@@ -2876,15 +2907,16 @@ def make_general_info(obs_id_dirs,main_en_band=['0.5','10.0'],
     else:
         mylogging.info('Creating general_std_prod_dir')
         os.mkdir(an_dir/'std_prods')
-    general_std_prod_dir = an_dir/'std_prods'/dir_string
-    if general_std_prod_dir.is_dir():
-        mylogging.info('general_std_prod_dir sub-dir already exists')
+    specific_std_prod_dir = an_dir/'std_prods'/dir_string
+    if specific_std_prod_dir.is_dir():
+        mylogging.info('specific_std_prod_dir dir already exists')
     else:
-        mylogging.info('Creating general_std_prod_dir sub-dir')
-        os.mkdir(general_std_prod_dir)
+        mylogging.info('Creating specific_std_prod_dir dir')
+        os.mkdir(specific_std_prod_dir)
 
-    df_name = general_std_prod_dir/'general_info_data_frame.pkl'
+    df_name = specific_std_prod_dir/'general_info_data_frame.pkl'
     first_good = True
+    o = 0
     for obs_id_dir in obs_id_dirs:
 
         obs_id_full_info = {}
@@ -2893,17 +2925,26 @@ def make_general_info(obs_id_dirs,main_en_band=['0.5','10.0'],
         obs_id = obs_id_dir.name
         an_dir = obs_id_dir.parent
         std_prod_dir = obs_id_dir/'std_prods'/dir_string
+        std_prod_file = std_prod_dir/f'std_prods.pkl'
+
+        mylogging.info(f'Reading Obs. ID {obs_id} ({o}/{len(obs_id_dirs)})')
+        o += 1
 
         if std_prod_file.is_file():
-            std_prod_file = std_prod_dir/f'std_prods.pkl'
+            
             with open(std_prod_file,'rb') as infile:
                 std_prods = pickle.load(infile)
             
             data = std_prods['data']
             for key,item in data.items():
-                if type(item) is dict:
-                    for keykey,itemitem in item.items():
-                        obs_id_full_info[keykey] = itemitem
+                if key == 'info_dict':
+                    if item is None:
+                        obs_id_full_info[key] = False
+                        obs_id_full_info['OBS_ID'] = obs_id 
+                    else:
+                        obs_id_full_info[key] = True
+                        for keykey,itemitem in item.items():
+                            obs_id_full_info[keykey] = itemitem
                 else:
                     obs_id_full_info[key] = item
 
@@ -2913,7 +2954,21 @@ def make_general_info(obs_id_dirs,main_en_band=['0.5','10.0'],
             else:
                 df = pd.read_pickle(df_name)
             df = df.append(obs_id_full_info,ignore_index=True)
-            df.to_pickle(df_name)                   
+            df.to_pickle(df_name) 
+        
+        else:
+            mylogging.warning('std_prods file not found')    
+
+    if clean:
+        mylogging.info('Cleaning data frame')
+        df = pd.read_pickle(df_name)
+        cleaned_df = df[~df['DATE-OBS'].isna()]     
+        dirty_df = df[df['DATE-OBS'].isna()]
+        mylogging.info(f'Removed {len(dirty_df)} rows')        
+        cleaned_df.to_pickle(df_name)
+        dirty_df.to_pickle(obs_id_dir/'std_prods'/dir_string/'bad_obs_id.pkl')
+
+    return df_name
 
 def make_info_columns(std_prods):
     '''
@@ -3057,9 +3112,8 @@ def print_std_prod_single(obs_id_dir,main_en_band=['0.5','10.0'],
 
     df_file = an_dir/'std_prods'/dir_string/f'general_info_data_frame.pkl'
     if df_file.is_file():
-        gplot = make_general_plot(an_dir,tres=tres,tseg=tseg,obs_id=obs_id)
+        gplot = make_general_plot(obs_id_dir,tres=tres,tseg=tseg)
     
-  
     pdf = pdf_page(margins=[10,10,10,10])
     pdf.add_page()
     mark_index = 0

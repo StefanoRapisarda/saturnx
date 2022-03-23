@@ -6,7 +6,7 @@ import pytest
 
 from astropy.io import fits
 
-from kronos.core.lightcurve import Lightcurve, LightcurveList
+from saturnx.core.lightcurve import Lightcurve, LightcurveList
 
 class TestLightcurveInit:
 
@@ -64,7 +64,7 @@ class TestLightcurveInit:
         assert lc.high_en == 0.25    
 
     def test_empty_lc_meta_data_notes(self,mocker):
-        mocker.patch('kronos.core.lightcurve.my_cdate',
+        mocker.patch('saturnx.core.lightcurve.my_cdate',
             return_value='test_current_date')
         lc = Lightcurve()
         
@@ -219,7 +219,7 @@ class TestLightcurveAdd:
         assert type(lc) == type(Lightcurve())  
 
     def test_output_meta_data(self,mocker):
-        mocker.patch('kronos.core.lightcurve.my_cdate',
+        mocker.patch('saturnx.core.lightcurve.my_cdate',
             return_value='test_current_date')
         time = np.linspace(0,99)
         counts = np.ones(len(time))
