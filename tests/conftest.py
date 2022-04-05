@@ -1,10 +1,10 @@
-from kronos.core.lightcurve import Lightcurve
+from saturnx.core.lightcurve import Lightcurve
 import pytest
 import numpy as np
 
-from kronos.functions.nicer_functions import all_det
-from kronos.utils.time_series import poi_events
-from kronos.core import Event,Gti
+from saturnx.utils.nicer_functions import all_det
+from saturnx.utils.time_series import poi_events
+from saturnx.core import Event,Gti
 
 @pytest.fixture(scope='class')
 def fake_nicer_event(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):

@@ -223,7 +223,7 @@ class PowerSpectrum(pd.DataFrame):
 
         return rms,srms
 
-    def sub_poi(self,value=None,low_freq=0,high_freq=np.inf):
+    def sub_poi(self,value=None,low_freq=0,high_freq=np.inf,print_value=False):
         '''
         Subtracts poisson level from the PowerSpectrum power
 
@@ -262,6 +262,9 @@ class PowerSpectrum(pd.DataFrame):
             if len(value) != len(self):
                 raise ValueError('values must have the same dimension of power')
     
+        if print_value:
+            print('Poisson level: {}'.format(value))
+
         # Keeping the original DC (a0) component
         if type(value) in [list,np.ndarray]:
             value[0] = 0

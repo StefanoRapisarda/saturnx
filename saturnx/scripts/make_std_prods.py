@@ -1966,6 +1966,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         information is extracted and plotted after a conditional. If the
         plot exists, plot should NOT be performed and information should
         be read from existing products.
+        I should break the code into individual functions with the option
+        of returning data, plots, or both.
 
     HISTORY
     -------

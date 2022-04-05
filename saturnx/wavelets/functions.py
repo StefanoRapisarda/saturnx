@@ -63,7 +63,7 @@ def scale2freq(scales,family='mexhat',method='fft'):
 
 def cwt(data, dt, scales, family=None, 
         sub_mean=True, pad=False, method='fft',coi_comp='cpeak',
-        print_progress=False,cfreq='cf'):
+        print_progress=False,cfreq='cf',**kwargs):
     '''
     Compute continous wavelet transform using a specified wavelet
 
@@ -144,7 +144,7 @@ def cwt(data, dt, scales, family=None,
         # Computing wavelet with the same data time resolution
         nw = 10*scale*2
         warray = np.arange(0,nw,dt)
-        wavelet = Wavelet(x=warray,scale=scale,family=family,coi_comp=coi_comp)
+        wavelet = Wavelet(x=warray,scale=scale,family=family,coi_comp=coi_comp,**kwargs)
         wavelet_y = wavelet.y
         if len(wavelet_y) < len(ndata):
             diff = len(ndata)-len(wavelet_y)
@@ -182,7 +182,11 @@ def cwt(data, dt, scales, family=None,
         window = len(coi_times)-1
     else:
         window = len(coi_times)
-    coi_times = savgol_filter(coi_times, window, 5)
+
+    try:
+        coi_times = savgol_filter(coi_times, window, 5)
+    except:
+        print('Warning!!! savgol filter failed in COI computation')
 
     if pad:
         output = output[:,left_pad:-right_pad]

@@ -83,7 +83,8 @@ class BaseWavelet:
 
     '''
 
-    def __init__(self, x=None, y=None, family='', scale=1, shift=0, coi_comp='peak'):
+    def __init__(self, x=None, y=None, family='', scale=1, shift=0, coi_comp='peak',
+        *args, **kwargs):
         
         assert isinstance(family,str),'family must be a string'
         
@@ -136,7 +137,7 @@ class BaseWavelet:
         return fft_squared[mask], freq[mask]
 
     def plot(self, ax=None, title=None, lfont=16, xlabel='Time',
-            to_plot='real',**kwargs):
+            to_plot='real',yshift=0,**kwargs):
 
         if not 'color' in kwargs.keys(): kwargs['color'] = 'k'
 
@@ -157,7 +158,7 @@ class BaseWavelet:
             y = self.y
             y_label = 'Amplitude'
         
-        ax.plot(self.x, y,'-', **kwargs)
+        ax.plot(self.x, y+yshift,'-', **kwargs)
         ax.set_xlabel(xlabel, fontsize=lfont)
         ax.set_ylabel(y_label, fontsize=lfont)
 
@@ -361,6 +362,15 @@ class Wavelet(BaseWavelet):
 
             self.y = np.asarray(norm*norm2*(1-t_scaled_shifted**2)*exp1)
 
+        elif self.family.upper() == 'CSHANN':
+
+            norm = np.sqrt(self.tres/self.scale) # to have energy equal to 1
+            t_scaled_shifted = (self.x-self.shift)/self.scale 
+
+            exp1 = np.exp(-2*np.pi*1j*t_scaled_shifted)
+            sinc = np.sin(np.pi*t_scaled_shifted)/np.pi/t_scaled_shifted
+        
+            self.y = norm*sinc*exp1
         else:
 
             print('Specified wavelet is not available')
@@ -443,7 +453,7 @@ class WaveletTransform:
 
     @staticmethod
     def from_lc(lightcurve,dt=1,s_min=None,s_max=None,dj=None,family='mexhat',
-        method='fft',pad=True,cfreq='cf'):
+        method='fft',pad=True,cfreq='cf',**kwargs):
 
         meta_data = {}
 
@@ -478,7 +488,7 @@ class WaveletTransform:
 
         scales = comp_scales(s_min, s_max, dj=dj)
         coef, freqs, coi = cwt(counts,dt=dt,scales=scales,
-            family=family,method=method,pad=pad,cfreq=cfreq)
+            family=family,method=method,pad=pad,cfreq=cfreq,**kwargs)
 
         result = WaveletTransform(scales=scales,freqs=freqs,
             time=time,counts=counts,
@@ -489,8 +499,8 @@ class WaveletTransform:
 
     def plot(self,ax=False,time=False,freqs=True,logs=True,
         norm='maxpxs',sigma_norm=True,power=True,
-        xrange=[],conf_levels=[],power_level=None,
-        cmap=plt.cm.jet,
+        xrange=[],yrange=[],conf_levels=[],power_level=None,
+        cmap=plt.cm.jet,cf_colors=['white'],
         mini_signal=None,coi=True,
         ylabel='counts',title=False,lfont=16,**kwargs):
         '''
@@ -558,11 +568,12 @@ class WaveletTransform:
             cbar_ax = fig.add_axes([0.95,0.15,0.03,.7])
             flag_bar = True
 
-        if (not title == False) and (not ax == False):
-            if time == False:
-                ax.set_title(title)  
-            else:
+        if title:
+            try:
                 axt.set_title(title)
+            except:
+                ax.set_title(title)  
+                
 
         start_time = int(np.min(self.time))
         time_array = self.time-start_time
@@ -602,7 +613,7 @@ class WaveletTransform:
             else:
                 power_to_check = self.norm_power()
 
-            ax.contour(self.time,y,power_to_check,power_levels,colors=['white'],linestyles=['-'],linewidths=[1])
+            ax.contour(self.time,y,power_to_check,power_levels,colors=cf_colors,linestyles=['-'],linewidths=[1])
 
         im = ax.contourf(time_array,y,z,extend='both',cmap=cmap)
 
@@ -614,6 +625,8 @@ class WaveletTransform:
         ax.set_xlim([np.min(time_array),np.max(time_array)])
         if len(xrange)!=0:
             ax.set_xlim(xrange)
+        if len(yrange)!=0:
+            ax.set_ylim(yrange)
         if logs: ax.set_yscale('log')
         ax.set_ylabel('Scales [s]',fontsize=lfont)
         if freqs: ax.set_ylabel('Frequency [Hz]',fontsize=lfont)

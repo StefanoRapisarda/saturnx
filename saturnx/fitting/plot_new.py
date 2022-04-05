@@ -20,7 +20,7 @@ import sys
 sys.path.append('/Volumes/Samsung_T5/saturnx')
 import saturnx as kr
 from saturnx.core.power import PowerSpectrum
-from saturnx.functions.my_functions import my_rebin as rebin
+from saturnx.utils.my_functions import my_rebin as rebin
 import matplotlib 
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
@@ -106,7 +106,7 @@ class Data:
             norm = 'leahy'
         elif (power.rms_norm is None) and (power.leahy_norm is None):
             norm = None
-        info = power.history
+        info = power.meta_data
 
         return cls(x=x,y=y,yerr=yerr,
                    x_toplot=x, y_toplot=y, yerr_toplot=yerr,
@@ -211,7 +211,7 @@ class FitApp(tk.Tk):
 class PlotWindow2:
     def __init__(self,parent, controller):
         self.parent = parent
-        self.controller = controller
+        self._controller = controller
 
         self.plot_frame = tk.Frame(self.parent,width=1000,height=500)
         self.plot_frame.grid(column=0,row=1,padx=5,pady=5,sticky='NSEW')
@@ -249,47 +249,47 @@ class PlotWindow2:
 
     def _rebin_data(self):
         rebin_factor = int(self.e1.get())  
-        self.controller.data.rebin(rebin_factor=rebin_factor)    
+        self._controller.data.rebin(rebin_factor=rebin_factor)    
         self._reset_plot()
         # To avoid change of axis boundaries, I stored the initial
         # boundaries to use later on
-        self.controller.ylim1 = ax11.set_ylim()
-        self.controller.ylim2 = ax12.set_ylim()
-        self.controller.xlim1 = ax11.set_xlim()
-        self.controller.xlim2 = ax12.set_xlim()       
+        self._controller.ylim1 = ax11.set_ylim()
+        self._controller.ylim2 = ax12.set_ylim()
+        self._controller.xlim1 = ax11.set_xlim()
+        self._controller.xlim2 = ax12.set_xlim()       
 
 
     def _load_data(self):
-        #filename = filedialog.askopenfilename(initialdir=os.getcwd(),
-        #title = 'Select a power spectrum')
-        filename = '/Volumes/Transcend/NICER/Cyg_X1/analysis/0100320101/power_E0.5_10.0_T0.0001220703125_128.0.pkl'
-        self.controller.dir = os.path.dirname(filename)
-        self.controller.data = Data.load(filename)
+        filename = filedialog.askopenfilename(initialdir='/Volumes/BigBoy/NICER_data/MAXI_J1820+070/analysis/qpoCB_transition',
+        title = 'Select a power spectrum')
+        #filename = '/Volumes/Transcend/NICER/Cyg_X1/analysis/0100320101/power_E0.5_10.0_T0.0001220703125_128.0.pkl'
+        self._controller.dir = os.path.dirname(filename)
+        self._controller.data = Data.load(filename)
         self._reset_plot()
 
     def _reset_data(self):
-        self.controller.data.reset()
+        self._controller.data.reset()
         self._reset_plot()
 
 
     def _reset_plot(self):
-        self.controller.data.plot_power()
-        self.controller.plot_window.canvas1.draw()
+        self._controller.data.plot_power()
+        self._controller.plot_window.canvas1.draw()
 
     def _start_fit(self):
         print('start')
-        self.controller._new_window(FitWindow)
+        self._controller._new_window(FitWindow)
 
     def _fix_axis(self):
-        ax11.set_ylim(self.controller.ylim1)
-        ax11.set_xlim(self.controller.xlim1)
-        ax12.set_ylim(self.controller.ylim2)
-        ax12.set_xlim(self.controller.xlim2)
+        ax11.set_ylim(self._controller.ylim1)
+        ax11.set_xlim(self._controller.xlim1)
+        ax12.set_ylim(self._controller.ylim2)
+        ax12.set_xlim(self._controller.xlim2)
 
 class PlotWindow:
     def __init__(self,parent, controller):
         self.parent = parent
-        self.controller = controller
+        self._controller = controller
 
         self.plot_frame = tk.Frame(self.parent,width=1000,height=500)
         self.plot_frame.grid(column=0,row=1,padx=5,pady=5,sticky='NSEW')
@@ -300,14 +300,14 @@ class PlotWindow:
         self.canvas1.get_tk_widget().grid(column=0,row=0,sticky='NSWE')
 
     def _fix_axis(self):
-        ax11.set_ylim(self.controller.ylim1)
-        ax11.set_xlim(self.controller.xlim1)
-        ax12.set_ylim(self.controller.ylim2)
-        ax12.set_xlim(self.controller.xlim2)
+        ax11.set_ylim(self._controller.ylim1)
+        ax11.set_xlim(self._controller.xlim1)
+        ax12.set_ylim(self._controller.ylim2)
+        ax12.set_xlim(self._controller.xlim2)
 
 class ToolWindow:
     def __init__(self,parent,controller):
-        self.controller = controller
+        self._controller = controller
         self.parent = parent
 
         self.frame = tk.Frame(self.parent,height=35)
@@ -338,51 +338,52 @@ class ToolWindow:
 
     def _rebin_data(self):
         rebin_factor = int(self.e1.get())  
-        self.controller.data.rebin(rebin_factor=rebin_factor)    
+        self._controller.data.rebin(rebin_factor=rebin_factor)    
         self._reset_plot()
         # To avoid change of axis boundaries, I stored the initial
         # boundaries to use later on
-        self.controller.ylim1 = ax11.set_ylim()
-        self.controller.ylim2 = ax12.set_ylim()
-        self.controller.xlim1 = ax11.set_xlim()
-        self.controller.xlim2 = ax12.set_xlim()       
+        self._controller.ylim1 = ax11.set_ylim()
+        self._controller.ylim2 = ax12.set_ylim()
+        self._controller.xlim1 = ax11.set_xlim()
+        self._controller.xlim2 = ax12.set_xlim()       
 
 
     def _load_data(self):
         filename = filedialog.askopenfilename(initialdir=os.getcwd(),
         title = 'Select a power spectrum')
-        self.controller.data = Data.load(filename)
+        self._controller.data = Data.load(filename)
         self._reset_plot()
 
     def _reset_data(self):
-        self.controller.data.reset()
+        self._controller.data.reset()
         self._reset_plot()
 
 
     def _reset_plot(self):
-        self.controller.data.plot_power()
-        self.controller.plot_window.canvas1.draw()
+        self._controller.data.plot_power()
+        self._controller.plot_window.canvas1.draw()
 
     def _start_fit(self):
         print('start')
-        self.controller._new_window(FitWindow)
+        self._controller._new_window(FitWindow)
 
 
 
 class FitWindow:
     def __init__(self,parent,controller):
-        self.controller = controller
+        self._controller = controller
         self.parent = parent
         self.parent.title = 'Fit window'
 
 
         self.index = 1
-        self.controller.first_fit = True
+        self._controller.first_fit = True
         self.func_list = {'lorentzian':lorentzian}
 
         self.frame = tk.Frame(self.parent)
         self.frame.grid(column=0,row=0,padx=5,pady=5)
 
+        self._plot_connected = False
         self._setFrames()
 
 
@@ -390,12 +391,12 @@ class FitWindow:
 
         width = 200
 
-        # This is to desplay frequency bounday boxes
+        # Frequency bounday boxes
         self.freqFrame = ttk.LabelFrame(self.frame,text='Frequency boundaries',width=width,height=50)
         self.freqFrame.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
         self._setFreqRange()
 
-        # This is to deslapy fitting functions options and drawing them on the plot
+        # Fitting functions options and drawing buttons
         self.fitFuncFrame = ttk.LabelFrame(self.frame,text='Fitting functions',width=width)
         self.fitFuncFrame.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
         self._setFittingFuncsI()
@@ -439,27 +440,27 @@ class FitWindow:
             item = items[index]
             key = int(item.split(')')[0].split('L')[1])
             par_name = item.split('=')[0].strip().split(')')[1].strip()
-            pars = self.controller.fit_funcs[key]['par_name']
+            pars = self._controller.fit_funcs[key]['par_name']
 
             for i in range(len(pars)):
-                if par_name == self.controller.fit_funcs[key]['par_name'][i]:
+                if par_name == self._controller.fit_funcs[key]['par_name'][i]:
 
                     if self.par_val.get() == '':
-                        par_val = self.controller.fit_funcs[key]['par_value'][i]
+                        par_val = self._controller.fit_funcs[key]['par_value'][i]
                     else:
                         par_val = float(self.par_val.get())
 
-                    self.controller.fit_funcs[key]['par_value'][i] = par_val  
+                    self._controller.fit_funcs[key]['par_value'][i] = par_val  
                     if freeze:
-                        self.controller.fit_funcs[key]['par_status'][i] = False
+                        self._controller.fit_funcs[key]['par_status'][i] = False
                     else:
-                        self.controller.fit_funcs[key]['par_status'][i] = True
+                        self._controller.fit_funcs[key]['par_status'][i] = True
         self._print_par_value()
         self._plot_func()
 
     def _print_par_value(self):
         self.listboxII.delete(0,tk.END)
-        for key,value in self.controller.fit_funcs.items():
+        for key,value in self._controller.fit_funcs.items():
             if 'plots' in value.keys():
                 n_pars = len(value['par_value'])
                 for i in range(n_pars):
@@ -531,20 +532,20 @@ class FitWindow:
     def _clear(self):
         self.listbox.delete(0,tk.END)
         self.listboxII.delete(0,tk.END)
-        self.controller.fit_info_box.delete(0,tk.END)
+        self._controller.fit_info_box.delete(0,tk.END)
         
-        self.controller.first_fit = True
+        self._controller.first_fit = True
         self.index = 1
         self.fit_funcs = {}
         self.fit_func = {}
 
-        self.controller.data.plot_power()
-        self.controller.plot_window.canvas1.draw()
+        self._controller.data.plot_power()
+        self._controller.plot_window.canvas1.draw()
 
 
     def _save(self):
         name = 'fit'
-        save_modelresult(self.controller.fit_result,'{}/{}.sav'.format(self.controller.dir,name))
+        save_modelresult(self._controller.fit_result,'{}/{}.sav'.format(self._controller.dir,name))
 
 
 
@@ -559,13 +560,13 @@ class FitWindow:
 
     def _clickAdd(self):
         col = random_color(n=self.index,hex=True)
-        self.controller.fit_funcs[self.index] = {'name':self.funcs.get(),'color':col}
+        self._controller.fit_funcs[self.index] = {'name':self.funcs.get(),'color':col}
         self.listbox.insert(tk.END,str(self.index)+') '+self.funcs.get())
         self.listbox.itemconfig(self.index-1,{'fg':col})
         self.index += 1
         self._hold_func()
 
-        for key,value in self.controller.fit_funcs.items():
+        for key,value in self._controller.fit_funcs.items():
             print(key,value)
         print('-'*80)
 
@@ -576,22 +577,22 @@ class FitWindow:
         # every time you remove an item
         for index in sel[::-1]:
             self.listbox.delete(index) 
-            if 'plots' in self.controller.fit_funcs[index+1].keys():
-                ax11.lines.remove(self.controller.fit_funcs[index+1]['plots'][0])
-                ax12.lines.remove(self.controller.fit_funcs[index+1]['plots'][1])
-            del self.controller.fit_funcs[index+1]
+            if 'plots' in self._controller.fit_funcs[index+1].keys():
+                ax11.lines.remove(self._controller.fit_funcs[index+1]['plots'][0])
+                ax12.lines.remove(self._controller.fit_funcs[index+1]['plots'][1])
+            del self._controller.fit_funcs[index+1]
         items = self.listbox.get(0,tk.END)
         if len(items) != 0:
             self._reset_index()
             self._plot_func()
         else:
-            self.controller.data.plot_power()
-            self.controller.plot_window.canvas1.draw()
+            self._controller.data.plot_power()
+            self._controller.plot_window.canvas1.draw()
 
         self._print_par_value()
         self._hold_func()
 
-        for key,value in self.controller.fit_funcs.items():
+        for key,value in self._controller.fit_funcs.items():
             print(key,value)
         print('-'*80)
 
@@ -603,15 +604,15 @@ class FitWindow:
             item = items[i]
             old_items += [item.split(')')[1].strip()]
             old_index = int(item.split(')')[0].strip())
-            old_func_info += [self.controller.fit_funcs[old_index]]
+            old_func_info += [self._controller.fit_funcs[old_index]]
         
         self.listbox.delete(0,tk.END)
-        self.controller.fit_funcs = {}
+        self._controller.fit_funcs = {}
         
         for i in range(len(items)):
             self.listbox.insert(tk.END,str(i+1)+') '+old_items[i])
             self.listbox.itemconfig(i,{'fg':old_func_info[i]['color']})
-            self.controller.fit_funcs[i+1] = old_func_info[i]
+            self._controller.fit_funcs[i+1] = old_func_info[i]
 
         self.index = len(items) + 1
 
@@ -619,21 +620,23 @@ class FitWindow:
         self.parent.destroy()
 
     def _draw_func(self):
+        self._plot_connected = True
         self._sel_index = int(self.listbox.curselection()[0])
         self._connect()
 
     def _hold_func(self):
+        self._plot_connected = False
         self._disconnect()
 
         
     def _plot_func(self,reset=False):
 
-        x = self.controller.data.x_toplot
+        x = self._controller.data.x_toplot
         if not x is None:
             counter = 0
             sum1 = np.zeros(len(x))
             sum2 = np.zeros(len(x))
-            for key,value in self.controller.fit_funcs.items():
+            for key,value in self._controller.fit_funcs.items():
                 if 'par_value' in value.keys():
 
                     if 'plots' in value.keys():
@@ -646,19 +649,19 @@ class FitWindow:
                     y = func(x,*pars)
                     lor1, = ax11.plot(x,y*x,'--',color = col)
                     lor2, = ax12.plot(x,y,'--',color = col)
-                    self.controller.fit_funcs[key]['plots'] = [lor1,lor2]
+                    self._controller.fit_funcs[key]['plots'] = [lor1,lor2]
                     sum1 += y*x
                     sum2 += y
                     counter +=1
-            if 'plot' in self.controller.fit_func.keys():
-                ax11.lines.remove(self.controller.fit_func['plot'][0])
-                ax12.lines.remove(self.controller.fit_func['plot'][1])           
+            if 'plot' in self._controller.fit_func.keys():
+                ax11.lines.remove(self._controller.fit_func['plot'][0])
+                ax12.lines.remove(self._controller.fit_func['plot'][1])           
             if counter > 1:
                 all1, = ax11.plot(x,sum1,'r-')
                 all2, = ax12.plot(x,sum2,'r-')
-                self.controller.fit_func['plot'] = [all1,all2]
-            self.controller.plot_window._fix_axis()
-            self.controller.plot_window.canvas1.draw()
+                self._controller.fit_func['plot'] = [all1,all2]
+            self._controller.plot_window._fix_axis()
+            self._controller.plot_window.canvas1.draw()
             self._print_par_value()
 
     def _connect(self):
@@ -666,11 +669,13 @@ class FitWindow:
         self.cidscroll = self._controller.plot_window.canvas1.mpl_connect('scroll_event',self.on_roll)
 
     def _disconnect(self):
-        self.controller.plot_window.canvas1.mpl_disconnect(self.cidclick)
-        self.controller.plot_window.canvas1.mpl_disconnect(self.cidscroll)
+        if self._plot_connected:
+            self._controller.plot_window.canvas1.mpl_disconnect(self.cidclick)
+            self._controller.plot_window.canvas1.mpl_disconnect(self.cidscroll)
 
     def _on_click(self,event):
         if not event.dblclick:
+            print('clicking')
             # Left click or right lick
             if event.button == 1 or event.button == 3:
                 # Position of the cursor
@@ -681,15 +686,15 @@ class FitWindow:
                     self.draw.deselect()
                 else:
 
-                    if not 'par_value' in self.controller.fit_funcs[self.sel_index+1].keys():
+                    if not 'par_value' in self._controller.fit_funcs[self._sel_index+1].keys():
                         q = 10
                     else:
-                        q = self.controller.fit_funcs[self.sel_index+1]['par_value'][1]
-                    self.controller.fit_funcs[self.sel_index+1]['par_value'] = \
+                        q = self._controller.fit_funcs[self._sel_index+1]['par_value'][1]
+                    self._controller.fit_funcs[self._sel_index+1]['par_value'] = \
                         [self.ypos/self.xpos,q,self.xpos]
-                    self.controller.fit_funcs[self.sel_index+1]['par_status'] = \
+                    self._controller.fit_funcs[self._sel_index+1]['par_status'] = \
                         [True,True,True]    
-                    self.controller.fit_funcs[self.sel_index+1]['par_name'] = \
+                    self._controller.fit_funcs[self._sel_index+1]['par_name'] = \
                         ['amp','q','freq']                                       
                     self._plot_func()
 
@@ -698,7 +703,7 @@ class FitWindow:
                 self.draw.deselect()
 
     def on_roll(self,event):
-        q = self.controller.fit_funcs[self.sel_index+1]['par_value'][1]
+        q = self._controller.fit_funcs[self._sel_index+1]['par_value'][1]
         if q > 1:
             step = 1
         else:
@@ -706,70 +711,70 @@ class FitWindow:
         if event.button == 'up':
             q -= step
             if q <= 0: q = 0.
-            self.controller.fit_funcs[self.sel_index+1]['par_value'][1] = q
+            self._controller.fit_funcs[self._sel_index+1]['par_value'][1] = q
             self._plot_func()
         elif event.button == 'down':              
             q += step
-            self.controller.fit_funcs[self.sel_index+1]['par_value'][1] = q
+            self._controller.fit_funcs[self._sel_index+1]['par_value'][1] = q
             self._plot_func()
 
               
 
     def _fit_func(self):  
 
-        if self.controller.first_fit:
-            self.controller._new_window(PlotFitWindow)
+        if self._controller.first_fit:
+            self._controller._new_window(PlotFitWindow)
 
         self._hold_func()
 
-        x = self.controller.data.x_toplot
-        y = self.controller.data.y_toplot
-        yerr = self.controller.data.yerr_toplot
+        x = self._controller.data.x_toplot
+        y = self._controller.data.y_toplot
+        yerr = self._controller.data.yerr_toplot
         self.fit_mask = (x>= float(self.startFreq.get())) & (x<= float(self.stopFreq.get()))
         self._build_model()
         #init = self.model.eval(self.fit_pars,x=x[self.fit_mask])
-        self.controller.fit_result = self.model.fit(y[self.fit_mask],self.fit_pars,x=x[self.fit_mask],
+        self._controller.fit_result = self.model.fit(y[self.fit_mask],self.fit_pars,x=x[self.fit_mask],
                                     weights=1./(yerr[self.fit_mask]),mthod='leastsq')
-        #self.comps = self.controller.fit_result.eval_components(x=x[self.fit_mask])
+        #self.comps = self._controller.fit_result.eval_components(x=x[self.fit_mask])
         self._update_fit_funcs()
         self._plot_func()
-        if self.controller.first_fit:
+        if self._controller.first_fit:
             self._plot_fit()
-            self.controller.first_fit = False
+            self._controller.first_fit = False
         else:
             self._update_fit_plot()
         self._update_info()
 
     def _update_fit_funcs(self):
-        for key, value in self.controller.fit_funcs.items():
+        for key, value in self._controller.fit_funcs.items():
             if 'plots' in value.keys():
                 par_names = value['par_name']
                 n_pars = len(par_names)
 
                 for i in range(n_pars):
                     par_name = 'L{}_{}'.format(key,par_names[i])
-                    self.controller.fit_funcs[key]['par_value'][i] = \
-                                self.controller.fit_result.best_values[par_name]
+                    self._controller.fit_funcs[key]['par_value'][i] = \
+                                self._controller.fit_result.best_values[par_name]
 
     def _update_fit_plot(self):
-        x = self.controller.data.x_toplot
-        y = self.controller.data.y_toplot
-        yerr = self.controller.data.yerr_toplot
-        self.line1.set_ydata(self.controller.fit_result.best_fit-y[self.fit_mask])
-        self.line2.set_ydata((self.controller.fit_result.best_fit-y[self.fit_mask])**2/yerr[self.fit_mask]**2/self.controller.fit_result.nfree)    
-        self.controller.canvas2.draw()
+        x = self._controller.data.x_toplot
+        y = self._controller.data.y_toplot
+        yerr = self._controller.data.yerr_toplot
+        self.line1.set_ydata(self._controller.fit_result.best_fit-y[self.fit_mask])
+        self.line2.set_ydata((self._controller.fit_result.best_fit-y[self.fit_mask])**2/yerr[self.fit_mask]**2/self._controller.fit_result.nfree)    
+        self._controller.canvas2.draw()
 
 
     def _plot_fit(self):
-        x = self.controller.data.x_toplot
-        y = self.controller.data.y_toplot
-        yerr = self.controller.data.yerr_toplot
+        x = self._controller.data.x_toplot
+        y = self._controller.data.y_toplot
+        yerr = self._controller.data.yerr_toplot
 
-        self.line1,=ax21.plot(x[self.fit_mask],(self.controller.fit_result.best_fit-y[self.fit_mask]),'-r')
-        self.line2,=ax22.plot(x[self.fit_mask],(self.controller.fit_result.best_fit-y[self.fit_mask])**2/yerr[self.fit_mask]**2/self.controller.fit_result.nfree,'-r')
+        self.line1,=ax21.plot(x[self.fit_mask],(self._controller.fit_result.best_fit-y[self.fit_mask]),'-r')
+        self.line2,=ax22.plot(x[self.fit_mask],(self._controller.fit_result.best_fit-y[self.fit_mask])**2/yerr[self.fit_mask]**2/self._controller.fit_result.nfree,'-r')
 
         # Residuals
-        max = np.max(abs(self.controller.fit_result.best_fit-y[self.fit_mask]))
+        max = np.max(abs(self._controller.fit_result.best_fit-y[self.fit_mask]))
         #ax.plot(x[fit_mask],result.best_fit-y,'r')
         ax21.set_xscale('log')
         ax21.set_ylim([-max-max/3,max+max/3])
@@ -777,10 +782,10 @@ class FitWindow:
         ax21.set_xlabel('Frequency [ Hz]')
         ax21.set_ylabel('Residuals [model-data]')
         ax21.set_title('').set_visible(False)
-        ax21.set_xlim(self.controller.xlim1)
+        ax21.set_xlim(self._controller.xlim1)
 
         ax21bis = ax21.twinx()
-        ax21bis.set_ylim(self.controller.ylim1)
+        ax21bis.set_ylim(self._controller.ylim1)
         ax21bis.errorbar(x,x*y,x*yerr,alpha=0.3,fmt='-k')
         ax21bis.tick_params(axis='both',which='both',length=0)
         ax21bis.set_yscale('log')  
@@ -794,23 +799,23 @@ class FitWindow:
         ax22.set_xlabel('Frequency [ Hz]')
         ax22.grid()
         ax22.set_title('').set_visible(False)
-        ax22.set_xlim(self.controller.xlim2)
+        ax22.set_xlim(self._controller.xlim2)
         ax22.yaxis.set_label_position('right')
         ax22.yaxis.tick_right()
 
         ax22bis = ax22.twinx()
-        ax22bis.set_ylim(self.controller.ylim1)
+        ax22bis.set_ylim(self._controller.ylim1)
         ax22bis.errorbar(x,x*y,x*yerr,alpha=0.3,fmt='-k')
         ax22bis.tick_params(axis='both',which='both',length=0)
         ax22bis.set_yscale('log')  
         ax22bis.set_yticklabels([])     
  
 
-        if self.controller.first_fit: self.controller.canvas2.draw()
+        if self._controller.first_fit: self._controller.canvas2.draw()
 
     def _build_model(self):
         first = True
-        for key, value in self.controller.fit_funcs.items():
+        for key, value in self._controller.fit_funcs.items():
             print(key)
             if 'plots' in value.keys():
                 par_names = value['par_name']
@@ -836,36 +841,36 @@ class FitWindow:
                     self.fit_pars['L{}_{}'.format(key,par_label[i])].set(value=par_val,vary=status,min=0)
 
     def _update_info(self):
-        self.controller.report = lmfit.fit_report(self.controller.fit_result).split('\n')
-        for line in self.controller.report:
-            self.controller.fit_info_box.insert(tk.END,line)
-        if not self.controller.first_fit:
-            self.controller.fit_info_box.insert(tk.END,'='*70+'\n')
+        self._controller.report = lmfit.fit_report(self._controller.fit_result).split('\n')
+        for line in self._controller.report:
+            self._controller.fit_info_box.insert(tk.END,line)
+        if not self._controller.first_fit:
+            self._controller.fit_info_box.insert(tk.END,'='*70+'\n')
 
 class PlotFitWindow:
     def __init__(self,parent,controller):
-        self.controller = controller
+        self._controller = controller
         self.parent = parent
 
         plot_frame = tk.Frame(self.parent,width=1000,height=500)
         plot_frame.grid(column=0,row=0,padx=5,pady=5,sticky='NSEW')
         plot_frame.tkraise()
 
-        self.controller.canvas2 = FigureCanvasTkAgg(fig2,master = plot_frame)
-        self.controller.canvas2.draw()
-        self.controller.canvas2.get_tk_widget().grid(column=0,row=0,sticky='NSWE')
+        self._controller.canvas2 = FigureCanvasTkAgg(fig2,master = plot_frame)
+        self._controller.canvas2.draw()
+        self._controller.canvas2.get_tk_widget().grid(column=0,row=0,sticky='NSWE')
 
         info_frame = tk.Frame(self.parent,width=1000,height=250)
         info_frame.grid(column=0,row=1,padx=5,pady=5,sticky='NSEW')
 
-        self.controller.fit_info_box = tk.Listbox(self.parent, selectmode='multiple')
-        self.controller.fit_info_box.grid(column=0,row=1,padx=5,pady=5,sticky='nsew')
+        self._controller.fit_info_box = tk.Listbox(self.parent, selectmode='multiple')
+        self._controller.fit_info_box.grid(column=0,row=1,padx=5,pady=5,sticky='nsew')
 
 
 
 class DataInfoWindow:
     def __init__(self,parent,controller):
-        self.controller = controller
+        self._controller = controller
         self.parent = parent
 
 

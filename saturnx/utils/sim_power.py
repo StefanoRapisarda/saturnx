@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 from scipy.fft import rfftfreq
 
-def sbend_pl(dt=1,nt=1000,freq_array=None,a1=0,a2=1,b=100,f0=1,norm=1,dc=100,frac_rms=0.3):
+def sbend_pl(dt=1,nt=1000,freq_array=None,a1=0,a2=1,b=100,f0=1,norm=1,
+    dc=100,frac_rms=0.3,force_freq=False):
     '''
     It returns a (smoothly) bending power law power spectral shape
     given a certain total fractional RMS amplitude and a normalizaion
@@ -80,12 +81,15 @@ def sbend_pl(dt=1,nt=1000,freq_array=None,a1=0,a2=1,b=100,f0=1,norm=1,dc=100,fra
     '''
 
     f = rfftfreq(n=nt,d=dt)
-    if type(freq_array) == list: freq_array = np.array(freq_array)  
-    
+    if type(freq_array) == list: 
+        freq_array = np.array(freq_array)  
+    elif freq_array is None:
+        freq_array = f
+
     xtemp = f/f0
     x = freq_array/f0
 
-    power = x**-a1/( (1.0+x**b)**((a2-a1)/b))
+    power = x**a1 / ( (1.0+x**b)**(-(a2-a1)/b) )
     
     if type(norm) == str:
 
