@@ -1,4 +1,4 @@
-from ..gti import Gti,read_gti,clean_gti
+from saturnx.core.gti import Gti,clean_gti
 import numpy as np 
 import pandas as pd 
 from random import shuffle,random

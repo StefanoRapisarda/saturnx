@@ -331,8 +331,8 @@ class TestLightcurveMul:
             lc2 = lc1*wrong_inputs
 
     @pytest.mark.parametrize('value',
-        [0,1,5,5.5,np.float(5.5),np.double(5.5),np.int(3),'123'],
-        ids=['zero','one','int','float','np_float','np.double','np.int','string'])
+        [0,1,5,5.5,float(5.5),np.double(5.5),int(3),'123'],
+        ids=['zero','one','int','float','float','np.double','int','string'])
     def test_single_value_mul(self,value,fake_white_noise_lc):
         lc1 = fake_white_noise_lc['lc']
         if type(value) == str: value = eval(value)
