@@ -7,13 +7,11 @@ from saturnx.utils.time_series import poi_events
 from saturnx.core import Event,Gti
 
 @pytest.fixture(scope='class')
-def fake_nicer_event(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):
+def fake_nicer_event(tres=0.01,nbins=10000,cr=5,low_ch=50,high_ch=1000):
     events = poi_events(tres=tres,nbins=nbins,cr=cr)
     texp = max(events)-min(events)
     pi = np.random.uniform(low_ch,high_ch,len(events))
-    dets = np.array([
-        all_det[np.random.randint(0,len(all_det))] for i in range(len(events))
-    ])
+    dets = np.random.choice(all_det,size=len(events))
     notes = {}
     notes['STEF1'] = 'This is a test note'
     meta_data = {}

@@ -182,7 +182,7 @@ class TestEventSplit:
             assert max(split_event[i].time) <= stop
 
             assert split_event[i].meta_data['MISSION'] == 'NICER'
-            assert split_event[i].meta_data['GTI_IND'] == i
+            assert split_event[i].meta_data['GTI_INDEX'] == i
             assert split_event[i].meta_data['N_GTIS'] == len(fake_gti)
             assert 'SPLITTING_GTI' in split_event[i].meta_data.keys()
             assert split_event[i].notes == fake_nicer_event['event'].notes
@@ -198,8 +198,9 @@ class TestEventSplit:
             event_list = fake_nicer_event['event'].split(right_input) 
 
     def test_seg_output(self,fake_nicer_event):
+        event_duration = fake_nicer_event['texp']
         time_seg = 12
-        exp_n_segs = 4
+        exp_n_segs = int(event_duration/time_seg)
         split_event = fake_nicer_event['event'].split(time_seg) 
 
         assert type(split_event) == type(EventList())
@@ -209,7 +210,7 @@ class TestEventSplit:
             assert type(event) == type(Event())
             assert event.meta_data['MISSION'] == 'NICER'
             assert event.texp <= time_seg
-            assert event.meta_data['SEG_IND'] == i
+            assert event.meta_data['SEG_INDEX'] == i
             assert event.meta_data['N_SEGS'] == exp_n_segs
             assert 'SPLITTING_SEG' in event.meta_data.keys()
             assert event.notes == fake_nicer_event['event'].notes

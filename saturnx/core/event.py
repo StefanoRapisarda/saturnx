@@ -1,4 +1,5 @@
 import os
+import pathlib
 import pandas as pd
 import numpy as np
 
@@ -236,6 +237,8 @@ class Event(pd.DataFrame):
             power spectra)
         '''
         
+        if type(file_name) == str: file_name = pathlib.Path(file_name)
+
         # Checking file existance and size
         try:
             if os.stat(file_name).st_size == 0:
