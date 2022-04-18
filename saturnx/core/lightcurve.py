@@ -13,7 +13,7 @@ from saturnx.core.gti import Gti
 from saturnx.core.event import Event, EventList
 from saturnx.utils.time_series import my_rebin, rebin_arrays
 from saturnx.utils.fits import read_fits_keys, get_basic_info
-from saturnx.utils.generic import is_number, my_cdate
+from saturnx.utils.generic import is_number, my_cdate, round_half_up
 
 class Lightcurve(pd.DataFrame):
     '''
@@ -411,6 +411,7 @@ class Lightcurve(pd.DataFrame):
             # !!! Time intervals must be contigous to use this!!! 
             time_array = np.split(self.time.to_numpy(),indices)[:-1]
             count_array = np.split(self.counts.to_numpy(),indices)[:-1]
+
             lcs = []
             for seg_index,(time,counts) in enumerate(zip(time_array,count_array)):
                 seg_meta_data = meta_data.copy()
@@ -926,9 +927,9 @@ class Lightcurve(pd.DataFrame):
         if self.time.iloc[0] is None: return None
         # Computing tres if not specified
         if len(self.time) > 1:
-            #return self.time.iloc[2]-self.time.iloc[1]
+            #tres = self.time.iloc[2]-self.time.iloc[1]
             tres = np.median(np.ediff1d(self.time))
-            return tres
+            return round_half_up(tres,12)
         elif len(self.time) == 0:
             return None
         else:

@@ -7,6 +7,8 @@ import numpy as np
 import multiprocessing as mp
 from functools import partial
 
+import math
+
 import scipy.fftpack as fftpack
 from scipy import signal
 
@@ -16,6 +18,13 @@ from ..utils import my_classes as mc
 
 import matplotlib
 import matplotlib.pyplot as plt
+
+def round_half_up(n, decimals=0):
+    '''
+    From https://realpython.com/python-rounding/
+    '''
+    multiplier = 10 ** decimals
+    return math.floor(n*multiplier + 0.5) / multiplier
 
 def list_items(path=pathlib.Path.cwd(),itype = 'dir',ext = '',prefix='',
                 include_or=[],include_and=[],exclude_or=[],exclude_and=[],

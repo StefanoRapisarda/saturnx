@@ -3,9 +3,17 @@ from datetime import datetime
 
 import re
 import pathlib
+import math
 
 import matplotlib
 import matplotlib.pyplot as plt
+
+def round_half_up(n, decimals=0):
+    '''
+    From https://realpython.com/python-rounding/
+    '''
+    multiplier = 10 ** decimals
+    return math.floor(n*multiplier + 0.5) / multiplier
 
 def str_title(title,total_characters=72,symbol='*'):
     '''
