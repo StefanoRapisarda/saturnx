@@ -37,7 +37,7 @@ def fake_nicer_event(tres=0.01,nbins=10000,cr=5,low_ch=50,high_ch=1000):
     return data
 
 @pytest.fixture(scope='class')
-def fake_white_noise_lc(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):
+def fake_white_noise_lc(tres=0.01,nbins=5000,cr=5,low_en=0.5,high_en=10):
     events = poi_events(tres=tres,nbins=nbins,cr=cr)
     time_bin_edges = np.linspace(0,nbins*tres,nbins+1,dtype=np.double)
     time_bins_center = np.linspace(0+tres/2.,nbins*tres-tres/2.,nbins,dtype=np.double)
@@ -46,9 +46,8 @@ def fake_white_noise_lc(tres=0.01,nbins=5000,cr=5,low_ch=50,high_ch=1000):
     notes['STEF1'] = 'This is a test note'    
     meta_data = {}
     meta_data['MISSION'] = 'NICER'
-    low_en, high_en = 0.5,10
     lc = Lightcurve(time_array = time_bins_center,count_array = hist,
-                    low_en=0.5,high_en=10,
+                    low_en=low_en,high_en=high_en,
                     notes=notes, meta_data = meta_data)
     data = {'lc':lc,'std':np.std(hist),'n_events':len(events),
             'n_bins':len(time_bins_center),
