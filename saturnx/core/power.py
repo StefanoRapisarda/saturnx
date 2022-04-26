@@ -19,7 +19,7 @@ from astropy.io.fits import getdata, getval
 from saturnx.core.lightcurve import Lightcurve, LightcurveList
 from saturnx.utils.time_series import rebin_xy, rebin_arrays
 from saturnx.utils.fits import read_fits_keys, get_basic_info
-from saturnx.utils.generic import is_number, my_cdate
+from saturnx.utils.generic import is_number, my_cdate, round_half_up
 
 
 
@@ -75,23 +75,23 @@ class PowerSpectrum(pd.DataFrame):
         self.meta_data['PW_CRE_DATE'] = my_cdate()
         
     @property
-    def df(self):
+    def fres(self):
         if len(self.freq) == 0: return None
-        df = np.median(np.ediff1d(self.freq[self.freq>0]))
-        df = np.round(df,abs(int(math.log10(df/1000))))
-        return df
+        fres = np.median(np.ediff1d(self.freq[self.freq>0]))
+        # fres = np.round(fres,abs(int(math.log10(fres/1000))))
+        return round_half_up(fres,12)
 
     @property
-    def nf(self):
+    def nyqf(self):
         if len(self.freq) == 0: return None
         if np.all(self.freq >= 0):
             if len(self)%2==0:
-                nf = (len(self)-1)*self.df
+                nyq = (len(self)-1)*self.fres
             else: 
-                nf = len(self)*self.df
+                nyq = len(self)*self.fres
         else:
-            nf = len(self)*self.df/2.
-        return nf
+            nyq = len(self)*self.fres/2.
+        return nyq
 
     @property
     def a0(self):
@@ -115,7 +115,7 @@ class PowerSpectrum(pd.DataFrame):
     @property
     def cr(self):
         if not self.a0 is None:
-            return self.a0*self.df
+            return self.a0*self.fres
         else: return None
 
     def __mul__(self,value):
@@ -188,7 +188,7 @@ class PowerSpectrum(pd.DataFrame):
         if type(low_freq) == str: low_freq = eval(low_freq)
         if type(high_freq) == str: high_freq = eval(high_freq)
         if low_freq < 0: low_freq = 0
-        if high_freq > self.nf: high_freq = self.nf 
+        if high_freq > self.nyq: high_freq = self.nyq 
         if low_freq > high_freq:
             raise ValueError('low_freq must be lower than high_freq')
 
@@ -196,14 +196,14 @@ class PowerSpectrum(pd.DataFrame):
         if pos_only:
             mask = mask & (self.power>0)
         nyq_power = np.double(self.power[self.freq == min(self.freq)])
-        if len(self)%2 != 0 or high_freq < self.nf: nyq_power = 0
+        if len(self)%2 != 0 or high_freq < self.nyq: nyq_power = 0
 
         if (self.leahy_norm is None) and (self.rms_norm is None):
             rms2 = (2*np.sum(self.power[mask]) + nyq_power)/self.a0**2
         elif self.rms_norm is None:
             rms2 = (np.sum(self.power[mask]) + nyq_power/2)/self.a0
         else:
-            rms2 = (np.sum(self.power[mask]) + nyq_power/2) * self.df
+            rms2 = (np.sum(self.power[mask]) + nyq_power/2) * self.fres
 
         rms = np.sqrt(rms2)
 
@@ -214,7 +214,7 @@ class PowerSpectrum(pd.DataFrame):
             elif self.rms_norm is None:
                 srms2_term2 = np.sum(self.spower[mask]**2)/self.a0**2
             else:
-                srms2_term2 = np.sum(self.spower[mask]**2) * self.df**2           
+                srms2_term2 = np.sum(self.spower[mask]**2) * self.fres**2           
             
             srms2 = srms2_term1 * srms2_term2
             srms = np.sqrt(srms2)
@@ -251,8 +251,8 @@ class PowerSpectrum(pd.DataFrame):
 
         if value is None:
             if low_freq < 0: low_freq = 0
-            if low_freq > self.nf: low_freq = self.nf
-            if high_freq > self.nf: high_freq = self.nf
+            if low_freq > self.nyq: low_freq = self.nyq
+            if high_freq > self.nyq: high_freq = self.nyq
             if low_freq > high_freq:
                 raise ValueError('low_freq must be lower than high_freq')
             mask = (self.freq>=low_freq) & (self.freq<high_freq) * (self.freq>0)
@@ -803,7 +803,7 @@ class PowerList(list):
         object in the list
         '''
 
-        columns = ['df','nf','n_bins','a0','count_rate',
+        columns = ['fres','nyq','n_bins','a0','count_rate',
                     'frac_rms','frac_rms_err',
                     'leahy_norm','rms_norm','weight',
                     'min_en','max_en','mission']
@@ -813,7 +813,7 @@ class PowerList(list):
                 poi_level = 'array'
             else:
                 poi_level = pw.poi_level
-            line = {'df':pw.df,'nf':pw.nf,'n_bins':len(pw),
+            line = {'fres':pw.fres,'nyq':pw.nyq,'n_bins':len(pw),
                 'a0':pw.a0,'count_rate':pw.cr,
                 'leahy_norm':pw.leahy_norm,'rms_norm':pw.rms_norm,
                 'weight':pw.weight,'poi_level':poi_level,

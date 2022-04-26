@@ -12,3 +12,5 @@ from . import lightcurve
 from .lightcurve import Lightcurve, LightcurveList
 from . import power
 from .power import PowerList, PowerSpectrum
+from . import cross
+from .cross import CrossSpectrum
