@@ -22,8 +22,7 @@ class TestEmptyCrossSpectrum:
         cross = CrossSpectrum()
 
         assert cross.weight == 1
-        assert cross.low_en == None
-        assert cross.high_en == None
+        assert cross.en_range == []
         assert cross.leahy_norm == None
         assert cross.rms_norm == None
         assert cross.poi_level == None
@@ -53,3 +52,12 @@ class TestEmptyCrossSpectrum:
         freqs = np.linspace(0,10,1000)
 
         cross = CrossSpectrum(freq_array=freqs)
+
+class TestEnergyInitialization:
+
+    @pytest.mark.parametrize('en_range',[[2],[3,2],['2'],['3','2']])
+    def test_wrong_energy_range_without_high_energy(self,en_range):
+        with pytest.raises(ValueError):
+            cross = CrossSpectrum(en_range=en_range)
+
+        

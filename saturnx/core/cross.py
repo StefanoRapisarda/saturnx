@@ -6,13 +6,13 @@ from saturnx.utils.generic import my_cdate, round_half_up
 class CrossSpectrum(pd.DataFrame):
 
     _metadata = [
-        '_weight','_high_en','_low_en',
+        'weight','en_range',
         'leahy_norm','rms_norm','poi_level',
         'meta_data']
 
     def __init__(
         self,freq_array=np.array([]),cross_array=None,scross_array=None,
-        weight=1,low_en=None,high_en=None,
+        weight=1,en_range=[],
         leahy_norm=None,rms_norm=None,poi_level=None,
         smart_index=True,
         meta_data=None
@@ -40,14 +40,7 @@ class CrossSpectrum(pd.DataFrame):
         self.poi_level = poi_level
 
         self.weight = weight
-
-        # Initializaing energy range
-
-        if not low_en is None and type(high_en) == str: 
-            high_en = eval(high_en)
-        if not low_en is None and low_en < 0: low_en = 0
-        self._low_en = low_en
-        self._high_en = high_en
+        self.en_range = en_range
 
         # Initializing meta data
         if meta_data is None:
@@ -92,12 +85,19 @@ class CrossSpectrum(pd.DataFrame):
         self._weight = weight_value
 
     @property
-    def low_en(self):
-        return self._low_en
+    def en_range(self):
+        return self._en_range
 
-    @low_en.setter
-    def low_en(self,low_en_value):
-        self._low_en = low_en_value
+    @en_range.setter
+    def en_range(self,en_range):
+        if en_range:
+            if len(en_range) != 2:
+                raise ValueError('energy range must contain low and high energy')
+            if type(en_range[0]) == str: en_range[0] = eval(en_range[0])
+            if type(en_range[1]) == str: en_range[1] = eval(en_range[1])
+            if en_range[0] > en_range[1]:
+                raise ValueError('high energy must be higher than low energy')
+        self._en_range = en_range
         
     @property
     def high_en(self):
@@ -105,28 +105,9 @@ class CrossSpectrum(pd.DataFrame):
 
     @high_en.setter
     def high_en(self,high_en_value):
+        if (not high_en_value is None) and type(high_en_value) == str:
+            high_en_value = eval(high_en_value)
+        if (not self.low_en is None) and (high_en_value < self.low_en):
+            raise ValueError('high_en must be higher than low_en')
         self._high_en = high_en_value 
 
-    @property
-    def leahy_norm(self):
-        return self._leahy_norm 
-
-    @leahy_norm.setter
-    def leahy_norm(self,value):
-        self._leahy_norm = value
-
-    @property
-    def rms_norm(self):
-        return self._rms_norm
-
-    @rms_norm.setter
-    def rms_norm(self,value) :
-        self._rms_norm = value
-
-    @property    
-    def poi_level(self):
-        return self._poi_level
-
-    @poi_level.setter
-    def poi_level(self,value):
-        self._poi_level = value 
