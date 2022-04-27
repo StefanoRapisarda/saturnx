@@ -1,6 +1,6 @@
 import numpy as np
+import pytest
 
-from mock import mocker
 from saturnx.core.cross import CrossSpectrum
 
 class TestEmptyCrossSpectrum:
@@ -40,7 +40,14 @@ class TestEmptyCrossSpectrum:
         # meta_data is supposed to contain only HISTORY and NOTES
         assert len(cross.meta_data) == 2
         assert cross.meta_data['HISTORY']['PW_CRE_DATE'] == 'test_current_date'
-        assert cross.meta_data['NOTES'] == {}      
+        assert cross.meta_data['NOTES'] == {}  
+
+    @pytest.mark.parametrize('weight',[-3,3.2,-3.2,'-3','3.2','-3.2','ciao'])
+    def test_empty_cross_wrong_weight_setter(self,weight):
+        message = 'weight must be a positive integer'
+        with pytest.raises(ValueError) as e_info:
+            cross = CrossSpectrum(weight=weight)
+        assert str(e_info.value) == message
 
     def test_empty_cross_with_freq(self):
         freqs = np.linspace(0,10,1000)
