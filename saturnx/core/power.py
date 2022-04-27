@@ -47,7 +47,10 @@ class PowerSpectrum(pd.DataFrame):
                                               [i for i in range(int(-(n-1)/2),0)]))                
             if smart_index:
                 super().__init__(column_dict,index=index_array)
-        super().__init__(column_dict)
+            else:
+                super().__init__(column_dict)
+        else:
+            super().__init__(column_dict)
 
         self._weight = weight
 

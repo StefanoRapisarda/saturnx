@@ -12,17 +12,17 @@ import lmfit
 from lmfit import Model,Parameters
 from lmfit.model import save_modelresult,load_modelresult
 
-from astropy.modeling import models, fitting
-from saba import SherpaFitter
-from astropy.modeling.fitting import SherpaFitter
+#from astropy.modeling import models, fitting
+#from saba import SherpaFitter
+#from astropy.modeling.fitting import SherpaFitter
 
-from sherpa.data import Data1D
-from sherpa.stats import LeastSq,Chi2,Chi2DataVar
-from sherpa.optmethods import LevMar,MonCar, GridSearch
-from sherpa.estmethods import Confidence, Covariance
-from sherpa.fit import Fit
-from sherpa.utils import calc_ftest
-from sherpa.models.basic import Gauss1D,PowLaw1D,Const1D
+#from sherpa.data import Data1D
+#from sherpa.stats import LeastSq,Chi2,Chi2DataVar
+#from sherpa.optmethods import LevMar,MonCar, GridSearch
+#from sherpa.estmethods import Confidence, Covariance
+#from sherpa.fit import Fit
+#from sherpa.utils import calc_ftest
+#from sherpa.models.basic import Gauss1D,PowLaw1D,Const1D
 
 import random
 import uuid
@@ -42,14 +42,13 @@ import glob
 from functools import partial
 
 import sys
-sys.path.append('/Volumes/Samsung_T5/saturnx')
-import saturnx
+
 from saturnx.fitting.fitting_functions import lorentzian
 from saturnx.utils.rxte_functions import list_modes
 from saturnx.utils.generic import plt_color
 from saturnx.gui.tabs import FittingTab, TimingTab
-from saturnx.fitting.astropy_custom_models import *
-from saturnx.fitting.sherpa_custom_models import *
+#from saturnx.fitting.astropy_custom_models import *
+#from saturnx.fitting.sherpa_custom_models import *
 from saturnx.utils.pdf import pdf_page
 
 __all__ = ['MakePowerWin','LogWindow','TestButton','RxteModes',

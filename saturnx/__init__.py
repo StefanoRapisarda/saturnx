@@ -10,5 +10,5 @@ from . import scripts
 from .scripts import *
 from . import apps
 from .apps import *
-from . import wavelets
-from .wavelets import *
+#from . import wavelets
+#from .wavelets import *

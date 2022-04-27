@@ -30,7 +30,10 @@ class CrossSpectrum(pd.DataFrame):
                                               [i for i in range(int(-(n-1)/2),0)]))                
             if smart_index:
                 super().__init__(column_dict,index=index_array)
-        super().__init__(column_dict)
+            else:
+                super().__init__(column_dict)
+        else:
+            super().__init__(column_dict)
 
         self._weight = weight
 
@@ -56,9 +59,72 @@ class CrossSpectrum(pd.DataFrame):
             self.meta_data['HISTORY'] = {}
         self.meta_data['HISTORY']['PW_CRE_DATE'] = my_cdate()
 
+        if not 'NOTES' in self.meta_data.keys():
+            self.meta_data['NOTES'] = {}
+
     @property
     def fres(self):
         if len(self.freq) == 0: return None
         fres = np.median(np.ediff1d(self.freq[self.freq>0]))
         #fres = np.round(df,abs(int(math.log10(df/1000))))
         return round_half_up(fres,12)
+
+    @property
+    def nyqf(self):
+        if len(self.freq) == 0: return None
+        if np.all(self.freq >= 0):
+            if len(self)%2==0:
+                nyq = (len(self)-1)*self.fres
+            else: 
+                nyq = len(self)*self.fres
+        else:
+            nyq = len(self)*self.fres/2.
+        return nyq
+
+    @property
+    def weight(self):
+        return self._weight
+
+    @weight.setter
+    def weight(self,weight_value):
+        self._weight = weight_value
+
+    @property
+    def low_en(self):
+        return self._low_en
+
+    @low_en.setter
+    def low_en(self,low_en_value):
+        self._low_en = low_en_value
+        
+    @property
+    def high_en(self):
+        return self._high_en
+
+    @high_en.setter
+    def high_en(self,high_en_value):
+        self._high_en = high_en_value 
+
+    @property
+    def leahy_norm(self):
+        return self._leahy_norm 
+
+    @leahy_norm.setter
+    def leahy_norm(self,value):
+        self._leahy_norm = value
+
+    @property
+    def rms_norm(self):
+        return self._rms_norm
+
+    @rms_norm.setter
+    def rms_norm(self,value) :
+        self._rms_norm = value
+
+    @property    
+    def poi_level(self):
+        return self._poi_level
+
+    @poi_level.setter
+    def poi_level(self,value):
+        self._poi_level = value 
