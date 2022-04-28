@@ -90,24 +90,21 @@ class CrossSpectrum(pd.DataFrame):
 
     @en_range.setter
     def en_range(self,en_range):
-        if en_range:
-            if len(en_range) != 2:
-                raise ValueError('energy range must contain low and high energy')
-            if type(en_range[0]) == str: en_range[0] = eval(en_range[0])
-            if type(en_range[1]) == str: en_range[1] = eval(en_range[1])
-            if en_range[0] > en_range[1]:
-                raise ValueError('high energy must be higher than low energy')
-        self._en_range = en_range
+        if not type(en_range) in [list,tuple]:
+            raise TypeError('Energy range must be either a tuple or a list of tuples')
         
-    @property
-    def high_en(self):
-        return self._high_en
+        if isinstance(en_range,tuple):
+            en_range = [en_range]
+        
+        for range in en_range:
+            if not isinstance(range,tuple):
+                raise TypeError('Energy ranges must be tuples')
+            if len(range)!=2:
+                raise ValueError('Energy range must contain low and high energy')
+            if range[0] >= range[1]:
+                raise ValueError('Low energy must be (ghess...?) lower than high energy')
+       
+        #en_range = clean_en_range(en_range)
+        self._en_range = en_range
 
-    @high_en.setter
-    def high_en(self,high_en_value):
-        if (not high_en_value is None) and type(high_en_value) == str:
-            high_en_value = eval(high_en_value)
-        if (not self.low_en is None) and (high_en_value < self.low_en):
-            raise ValueError('high_en must be higher than low_en')
-        self._high_en = high_en_value 
 

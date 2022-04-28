@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import numpy as np
 import pytest
 
@@ -22,6 +23,7 @@ class TestEmptyCrossSpectrum:
         cross = CrossSpectrum()
 
         assert cross.weight == 1
+        assert len(cross.en_range) == 0
         assert cross.en_range == []
         assert cross.leahy_norm == None
         assert cross.rms_norm == None
@@ -55,9 +57,32 @@ class TestEmptyCrossSpectrum:
 
 class TestEnergyInitialization:
 
-    @pytest.mark.parametrize('en_range',[[2],[3,2],['2'],['3','2']])
-    def test_wrong_energy_range_without_high_energy(self,en_range):
-        with pytest.raises(ValueError):
+    @pytest.mark.parametrize('en_range',[3,'ciao',np.array([0,2])])
+    def test_wrong_energy_range_type_single(self,en_range):
+        exp_message = 'Energy range must be either a tuple or a list of tuples'
+        with pytest.raises(TypeError) as e_info:
             cross = CrossSpectrum(en_range=en_range)
+        assert str(e_info.value) == exp_message
 
+    @pytest.mark.parametrize('en_range',[[3],['ciao',3],[np.array([0,2]),[1,2]],[[1,2],[3,4]]])
+    def test_wrong_energy_range_type_list(self,en_range):
+        exp_message = 'Energy ranges must be tuples'
+        with pytest.raises(TypeError) as e_info:
+            cross = CrossSpectrum(en_range=en_range)
+        assert str(e_info.value) == exp_message  
+
+    @pytest.mark.parametrize('en_range',[(1,),(1,2,3)],ids=['len1 tuple','len3 tuple'])
+    def test_wrong_energy_range_tuple_size(self, en_range):
+        print(en_range,type(en_range))
+        exp_message = 'Energy range must contain low and high energy'
+        with pytest.raises(ValueError) as e_info:
+            cross = CrossSpectrum(en_range=en_range)
+        assert str(e_info.value) == exp_message
+
+    @pytest.mark.parametrize('en_range',[(3,2),(10,4),(5.4,5.4)])
+    def test_wrong_energy_range_tuple_boundaries(self,en_range):
+        exp_message = 'Low energy must be (ghess...?) lower than high energy'
+        with pytest.raises(ValueError) as e_info:
+            cross = CrossSpectrum(en_range=en_range)
+        assert str(e_info.value) == exp_message
         
