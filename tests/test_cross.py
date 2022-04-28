@@ -55,7 +55,7 @@ class TestEmptyCrossSpectrum:
 
         cross = CrossSpectrum(freq_array=freqs)
 
-class TestEnergyInitialization:
+class TestWrongEnergyInitialization:
 
     @pytest.mark.parametrize('en_range',[3,'ciao',np.array([0,2])])
     def test_wrong_energy_range_type_single(self,en_range):
@@ -85,4 +85,14 @@ class TestEnergyInitialization:
         with pytest.raises(ValueError) as e_info:
             cross = CrossSpectrum(en_range=en_range)
         assert str(e_info.value) == exp_message
-        
+
+class TestRightEnergyRangeInitialization:
+
+    def test_single_energy_range(self):
+        cross = CrossSpectrum(en_range=(1,2))
+
+        assert isinstance(cross.en_range,list)
+        assert len(cross.en_range) == 1
+        assert isinstance(cross.en_range[0],tuple)
+        assert cross.en_range[0][0] == 1
+        assert cross.en_range[0][1] == 2        
