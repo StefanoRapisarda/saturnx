@@ -61,8 +61,11 @@ def check_nicerl2_io(obs_id_dir):
     # Make filter file (also unzipping if zipped)
     mkf_files = list_items(obs_id_dir/folders['auxil'],itype='file',include_and=['.mkf'],
         exclude_or=['mkf2','mkf3'])
-    if len(mkf_files) != 1:
+    if len(mkf_files) == 0:
         mylogging.error('The make filter file (.mkf) does not exist')
+        return False
+    elif len(mkf_files) > 1:
+        mylogging.error('There is more than one make filter file (.mkf), check your auxil folder.')
         return False
 
     # Orbit file
@@ -84,7 +87,7 @@ def check_nicerl2_io(obs_id_dir):
 def run_nicerl2(obs_id_dir,tasks="ALL",filtcolumns="NICERV3,3C50",
         niprefilter2="YES",saafilt="NO",nicersaafilt="YES",
         ang_dist="0.015",elv="15",br_earth="30",cor_range="*-*",
-        underonly_range="0-500",overonly_range="0-1.5",
+        underonly_range="0-500",overonly_range="0-1.5",min_fpm='1',
         overonly_expr="1.52*OVERONLY_NORM*COR_SAX**(-0.633)",clobber="yes",
         log_file='nicerl2.log'):
     '''
@@ -115,6 +118,7 @@ def run_nicerl2(obs_id_dir,tasks="ALL",filtcolumns="NICERV3,3C50",
         ang_dist="{ang_dist}" elv="{elv}" br_earth="{br_earth}" \
         cor_range="{cor_range}" underonly_range="{underonly_range}" \
         overonly_range="{overonly_range}" overonly_expr="{overonly_expr}" \
+        min_fpm="{min_fpm}" \
         clobber="{clobber}"> {log_file}'
     
     mylogging.info('Running nicerl2 ...')
