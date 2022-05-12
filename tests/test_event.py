@@ -1,4 +1,5 @@
 
+from os import nice
 from numpy.testing._private.nosetester import NoseTester
 from saturnx.core import Event, EventList, Gti
 from saturnx.utils.time_series import poi_events
@@ -9,14 +10,11 @@ import pytest
 
 class TestEventInit():
     
-    def test_empty_event(self):
-        '''
-        Test initializations of empry columns according to mission,
-        meta_data, and notes dictionary
-        '''
+    def test_empty_event_nicer(self):
 
-        # NICER
         nicer_events = Event(mission='NICER')
+
+        # Columns
         assert nicer_events.time.empty
         assert len(nicer_events.time) == 0
         assert len(nicer_events.time.index) == 0
@@ -26,13 +24,53 @@ class TestEventInit():
         assert nicer_events.det.empty
         assert len(nicer_events.det) == 0
         assert len(nicer_events.det.index) == 0
-        assert nicer_events.meta_data['MISSION'] == 'NICER'
-        assert len(nicer_events.meta_data) == 2
-        assert 'EVT_CRE_DATE' in nicer_events.meta_data.keys()
-        assert nicer_events.notes == {}
 
-        # SWIFT
+        # Properties 
+        assert nicer_events.texp is None
+        assert nicer_events.cr is None
+
+        # Metadata
+        assert nicer_events.meta_data['MISSION'] == 'NICER'
+        assert len(nicer_events.meta_data) == 3
+        assert 'HISTORY' in nicer_events.meta_data.keys()
+        assert 'NOTES' in nicer_events.meta_data.keys()
+        assert 'EVT_CRE_DATE' in nicer_events.meta_data['HISTORY'].keys()
+
+    def test_only_time_column_nicer(self):
+
+        n = 1000
+        texp = 100
+        cr = n/texp
+        time = np.linspace(0,texp,n)
+        nicer_events = Event(time_array=time,mission='NICER')
+
+        # Columns
+        assert not nicer_events.time.empty
+        assert len(nicer_events.time) == n
+        assert len(nicer_events.time.index) == n
+        assert nicer_events.pi.notna().sum() == 0
+        assert len(nicer_events.pi) == n
+        assert len(nicer_events.pi.index) == n
+        assert nicer_events.det.notna().sum() == 0
+        assert len(nicer_events.det) == n
+        assert len(nicer_events.det.index) == n
+
+        # Properties 
+        assert nicer_events.texp == texp
+        assert nicer_events.cr == cr
+
+        # Metadata
+        assert nicer_events.meta_data['MISSION'] == 'NICER'
+        assert len(nicer_events.meta_data) == 3
+        assert 'HISTORY' in nicer_events.meta_data.keys()
+        assert 'NOTES' in nicer_events.meta_data.keys()
+        assert 'EVT_CRE_DATE' in nicer_events.meta_data['HISTORY'].keys()        
+
+    def test_empty_event_swift(self):
+
         swift_events = Event(mission='SWIFT')
+
+        # Columns
         assert swift_events.time.empty
         assert len(swift_events.time) == 0
         assert len(swift_events.time.index) == 0
@@ -48,42 +86,64 @@ class TestEventInit():
         assert swift_events.grade.empty
         assert len(swift_events.grade) == 0
         assert len(swift_events.grade.index) == 0
-        assert swift_events.meta_data['MISSION'] == 'SWIFT'
-        assert len(swift_events.meta_data) == 2
-        assert 'EVT_CRE_DATE' in swift_events.meta_data.keys()
-        assert swift_events.notes == {}
 
-        # Generic mission
+        # Properties 
+        assert swift_events.texp is None
+        assert swift_events.cr is None
+
+        # Metadata
+        assert swift_events.meta_data['MISSION'] == 'SWIFT'
+        assert len(swift_events.meta_data) == 3
+        assert 'HISTORY' in swift_events.meta_data.keys()
+        assert 'NOTES' in swift_events.meta_data.keys()
+        assert 'EVT_CRE_DATE' in swift_events.meta_data['HISTORY'].keys()
+
+    def test_empty_event_generic(self):
+
         whatever_events = Event()
+
+        # Columns
         assert whatever_events.time.empty
         assert len(whatever_events.time) == 0
         assert len(whatever_events.time.index) == 0
         assert whatever_events.pi.empty
         assert len(whatever_events.pi) == 0
         assert len(whatever_events.pi.index) == 0
-        assert whatever_events.meta_data['MISSION'] == None
-        assert len(whatever_events.meta_data) == 2
-        assert 'EVT_CRE_DATE' in whatever_events.meta_data.keys()
-        assert whatever_events.notes == {}
 
-    def test_event(self,fake_nicer_event):
+        # Properties
+        assert whatever_events.texp is None
+        assert whatever_events.cr is None
+
+        # Metadata        
+        assert whatever_events.meta_data['MISSION'] == None
+        assert len(whatever_events.meta_data) == 3
+        assert 'HISTORY' in whatever_events.meta_data.keys()
+        assert 'NOTES' in whatever_events.meta_data.keys()
+        assert 'EVT_CRE_DATE' in whatever_events.meta_data['HISTORY'].keys()
+
+    def test_event_nicer(self,fake_nicer_event):
         '''
         Tests correct creation of Event object and its attributes
         '''
         nevents = fake_nicer_event['n_events']
         texp = fake_nicer_event['texp']
         events = fake_nicer_event['event']
+
+        # Columns
         assert type(events) == type(Event())
         assert 'time' in events.columns
         assert 'pi' in events.columns
         assert 'det' in events.columns
+        print(len(events.time),nevents,len(events.pi))
         assert events.texp == texp
         assert events.cr == nevents/texp
         assert len(events) == nevents
         for col in events.columns:
             assert not events[col].empty
             assert len(events[col]) == nevents
-        assert events.notes['STEF1'] == 'This is a test note'
+
+        # Metadata
+        assert events.meta_data['NOTES']['STEF1'] == 'This is a test note'
         assert events.meta_data['EVT_CRE_MODE'] == 'Initialized from fake arrays'
         assert events.meta_data['MISSION'] == 'NICER'
         assert events.meta_data['N_ACT_DET'] == 56

@@ -8,13 +8,17 @@ from saturnx.core import Event,Gti
 
 @pytest.fixture(scope='class')
 def fake_nicer_event(tres=0.01,nbins=10000,cr=5,low_ch=50,high_ch=1000):
+
     events = poi_events(tres=tres,nbins=nbins,cr=cr)
     texp = max(events)-min(events)
     pi = np.random.uniform(low_ch,high_ch,len(events))
     dets = np.random.choice(all_det,size=len(events))
+
+
     notes = {}
     notes['STEF1'] = 'This is a test note'
     meta_data = {}
+    meta_data['NOTES'] = notes
     meta_data['EVT_CRE_MODE'] = 'Initialized from fake arrays'
     meta_data['EVT_FILE_NAME'] = 'Test file name'
     meta_data['DIR'] = 'Test dir'
@@ -27,8 +31,11 @@ def fake_nicer_event(tres=0.01,nbins=10000,cr=5,low_ch=50,high_ch=1000):
     all_header_keys = basic_keys + time_keys
     for key in all_header_keys:
         meta_data['INFO_FROM_HEADER'][key] = key
-    event_object = Event(time_array=events,det_array=dets,
-        pi_array=pi,mission='NICER',notes=notes,meta_data=meta_data)
+
+    event_object = Event(
+        time_array=events,det_array=dets,
+        pi_array=pi,mission='NICER',meta_data=meta_data
+        )
 
     data = {'event':event_object,'texp':texp,'n_events':len(events),
             'tres':tres,'cr':cr,'n_bins':nbins,'low_ch':50,'high_ch':1000,

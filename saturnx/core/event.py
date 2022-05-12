@@ -37,7 +37,7 @@ class Event(pd.DataFrame):
 
     def __init__(self,time_array=None,pi_array=None,det_array=None,
                  detx_array=None,dety_array=None,grade_array=None,
-                 mission=None,meta_data=None,notes=None):
+                 mission=None,meta_data=None):
         '''
         Initialise time, pi, and detector arrays according to the specified
         mission
@@ -50,17 +50,6 @@ class Event(pd.DataFrame):
             The last version of NICER software includes this information
             in the FITS file header, you should read the information from
             there.
-
-        NOTE
-        ----
-        2021 02 20, Stefano Rapisarda, Uppsala
-            The reason why arrays are initialised with None and not 
-            directly with an empty array is because this allows to 
-            initialise Event object with only the time array.
-            Indeed, if you use empty numpy arrays, when you initialise
-            pandas dataframe with those arrays, python will check their
-            dimensions and return an error. 
-            !!! A column initialized with None will NOT be empty 
         '''
         
         # Setting mission-dependend columns
@@ -82,7 +71,12 @@ class Event(pd.DataFrame):
                 'time':time_array,
                 'pi':pi_array
                 }
-        super().__init__(columns=columns)  
+
+        if time_array is None:
+            # columns parameters specifies only the names of the columns
+            super().__init__(columns=columns)
+        else:
+            super().__init__(columns)  
 
         # Initialiasing meta_data
         if meta_data is None:
@@ -111,11 +105,10 @@ class Event(pd.DataFrame):
         '''
         Evaluates a filtering expression and applies it to events
         
-        NOTES
-        -----
+        NOTE
+        ----
         2021 02 18, Stefano Rapisarda (Uppsala)
-            To mask pandas Series use &,|,etc are necessary, so that
-            and,or,etc are substituted.
+            To mask pandas Series use &,|,etc in place of and,or,etc.
         '''
 
         expr_ori = expr
@@ -129,27 +122,28 @@ class Event(pd.DataFrame):
                     ' be event columns')
 
         # Adapting and evaluating expression
-        # !!! It is important that xor is listed BEFORE or
+        # !!! It is important that xor is listed BEFORE or !!!
         operators = {'and':'&','xor':'^','or':'|','not':'~'}
         for key,item in operators.items():
             expr = expr.replace(key,item)
         for col in list(self.columns):
             expr = expr.replace(col,'self.{}'.format(col))
 
+        # Defining new arguments for filtered Event
+        new_kwargs = {}
+
         # Applying mask to arrays
         mask = eval(expr)
-        kwargs = {}
         for col in list(self.columns):
-            kwargs['{}_array'.format(col)] = self[col][mask]
+            new_kwargs['{}_array'.format(col)] = self[col][mask]
         
         # Copying and updating notes and meta_data
-        kwargs['meta_data'] = self.meta_data
-        kwargs['notes'] = self.notes
-        kwargs['meta_data']['FILTERING'] = my_cdate()
-        kwargs['meta_data']['FILT_EXPR'] = expr_ori
+        new_kwargs['meta_data'] = self.meta_data
+        new_kwargs['meta_data']['HISTORY']['FILTERING'] = my_cdate()
+        new_kwargs['meta_data']['FILT_EXPR'] = expr_ori
 
         # Initializing event object
-        events = Event(**kwargs)
+        events = Event(**new_kwargs)
 
         return events        
 
@@ -336,8 +330,10 @@ class Event(pd.DataFrame):
 
     @property
     def cr(self):
-        if not self.texp is None and (self.texp !=0):
+        if self.texp is not None and (self.texp !=0):
             return len(self.time)/self.texp
+        else:
+            return None
 
 class EventList(list):
     '''
