@@ -240,10 +240,10 @@ class TestEventSplit:
         split_event = fake_nicer_event['event'].split(fake_gti)
         
         # Type and size
-        assert type(split_event) == type(EventList())
+        assert isinstance(split_event,EventList)
         assert len(split_event) == len(fake_gti)
         for event in split_event:
-            assert type(event) == type(Event())
+            assert isinstance(event,Event)
         
         # Columns
         columns = fake_nicer_event['event'].columns
@@ -264,8 +264,7 @@ class TestEventSplit:
             assert split_event[i].meta_data['MISSION'] == 'NICER'
             assert split_event[i].meta_data['GTI_INDEX'] == i
             assert split_event[i].meta_data['N_GTIS'] == len(fake_gti)
-            assert 'SPLITTING_GTI' in split_event[i].meta_data.keys()
-            assert split_event[i].notes == fake_nicer_event['event'].notes
+            assert 'SPLITTING_GTI' in split_event[i].meta_data['HISTORY'].keys()
 
     def test_seg_input(self,fake_nicer_event):
         wrong_inputs = ['123wer',{},tuple([1,2])]
@@ -283,7 +282,7 @@ class TestEventSplit:
         exp_n_segs = int(event_duration/time_seg)
         split_event = fake_nicer_event['event'].split(time_seg) 
 
-        assert type(split_event) == type(EventList())
+        assert isinstance(split_event,EventList)
         assert len(split_event) == exp_n_segs  
 
         for i, event in enumerate(split_event):
@@ -292,8 +291,7 @@ class TestEventSplit:
             assert event.texp <= time_seg
             assert event.meta_data['SEG_INDEX'] == i
             assert event.meta_data['N_SEGS'] == exp_n_segs
-            assert 'SPLITTING_SEG' in event.meta_data.keys()
-            assert event.notes == fake_nicer_event['event'].notes
+            assert 'SPLITTING_SEG' in event.meta_data['HISTORY'].keys()
            
 
 class TestEventListInit:

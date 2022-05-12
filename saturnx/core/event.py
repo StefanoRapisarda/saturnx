@@ -165,35 +165,47 @@ class Event(pd.DataFrame):
         '''
         Splits Event object in an EventList according to time intervals
         in a Gti object or to a time segment
+
+        PARAMETERS
+        ----------
+        splitter: float, int, str, np.double, np.float, or saturnx.core.GTI
+            if GTI, the event file will be split according to GTI start 
+            and stop time.
+            In all the other case, the event file will be split according
+            to segment duration
+
+        RETURNS
+        -------
+        saturnx.core.EventList
         '''
 
         events = []
         kwargs = {}
         meta_data = self.meta_data.copy()   
-        notes = self.notes.copy()
 
-        if type(splitter) == type(Gti()):
+        if isinstance(splitter,Gti):
             gti = splitter
 
-            meta_data['SPLITTING_GTI'] = my_cdate()
+            meta_data['HISTORY']['SPLITTING_GTI'] = my_cdate()
             meta_data['N_GTIS'] = len(gti)
 
             for gti_index,(start,stop) in enumerate(zip(gti.start,gti.stop)):
+
                 mask = (self.time>= start) & (self.time<stop)
                 kwargs = {}
                 for col in list(self.columns):
                     kwargs['{}_array'.format(col)] = self[col][mask]
+
                 meta_data_gti = meta_data.copy()
                 meta_data_gti['GTI_INDEX'] = gti_index            
                 kwargs['meta_data'] = meta_data_gti
-                kwargs['notes'] = notes
                 kwargs['mission'] = self.meta_data['MISSION']
 
                 events += [Event(**kwargs)]
 
-        elif type(splitter) in [float,int,str,np.double,np.float]:
+        elif isinstance(splitter,(float,int,str,np.double,np.float)):
             
-            if type(splitter)==str: 
+            if isinstance(splitter,str): 
                 if not is_number(splitter):
                     raise TypeError('String in Event.split() must contain only numbers')
                 else:
@@ -202,20 +214,21 @@ class Event(pd.DataFrame):
                 time_seg = splitter
 
             n_segs = int(self.texp//time_seg)
-            meta_data['SPLITTING_SEG'] = my_cdate()
+            meta_data['HISTORY']['SPLITTING_SEG'] = my_cdate()
             meta_data['N_SEGS'] = n_segs
 
             for i in range(n_segs):
+
                 start = i*time_seg
                 stop  = (i+1)*time_seg
                 mask = (self.time>= start) & (self.time<stop)
                 kwargs = {}
                 for col in list(self.columns):
                     kwargs['{}_array'.format(col)] = self[col][mask]
+
                 meta_data_seg = meta_data.copy()
                 meta_data_seg['SEG_INDEX'] = i            
                 kwargs['meta_data'] = meta_data_seg
-                kwargs['notes'] = notes
                 kwargs['mission'] = self.meta_data['MISSION']
 
                 events += [Event(**kwargs)]
@@ -229,18 +242,18 @@ class Event(pd.DataFrame):
     @staticmethod
     def read_fits(file_name,ext='EVENTS',keys_to_read=None):
         '''
-        Read a fits file and store meaningfull information in an Event object
+        Read a FITS file and store meaningful information in an Event object
         
         PARAMETERS
         ----------
-        file_name: str
+        file_name: str or pathlib.Path()
             Full path of a FITS file 
         evt_ext_name: str, optional
             Name of the FITS file extension to read, default is EVENT
         keys_to_read: str or list, optional
             List or str specifying keys to read from the header of the 
             specified extension. Default is None, in this case a set 
-            of standard keywords will be read. Keywords/Values are stores
+            of standard keywords will be read. Keywords/Values are stored
             in the dictionary Event.meta_data['INFO_FROM_HEADER']
 
         RETURNS
