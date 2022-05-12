@@ -1,0 +1,29 @@
+INFO: 2021-03-06 21:31:00: ************************************************************************
+INFO: 2021-03-06 21:31:00: ************************        make_lc         ************************
+INFO: 2021-03-06 21:31:00: ************************************************************************
+INFO: 2021-03-06 21:31:00: Creating analysis folder...
+INFO: 2021-03-06 21:31:00: 
+INFO: 2021-03-06 21:31:00: Obs ID: 0100320101
+INFO: 2021-03-06 21:31:00: Settings:
+INFO: 2021-03-06 21:31:00: ------------------------------------------------------------
+INFO: 2021-03-06 21:31:00: Selected energy band: 0.5-10.0 keV
+INFO: 2021-03-06 21:31:00: Selected time resolution: 0.0078125 s
+INFO: 2021-03-06 21:31:00: Split events: yes
+INFO: 2021-03-06 21:31:00: Log file name: /Volumes/Samsung_T5/kronos/examples/outputs/logs/make_lc_D6_3_2021_T21_31
+INFO: 2021-03-06 21:31:00: ------------------------------------------------------------
+INFO: 2021-03-06 21:31:00: 
+INFO: 2021-03-06 21:31:00: Reading event file
+WARNING: 2021-03-06 21:31:13: Could not read key MJDREF in ext EVENTS of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-03-06 21:31:20: Done!
+INFO: 2021-03-06 21:31:20: Reading GTI from event file
+INFO: 2021-03-06 21:31:22: Done!
+INFO: 2021-03-06 21:31:22: N. GTIs: 4
+INFO: 2021-03-06 21:31:22: Splitting events according to GTIs
+INFO: 2021-03-06 21:31:22: NumExpr defaulting to 8 threads.
+INFO: 2021-03-06 21:31:22: Done!
+INFO: 2021-03-06 21:31:22: Computing lightcurve list
+WARNING: 2021-03-06 21:31:22: Lightcurve duration larger than Event duration
+WARNING: 2021-03-06 21:31:22: Lightcurve duration larger than Event duration
+WARNING: 2021-03-06 21:31:22: Lightcurve duration larger than Event duration
+INFO: 2021-03-06 21:31:22: Could not compute lightcurve list
+INFO: 2021-03-06 21:31:22: All the elements must be Lightcurve objects

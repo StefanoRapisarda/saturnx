@@ -1,0 +1,24 @@
+INFO: 2021-03-07 03:39:28: ************************************************************************
+INFO: 2021-03-07 03:39:28: ************************       make_power       ************************
+INFO: 2021-03-07 03:39:28: ************************************************************************
+INFO: 2021-03-07 03:39:28: 
+INFO: 2021-03-07 03:39:28: Settings:
+INFO: 2021-03-07 03:39:28: ------------------------------------------------------------
+INFO: 2021-03-07 03:39:28: Lightcurve list file: lc_list_E0.5_10.0_T0.0078125.pkl
+INFO: 2021-03-07 03:39:28: Selected time segment: 128.0 s
+INFO: 2021-03-07 03:39:28: Log file name: /Volumes/Samsung_T5/kronos/examples/outputs/logs/make_power_D7_3_2021_T3_39
+INFO: 2021-03-07 03:39:28: ------------------------------------------------------------
+INFO: 2021-03-07 03:39:28: 
+INFO: 2021-03-07 03:39:28: Processing lightcurve: /Volumes/Samsung_T5/kronos/examples/outputs/analysis/0100320101/lc_list_E0.5_10.0_T0.0078125.pkl
+INFO: 2021-03-07 03:39:28: Splitting lightcurve list according to segments
+INFO: 2021-03-07 03:39:28: NumExpr defaulting to 8 threads.
+INFO: 2021-03-07 03:39:28: Done!
+INFO: 2021-03-07 03:39:28: Saving LightcurveList in the event folder
+INFO: 2021-03-07 03:39:29: Computing power spectrum list
+INFO: 2021-03-07 03:39:29: Done!
+INFO: 2021-03-07 03:39:29: Saving power list
+INFO: 2021-03-07 03:39:29: Done!
+INFO: 2021-03-07 03:39:29: Computing average power
+INFO: 2021-03-07 03:39:29: Done!
+INFO: 2021-03-07 03:39:29: Saving average power
+INFO: 2021-03-07 03:39:29: Done!

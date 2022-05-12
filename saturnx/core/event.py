@@ -1,3 +1,7 @@
+"""This module contains the definition of Event and EventList classes"""
+
+__author__ = 'Stefano Rapisarda'
+
 import os
 import pathlib
 import pandas as pd
@@ -13,7 +17,8 @@ from saturnx.core.gti import Gti
 
 class Event(pd.DataFrame):
     '''
-    Event object. Stores photon time arrival, energy
+    Event object. Stores photon time arrival and other observatory-dependend
+    parameters.
 
     HISTORY
     -------
@@ -25,21 +30,30 @@ class Event(pd.DataFrame):
         !!! It is important that whatever array you will add in the 
         future to the list of already existing arrays, you write the 
         variable in the form <whatever>_array, as methods relies on
-        this syntax
+        this syntax !!!
     '''
 
-    _metadata = ['meta_data','notes']
+    _metadata = ['meta_data']
 
     def __init__(self,time_array=None,pi_array=None,det_array=None,
-                detx_array=None,dety_array=None,grade_array=None,
-                mission=None,meta_data=None,notes=None):
+                 detx_array=None,dety_array=None,grade_array=None,
+                 mission=None,meta_data=None,notes=None):
         '''
-        Initialise time, pi, and detector arrays according to specified
+        Initialise time, pi, and detector arrays according to the specified
         mission
+
+        TODO
+        ----
+        2022 05 12, Stefano Rapisarda, Uppsala
+            For NICER data, it reads the events in order to figure out
+            the number of active detectors. This could take A LOT of time.
+            The last version of NICER software includes this information
+            in the FITS file header, you should read the information from
+            there.
 
         NOTE
         ----
-        2021 02 20, Stefano Rapisarda (Uppsala)
+        2021 02 20, Stefano Rapisarda, Uppsala
             The reason why arrays are initialised with None and not 
             directly with an empty array is because this allows to 
             initialise Event object with only the time array.
@@ -49,46 +63,49 @@ class Event(pd.DataFrame):
             !!! A column initialized with None will NOT be empty 
         '''
         
-        if time_array is None:
-            if mission == 'NICER': 
-                columns=['time','pi','det']
-            elif mission == 'SWIFT':
-                columns=['time','pi','detx','dety','grade']
-            else:
-                columns=['time','pi']
-            super().__init__(columns=columns)  
+        # Setting mission-dependend columns
+        if mission == 'NICER':
+            columns = {
+                'time':time_array,
+                'pi':pi_array,
+                'det':det_array
+                }
+        elif mission == 'SWIFT':
+            columns = {'time':time_array,
+                'pi':pi_array,
+                'detx':detx_array,
+                'dety':dety_array,
+                'grade':grade_array
+                }  
         else:
-            if mission == 'NICER':
-                columns = {'time':time_array,
-                        'pi':pi_array,
-                        'det':det_array}
-            elif mission == 'SWIFT':
-                columns = {'time':time_array,
-                        'pi':pi_array,
-                        'detx':detx_array,
-                        'dety':dety_array,
-                        'grade':grade_array}  
-            else:
-                columns = {'time':time_array,
-                        'pi':pi_array}
-            super().__init__(columns)  
+            columns = {
+                'time':time_array,
+                'pi':pi_array
+                }
+        super().__init__(columns=columns)  
 
         # Initialiasing meta_data
         if meta_data is None:
             self.meta_data = {}
-        else: self.meta_data = meta_data
-        self.meta_data['EVT_CRE_DATE'] = my_cdate()
+        else: 
+            self.meta_data = meta_data
+
+        if not 'HISTORY' in self.meta_data.keys():
+            self.meta_data['HISTORY'] = {}
+        self.meta_data['HISTORY']['EVT_CRE_DATE'] = my_cdate()
+
+        if not 'NOTES' in self.meta_data.keys():
+            self.meta_data['NOTES'] = {}
+
+        # Mission dependent meta data        
         if not 'MISSION' in  self.meta_data.keys():
-            self.meta_data['MISSION'] = mission 
-        if mission == 'NICER' and not det_array is None:
+            self.meta_data['MISSION'] = mission
+ 
+        if mission == 'NICER' and det_array is not None:
             n_act_det = len(np.unique(self.det))
             inact_det_list = np.setdiff1d(all_det, np.unique(det_array))
             self.meta_data['N_ACT_DET'] = n_act_det
             self.meta_data['INACT_DET_LIST'] = list(inact_det_list)
-
-        if notes is None:
-            self.notes = {}
-        else: self.notes = notes
                             
     def filter(self,expr):
         '''

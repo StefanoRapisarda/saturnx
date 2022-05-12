@@ -1,0 +1,37 @@
+INFO: 2021-03-06 21:06:53: ************************************************************************
+INFO: 2021-03-06 21:06:53: ************************        make_lc         ************************
+INFO: 2021-03-06 21:06:53: ************************************************************************
+INFO: 2021-03-06 21:06:53: Creating analysis folder...
+INFO: 2021-03-06 21:06:53: 
+INFO: 2021-03-06 21:06:53: Obs ID: 0100320101
+INFO: 2021-03-06 21:06:53: Settings:
+INFO: 2021-03-06 21:06:53: ------------------------------------------------------------
+INFO: 2021-03-06 21:06:53: Selected energy band: 0.5-10.0 keV
+INFO: 2021-03-06 21:06:53: Selected time resolution: 0.0078125 s
+INFO: 2021-03-06 21:06:53: Split events: yes
+INFO: 2021-03-06 21:06:53: Log file name: /Volumes/Samsung_T5/kronos/examples/outputs/logs/make_lc_D6_3_2021_T21_6
+INFO: 2021-03-06 21:06:53: ------------------------------------------------------------
+INFO: 2021-03-06 21:06:53: 
+INFO: 2021-03-06 21:06:53: Reading event file
+WARNING: 2021-03-06 21:07:00: Could not read key CREATOR in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:00: Could not read key DATE in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:02: Could not read key GCALFILE in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:06: Could not read key MJDREF in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:08: Could not read key TIMEZERO in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:09: Could not read key LEAPINIT in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:09: Could not read key CLOCKAPP in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:10: Could not read key TIMEZERO in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:11: Could not read key ONTIME in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:12: Could not read key EXPOSURE in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:12: Could not read key NAXIS2 in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+WARNING: 2021-03-06 21:07:13: Could not read key TIMESYS in ext 0 of /Volumes/Seagate/NICER_data/Cygnus_X1/0100320101/xti/event_cl/ni0100320101_0mpu7_cl_bc_bdc.evt.gz
+INFO: 2021-03-06 21:07:13: Done!
+INFO: 2021-03-06 21:07:13: Reading GTI from event file
+INFO: 2021-03-06 21:07:15: Done!
+INFO: 2021-03-06 21:07:15: N. GTIs: 4
+INFO: 2021-03-06 21:07:15: Splitting events according to GTIs
+INFO: 2021-03-06 21:07:15: NumExpr defaulting to 8 threads.
+INFO: 2021-03-06 21:07:15: Done!
+INFO: 2021-03-06 21:07:15: Computing lightcurve list
+INFO: 2021-03-06 21:07:15: Could not compute lightcurve
+INFO: 2021-03-06 21:07:15: If using all scalar values, you must pass an index

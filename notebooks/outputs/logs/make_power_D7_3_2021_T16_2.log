@@ -1,0 +1,53 @@
+INFO: 2021-03-07 16:02:02: ************************************************************************
+INFO: 2021-03-07 16:02:02: ************************        read_lc         ************************
+INFO: 2021-03-07 16:02:02: ************************************************************************
+INFO: 2021-03-07 16:02:02: Reading HXMT lightcurve FITS file
+INFO: 2021-03-07 16:02:02: Creating analysis folder...
+INFO: 2021-03-07 16:02:02: Reading FITS file
+WARNING: 2021-03-07 16:02:02: Could not read key OBJECT in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key TELESCOP in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key INSTRUME in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key OBS_ID in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key RA_OBJ in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key DEC_OBJ in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key CREATOR in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key DATE in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key SOFTVER in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key CALDBVER in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key GCALFILE in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key DATE-OBS in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key DATE-END in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key TSTART in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key TSTOP in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key MJDREF in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key MJDREFI in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key MJDREFF in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key TIMEZERO in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key LEAPINIT in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key CLOCKAPP in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key TIMEZERO in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key ONTIME in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key EXPOSURE in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key NAXIS2 in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+WARNING: 2021-03-07 16:02:02: Could not read key TIMESYS in ext 0 of /Volumes/Samsung_T5/from_zhen/CygX-1_HXMT/CygX-1_HXMT/PDS_fitting/P010131500101-20170824-01-01_HE_net_3_163_lc_all.lc
+INFO: 2021-03-07 16:02:02: NumExpr defaulting to 8 threads.
+INFO: 2021-03-07 16:02:02: Done!
+INFO: 2021-03-07 16:02:02: 
+INFO: 2021-03-07 16:02:02: Obs ID: HE
+INFO: 2021-03-07 16:02:02: Settings:
+INFO: 2021-03-07 16:02:02: ------------------------------------------------------------
+INFO: 2021-03-07 16:02:02: Selected energy band: 19.3-250.6 keV
+INFO: 2021-03-07 16:02:02: Selected time resolution: 0.00390625 s
+INFO: 2021-03-07 16:02:02: Log file name: /Volumes/Samsung_T5/kronos/examples/outputs/logs/make_power_D7_3_2021_T16_2
+INFO: 2021-03-07 16:02:02: ------------------------------------------------------------
+INFO: 2021-03-07 16:02:02: 
+INFO: 2021-03-07 16:02:02: Reading GTI from event file
+INFO: 2021-03-07 16:02:02: Done!
+INFO: 2021-03-07 16:02:02: Saving Lightcurve in the event folder
+INFO: 2021-03-07 16:02:02: Done!
+INFO: 2021-03-07 16:02:02: Saving Gti in the event folder
+INFO: 2021-03-07 16:02:02: Done!
+INFO: 2021-03-07 16:02:02: Splitting lightcurve according to GTI
+INFO: 2021-03-07 16:02:03: Done!
+INFO: 2021-03-07 16:02:03: Saving Lightcurve list in the event folder
+INFO: 2021-03-07 16:02:03: Done!
