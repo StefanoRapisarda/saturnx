@@ -158,44 +158,6 @@ class TestEventInit():
         with pytest.raises(ValueError):
             events = Event(time_array=x,pi_array=y)
 
-
-class TestEventFilter:
-
-    def test_wrong_expr_type(self,fake_nicer_event):
-        with pytest.raises(TypeError):
-            new_events = fake_nicer_event['event'].filter(123)
-
-    def test_wrong_expr_columns(self,fake_nicer_event):
-        with pytest.raises(TypeError):
-            new_events = fake_nicer_event['event'].filter('cazzo>=123')
-        with pytest.raises(TypeError):
-            new_evnets = fake_nicer_event['event'].filter('detx>20')
-
-    def test_wrong_expr_syntax(self,fake_nicer_event):
-        new_events = fake_nicer_event['event'].filter('not ((time >= 5) or (time <= 8)) and '\
-            '((pi>=80) xor (pi<=200))')
-        
-    def test_filtered_event_sintax(self,fake_nicer_event):
-        old_meta_data = fake_nicer_event['event'].meta_data.copy()
-        old_notes = fake_nicer_event['event'].notes.copy()
-        expr = '(time >= 5) & (time <= 8) & '\
-            '(pi>=80) & (pi<=200)'
-        new_event = fake_nicer_event['event'].filter(expr)
-        assert new_event.notes == old_notes
-        assert 'FILTERING' in new_event.meta_data.keys()
-        assert 'FILT_EXPR' in new_event.meta_data.keys()
-        assert new_event.meta_data['FILT_EXPR'] == expr
-
-    def test_filtered_event_arrays(self,fake_nicer_event):
-        old_events = fake_nicer_event['event']
-        new_events = old_events.filter('((time >= 1) and (time <= 9)) and '\
-            '((pi>=80) and (pi<=500))')
-        assert not new_events.time.empty
-        assert not new_events.pi.empty
-        assert len(new_events) <= len(old_events)
-        assert (min(new_events.time)>=1) and (max(new_events.time)<=9)
-        assert (min(new_events.pi)>=80) and (max(new_events.pi)<=500)
-
     def test_event_histogram(self,fake_nicer_event):
         nbins = fake_nicer_event['n_bins']
         tres = fake_nicer_event['tres']
@@ -203,9 +165,67 @@ class TestEventFilter:
         time_bins_edges = np.linspace(0-tres/2.,
             nbins*tres+tres/2.,nbins+1,dtype=np.double)
         test_hist, dummy = np.histogram(fake_nicer_event['event'].time,time_bins_edges)
+        
         assert np.round(np.sum(test_hist)/nbins/tres) == cr
         assert len(test_hist) == nbins
         assert np.sum(test_hist) == len(fake_nicer_event['event'])
+
+
+class TestEventFilter:
+
+    @pytest.mark.parametrize('wrong_expr',[123,{},[],1.2])
+    def test_wrong_expr_type(self,fake_nicer_event,wrong_expr):
+        with pytest.raises(TypeError):
+            new_events = fake_nicer_event['event'].filter(wrong_expr)
+
+    def test_wrong_expr_columns_nicer(self,fake_nicer_event):
+        with pytest.raises(TypeError):
+            new_events = fake_nicer_event['event'].filter('wront_col>=123')
+        with pytest.raises(TypeError):
+            new_evnets = fake_nicer_event['event'].filter('detx>20')
+
+    def test_wrong_expr_syntax(self,fake_nicer_event):
+        with pytest.raises(TypeError):
+            new_events = fake_nicer_event['event'].filter('time >= 5 or time <= 8')            
+
+    def test_correct_expr_syntax(self,fake_nicer_event):
+        new_events = fake_nicer_event['event'].filter('not ((time >= 5) or (time <= 8)) and '\
+            '((pi>=80) xor (pi<=200))')
+        
+    def test_filtered_event_metadata(self,fake_nicer_event):
+        old_meta_data = fake_nicer_event['event'].meta_data.copy()
+        expr = '(time >= 5) & (time <= 8) & '\
+            '(pi>=80) & (pi<=200)'
+        new_event = fake_nicer_event['event'].filter(expr)
+
+        assert 'FILTERING' in new_event.meta_data['HISTORY'].keys()
+        assert 'FILT_EXPR' in new_event.meta_data.keys()
+        assert new_event.meta_data['FILT_EXPR'] == expr
+
+    def test_filtered_event_time_array(self):
+        n = 101
+        texp = 100
+        time = np.linspace(0,texp,n)
+        events = Event(time_array=time,mission='NICER')
+        print(len(events.time))
+        filtered_events = events.filter('((time >= 10) and (time <=90))')
+
+        assert not filtered_events.time.empty
+        assert len(filtered_events) == 81
+        assert filtered_events.texp == 80
+        assert filtered_events.time.iloc[0] == 10
+        assert filtered_events.time.iloc[-1] == 90
+
+    def test_filtered_event_arrays(self,fake_nicer_event):
+        old_events = fake_nicer_event['event']
+        new_events = old_events.filter('((time >= 1) and (time <= 9)) and '\
+            '((pi>=80) and (pi<=500))')
+
+        assert not new_events.time.empty
+        assert not new_events.pi.empty
+        assert len(new_events) <= len(old_events)
+        assert (min(new_events.time)>=1) and (max(new_events.time)<=9)
+        assert (min(new_events.pi)>=80) and (max(new_events.pi)<=500)
 
 
 class TestEventSplit:

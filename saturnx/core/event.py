@@ -104,6 +104,9 @@ class Event(pd.DataFrame):
     def filter(self,expr):
         '''
         Evaluates a filtering expression and applies it to events
+
+        The filtering expression must contains only arithmetical/logical
+        operators and column names
         
         NOTE
         ----
@@ -114,12 +117,16 @@ class Event(pd.DataFrame):
         expr_ori = expr
 
         # Checking expression
+        # --------------------------------------------------------------
         if type(expr) != str: raise TypeError
-        cleaned_expr = clean_expr(expr)
+
+        cleaned_expr = clean_expr(expr) # Removes all operators
+        # filtering expression must contain ONLY column names and operators
         for piece in cleaned_expr.split():
             if not is_number(piece) and not piece in self.columns:
                 raise TypeError('Variables in filter expression must'\
                     ' be event columns')
+        # --------------------------------------------------------------
 
         # Adapting and evaluating expression
         # !!! It is important that xor is listed BEFORE or !!!
@@ -133,7 +140,14 @@ class Event(pd.DataFrame):
         new_kwargs = {}
 
         # Applying mask to arrays
-        mask = eval(expr)
+        try:
+            mask = eval(expr)
+        except TypeError:
+            print('Something went wrong in evaluating your filtering expression')
+            print(f'({expr})')
+            print('Check that each condition is wrapped in round brackets')
+            raise TypeError
+
         for col in list(self.columns):
             new_kwargs['{}_array'.format(col)] = self[col][mask]
         
