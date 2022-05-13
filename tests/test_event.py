@@ -310,16 +310,19 @@ class TestEventListInit:
         fake_gti = Gti([0,10,20,100],[10,20,100,1000],clean=False)        
         first_event = fake_nicer_event['event']
         event_list = first_event.split(fake_gti)
+
         assert len(event_list) == 4
+
+
         joined_event = event_list.join()
-        assert type(joined_event) == type(Event())
+
+        assert isinstance(joined_event,Event)
         assert first_event.time.equals(joined_event.time) 
         assert first_event.pi.equals(joined_event.pi)
         assert first_event.det.equals(joined_event.det)
         assert joined_event.meta_data['EVT_CRE_MODE'] == 'Event created joining Events from EventList'
         assert joined_event.meta_data['N_ORI_EVTS'] == len(event_list)
         assert joined_event.meta_data['N_MASKED_EVTS'] == len(event_list)
-        assert joined_event.notes == {}
 
     def test_masked_join(self,fake_nicer_event):
         fake_gti1 = Gti([0,10,20,100],[10,20,100,1000],clean=False)
@@ -327,10 +330,14 @@ class TestEventListInit:
         first_event = fake_nicer_event['event']
         event_list1 = first_event.split(fake_gti1)
         event_list2 = first_event.split(fake_gti2)
+
         assert 'det' in event_list1[0].columns
         assert 'det' in event_list2[0].columns
+
+
         joined_event1 = event_list1.join(mask=[1,0,1,0])
         joined_event2 = event_list2.join()
+
         assert joined_event2.columns.equals(joined_event2.columns)
         assert joined_event1.time.equals(joined_event2.time) 
         assert joined_event1.pi.equals(joined_event2.pi) 
@@ -362,21 +369,23 @@ class TestReadEvent:
 
     def test_user_info_multi(self):
         file_name = 'tests/NICER_cl.evt.gz'
-        event = Event.read_fits(file_name,keys_to_read=['XTENSION','DATAMODE'])        
+        event = Event.read_fits(file_name,keys_to_read=['XTENSION','DATAMODE']) 
+
         assert event.meta_data['INFO_FROM_HEADER']['XTENSION'] == 'BINTABLE'
         assert event.meta_data['INFO_FROM_HEADER']['DATAMODE'] == 'PHOTON'
 
     def test_user_info_single(self):
         file_name = 'tests/NICER_cl.evt.gz'
-        event = Event.read_fits(file_name,keys_to_read='EXTNAME')        
+        event = Event.read_fits(file_name,keys_to_read='EXTNAME')     
+
         assert event.meta_data['INFO_FROM_HEADER']['EXTNAME'] == 'EVENTS'        
 
     def test_event_reading(self):
         file_name = 'tests/NICER_cl.evt.gz'
         event = Event.read_fits(file_name)
-        assert type(event) == type(Event())
+
+        assert isinstance(event,Event)
         assert event.meta_data['MISSION'] == 'NICER'
-        assert event.notes == {}
         assert not event.time.empty
         assert not event.pi.empty
         assert not event.det.empty

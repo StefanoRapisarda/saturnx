@@ -285,29 +285,27 @@ class Event(pd.DataFrame):
             print('File {} does not exist'.format(file_name))
 
         # Reading data
-        #data = getdata(file_name,extname=ext,meta_data=False,memmap=True)
+        print('Reading event FITS file')
         hdulist = fits.open(file_name,memmap=True)
 
         # Initializing meta_data
-        # mission =  getval(file_name,'TELESCOP',1)
         mission = hdulist[ext].header['TELESCOP']
         meta_data = {}
         meta_data['EVT_CRE_MODE'] = 'Event created from fits file'
         meta_data['EVT_FILE_NAME'] = os.path.basename(file_name.name)
         meta_data['DIR'] = os.path.dirname(file_name.parent)
 
-
         # Reading meaningfull information from event file
         info = get_basic_info(hdulist,ext=ext)
         if not keys_to_read is None:
-            if type(keys_to_read) in [str,list]: 
+            if isinstance(keys_to_read,(str,list)): 
                 user_info = read_fits_keys(hdulist,keys_to_read,ext=ext)
             else:
                 raise TypeError('keys to read must be str or list')
-        else: user_info = {}
+        else: 
+            user_info = {}
         total_info = {**info,**user_info}
         meta_data['INFO_FROM_HEADER'] = total_info
-        print('Read meaningfull information')
 
         # Initializing Event object
         if mission == 'NICER':
@@ -317,24 +315,26 @@ class Event(pd.DataFrame):
             except Exception as e:
                 print('Could not find DET_ID column')
                 print(e)
-                det_id = np.zeros(len(times))
+                det_id = None
             times = hdulist[ext].data['TIME']
             try:
                 pi = hdulist[ext].data['PI']
             except Exception as e:
                 print('Could not find PI column')
                 print(e)
-                pi = np.zeros(len(times))+200
+                pi = None
 
-            # Further info NICER specific
+            # Further NICER specific info
             n_act_det = len(np.unique(det_id))
             inact_det_list = np.setdiff1d(all_det, np.unique(det_id))
             meta_data['N_ACT_DET'] = n_act_det
             meta_data['N_INACT_DET'] = list(inact_det_list)
 
             print('Initializing event object')
-            event = Event(time_array=times,det_array=det_id,pi_array=pi,
-                        mission=mission,meta_data=meta_data)
+            event = Event(
+                time_array=times,det_array=det_id,pi_array=pi,
+                mission=mission,meta_data=meta_data
+                )
         elif mission == 'SWIFT':
             event = Event(time_array=hdulist[ext].data['TIME'],
                 detx_array=hdulist[ext].data['DETX'],
@@ -387,13 +387,22 @@ class EventList(list):
 
     def join(self,mask=None):
         '''
-        Joins Events in an EventList in a single Event
+        Joins Events in an EventList into a single Event
+
+        The joining is performed using the pandas method concat
+
+        PARAMETERS
+        ----------
+        mask: list or np.array
+            Array of booleans to select Events in the EventList to join
         '''
 
         if mask is None:
             mask = np.ones(len(self),dtype=bool)
         else:
-            assert len(mask) == len(self),'Mask must have the same size of EventList'
+            if not len(mask) == len(self):
+                print('Mask must have the same size of EventList')
+                raise IndexError
         
         df_list = []
         for i in range(len(self)):
@@ -408,21 +417,19 @@ class EventList(list):
         for col in list(self[first_valid_index].columns):
             kwargs['{}_array'.format(col)] = df[col]
 
-        notes = {}
         meta_data = {}
         meta_data['EVT_CRE_MODE'] = 'Event created joining Events from EventList'
         meta_data['N_ORI_EVTS'] = len(self)
         meta_data['N_MASKED_EVTS'] = sum(mask)
         kwargs['meta_data'] = meta_data
-        kwargs['notes'] = notes
         kwargs['mission'] = self[first_valid_index].meta_data['MISSION']
 
         return Event(**kwargs)
 
     def info(self):
         '''
-        Returns a pandas DataFrame relevand information for each Event 
-        object in the list
+        Returns a pandas DataFrame with relevand information for each Event 
+        object in the EventList
         '''
 
         columns = ['texp','n_events','count_rate',
