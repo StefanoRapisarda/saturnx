@@ -75,6 +75,8 @@ def clean_gti(start,stop):
 
     if flag: print('Some of the GTIs were overlapping')
 
+    print(clean_start,clean_stop)
+
     return np.array(clean_start),np.array(clean_stop)  
 
 def comp_gap(start,stop):
@@ -264,9 +266,36 @@ class GtiList(list):
             raise TypeError('The item must be a Gti object')
         self[index] = gti
 
-    def join(self):
-        df = pd.concat(self,ignore_index=True)
+    def join(self,mask=None):
+        '''
+        Joints Gtis in a GtiList into a single Gti
+
+        The joining is performed using the pandas method concat
+
+        PARAMETERS
+        ----------
+        mask: list or np.array
+            Array of booleans to select Gtis in a GtiList to join
+        '''
+
+        if mask is None:
+            mask = np.ones(len(self),dtype=bool)
+        else:
+            if not len(mask) == len(self):
+                print('Mask must have the same size of GtiList')
+                raise IndexError
+        
+        df_list = []
+        for i in range(len(self)):
+            if mask[i]: 
+                df_list += [self[i]]
+
+        df = pd.concat(df_list,ignore_index=True)
+
         meta_data = {}
-        meta_data['EVT_CRE_MODE'] = 'Gti created concatenating {} Gtis'.format(len(self))
+        meta_data['GTI_CRE_MODE'] = 'Gti created joining Gtis from GtiList'
+        # I specify GTILIST to separate this from N_GTI_ORI in Gti.__init__()
+        meta_data['N_GTI_ORI_GTILIST'] = len(self)
+        meta_data['N_MASKED_GTIS'] = sum(mask)
         
         return Gti(df.start,df.stop,meta_data=meta_data)

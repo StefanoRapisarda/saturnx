@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd 
 from random import shuffle,random
 
-from saturnx.core.gti import Gti,clean_gti
+from saturnx.core.gti import Gti,GtiList,clean_gti
 
 
 class TestGti:
@@ -87,3 +87,33 @@ class TestGti:
         assert gti.stop.equals(expected_gti.stop)
         assert gti.dur.equals(expected_gti.dur)
         assert gti.gap.equals(expected_gti.gap)
+
+class TestGtiList:
+
+    def test_init(self):
+        pass
+
+    def test_wrong_init(self):
+        pass 
+
+    def test_wrong_set_item(self):
+        pass 
+
+    def test_join(self):
+        gti1 = Gti([1.,3.],[2.,4.])
+        gti2 = Gti([1.5,3.5],[2.5,4.5])
+        gti_list = GtiList([gti1,gti2])
+        join_gti = gti_list.join()
+        expected_gti = Gti([1.,3.],[2.5,4.5])
+
+        assert join_gti.meta_data['N_GTI_ORI'] == 4
+        assert join_gti.meta_data['N_GTI_CLEAN'] == 2
+
+        assert isinstance(join_gti,Gti)
+        assert join_gti.meta_data['GTI_CRE_MODE'] == 'Gti created joining Gtis from GtiList'
+        assert join_gti.meta_data['N_GTI_ORI_GTILIST'] == 2
+        assert join_gti.meta_data['N_MASKED_GTIS'] == 2
+        assert join_gti.start.equals(expected_gti.start)
+        assert join_gti.stop.equals(expected_gti.stop)
+        assert join_gti.dur.equals(expected_gti.dur)
+        assert join_gti.gap.equals(expected_gti.gap)            
