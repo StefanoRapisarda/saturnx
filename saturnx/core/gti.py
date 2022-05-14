@@ -91,19 +91,31 @@ class Gti(pd.DataFrame):
     _metadata = ['meta_data']
 
     def __init__(self,start_array=None,stop_array=None,
-                 clean=True,meta_data={}):
+                 clean=True,meta_data=None):
         if type(start_array) == list: start_array = np.array(start_array)
         if type(stop_array) == list: stop_array = np.array(stop_array)   
 
-        self.notes = notes
-        self.meta_data = meta_data
+        # Initialiasing meta_data
+        if meta_data is None:
+            self.meta_data = {}
+        else: 
+            self.meta_data = meta_data
+
+        if not 'HISTORY' in self.meta_data.keys():
+            self.meta_data['HISTORY'] = {}
+        self.meta_data['HISTORY']['GTI_CRE_DATE'] = my_cdate()
+
+        if not 'NOTES' in self.meta_data.keys():
+            self.meta_data['NOTES'] = {}
+
 
         if start_array is None or len(start_array)==0:
             super().__init__(columns=['start','stop','dur','gap'])
         else:
-            assert len(start_array) == len(stop_array),'start and stop array have different dimentions'
+            if len(start_array) != len(stop_array):
+                raise ValueError('start and stop arrays have different dimentions')
             if clean:
-                self.meta_data['EVENT_CLEANING'] = my_cdate()
+                self.meta_data['HISTORY']['GTI_CLEANING'] = my_cdate()
                 self.meta_data['N_GTI_ORI'] = len(start_array)
                 start,stop = clean_gti(start_array,stop_array)
                 self.meta_data['N_GTI_CLEAN'] = len(start) 
@@ -112,48 +124,56 @@ class Gti(pd.DataFrame):
                 stop = stop_array
             columns = {'start':start,'stop':stop,'dur':stop-start,'gap':comp_gap(start,stop)}
             super().__init__(columns)
-
+ 
+    # Re-inplementing comparison operator to work on GTI duration
 
     def __lt__(self,value):
-        if isinstance(value,str): value = eval(value)
+        if isinstance(value,str): 
+            value = eval(value)
         mask = self.dur < value
         meta_data = self.meta_data
-        meta_data['filtering'] = f'<{value}'
+        meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
+        meta_data['FILTERING_EXPR'] = f'<{value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)
 
     def __le__(self,value):
         if isinstance(value,str): value = eval(value)
         mask = self.dur <= value
         meta_data = self.meta_data
-        meta_data['filtering'] = f'<={value}'
+        meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
+        meta_data['FILTERING_EXPR'] = f'<={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)   
 
     def __eq__(self,value):
         if isinstance(value,str): value = eval(value)
         mask = self.dur == value
         meta_data = self.meta_data
-        meta_data['filtering'] = f'=={value}'
+        meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
+        meta_data['FILTERING_EXPR'] = f'=={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)
 
     def __gt__(self,value):
         if isinstance(value,str): value = eval(value)
         mask = self.dur > value
         meta_data = self.meta_data
-        meta_data['filtering'] = f'>{value}'
+        meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
+        meta_data['FILTERING_EXPR'] = f'>{value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)
 
     def __ge__(self,value):
         if isinstance(value,str): value = eval(value)
         mask = self.dur >= value
         meta_data = self.meta_data
-        meta_data['filtering'] = f'>={value}'
+        meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
+        meta_data['FILTERING_EXPR'] = f'>={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)      
 
     def __ne__(self,value):
         if isinstance(value,str): value = eval(value)
         mask = self.dur != value
         meta_data = self.meta_data
-        meta_data['filtering'] = f'!={value}'
+        meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
+        meta_data['FILTERING_EXPR'] = f'!={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)  
 
     @staticmethod
@@ -162,14 +182,15 @@ class Gti(pd.DataFrame):
         Read GTI (start and stop time) from a fits file
         '''
 
-        assert os.path.isfile(file_name),'file_name does not exist'
+        if isinstance(file_name,str): file_name = pathlib.Path(file_name)
+
         mission =  getval(file_name,'telescop',1)
 
         meta_data = {}
 
-        meta_data['CREATION_DATE'] = my_cdate()
+        meta_data['HISTORY']['CREATION_DATE'] = my_cdate()
         meta_data['CREATION_MODE'] = 'Gti created from fits file'
-        meta_data['FILE_NAME'] = os.path.basename(file_name)
+        meta_data['FILE_NAME'] = file_name.name
         meta_data['DIR'] = os.path.dirname(file_name)
 
         if extname is None:
@@ -184,16 +205,16 @@ class Gti(pd.DataFrame):
 
     def save(self,file_name='gti.pkl',fold=pathlib.Path.cwd()):
 
-        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+        if not isinstance(file_name,(pathlib.Path.cwd(),str)):
             raise TypeError('file_name must be a string or a Path')
-        if type(file_name) == str:
+        if isinstance(file_name,str):
             file_name = pathlib.Path(file_name)
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.pkl')
 
-        if type(fold) == str:
+        if isinstance(fold,str):
             fold = pathlib.Path(fold)
-        if type(fold) != type(pathlib.Path.cwd()):
+        if not isinstance(fold,pathlib.Path):
             raise TypeError('fold name must be either a string or a path')
         
         if not str(fold) in str(file_name):
@@ -209,16 +230,16 @@ class Gti(pd.DataFrame):
     @staticmethod
     def load(file_name,fold=pathlib.Path.cwd()):
 
-        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+        if not isinstance(file_name,(pathlib.Path.cwd(),str)):
             raise TypeError('file_name must be a string or a Path')
-        elif type(file_name) == str:
+        elif isinstance(file_name,str):
             file_name = pathlib.Path(file_name)
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.pkl')
 
-        if type(fold) == str:
+        if isinstance(fold,str):
             fold = pathlib.Path(fold)
-        if type(fold) != type(pathlib.Path.cwd()):
+        if not isinstance(fold,pathlib.Path):
             raise TypeError('fold name must be either a string or a path')
         
         if not str(fold) in str(file_name):
@@ -238,7 +259,6 @@ class GtiList(list):
         if not np.array([isinstance(i,Gti) for i in self]).all():
             raise TypeError('All the elements must be Gti objects')
 
-
     def __setitem__(self, index, gti):
         if not isinstance(gti,Gti):
             raise TypeError('The item must be a Gti object')
@@ -247,6 +267,6 @@ class GtiList(list):
     def join(self):
         df = pd.concat(self,ignore_index=True)
         meta_data = {}
-        meta_data[my_cdate()] = 'Gti created concatenating {} Gtis'.format(len(self))
+        meta_data['EVT_CRE_MODE'] = 'Gti created concatenating {} Gtis'.format(len(self))
         
         return Gti(df.start,df.stop,meta_data=meta_data)

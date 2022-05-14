@@ -14,6 +14,9 @@ class TestEventInit():
 
         nicer_events = Event(mission='NICER')
 
+        assert isinstance(nicer_events,Event)
+        assert isinstance(nicer_events,pd.DataFrame)
+
         # Columns
         assert nicer_events.time.empty
         assert len(nicer_events.time) == 0
@@ -43,6 +46,9 @@ class TestEventInit():
         cr = n/texp
         time = np.linspace(0,texp,n)
         nicer_events = Event(time_array=time,mission='NICER')
+
+        assert isinstance(nicer_events,Event)
+        assert isinstance(nicer_events,pd.DataFrame)
 
         # Columns
         assert not nicer_events.time.empty
@@ -128,6 +134,9 @@ class TestEventInit():
         nevents = fake_nicer_event['n_events']
         texp = fake_nicer_event['texp']
         events = fake_nicer_event['event']
+
+        assert isinstance(events,Event)
+        assert isinstance(events,pd.DataFrame)
 
         # Columns
         assert type(events) == type(Event())

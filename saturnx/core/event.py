@@ -292,8 +292,8 @@ class Event(pd.DataFrame):
         mission = hdulist[ext].header['TELESCOP']
         meta_data = {}
         meta_data['EVT_CRE_MODE'] = 'Event created from fits file'
-        meta_data['EVT_FILE_NAME'] = os.path.basename(file_name.name)
-        meta_data['DIR'] = os.path.dirname(file_name.parent)
+        meta_data['EVT_FILE_NAME'] = file_name.name
+        meta_data['DIR'] = file_name.parent
 
         # Reading meaningfull information from event file
         info = get_basic_info(hdulist,ext=ext)
