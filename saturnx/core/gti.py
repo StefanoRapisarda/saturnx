@@ -1,9 +1,19 @@
-import numpy as np
-import pathlib
-from astropy.io import fits
-from astropy.io.fits import getdata,getval
-import pandas as pd
+"""This module contains the definition of Gti and GtiList classes
+
+The Gti object is a container for GTIs specified by a start and stop time.
+Gti objects are mainly used to determine the full duration of usable data,
+to specify specific time intervals to select in an observation, and to
+split other products (Event and Lightcurve) into lists.
+"""
+
+__author__ = 'Stefano Rapisarda'
+
+from multiprocessing.sharedctypes import Value
 import os
+import pathlib
+import pandas as pd
+import numpy as np
+from astropy.io.fits import getdata,getval
 
 from saturnx.utils.generic import my_cdate
 
@@ -11,37 +21,60 @@ def clean_gti(start,stop):
     '''
     Re-arrange GTIs in order of starting time and merges
     overlapping GTIs
+
+    PARAMETERS
+    ----------
+    start: np.array or list
+        Array of start times
+    stop: np.array or list
+        Array of stop times
+    
+    RETURNS
+    -------
+    clean_start: np.array or list
+        Array of cleaned start times
+    clean_stop: np.array or list
+        Array of cleaned stop times
     '''
 
     start = np.asarray(start)
     stop  = np.asarray(stop)
 
+    # Sorting arrays according to increasing starting time
+    # !!! essential for this algorithm to work properly !!!
     sorting_indices = np.argsort(start)
     sorted_start = start[sorting_indices]
     sorted_stop = stop[sorting_indices]
-    
+
+    # Checking GTIs
+    for t_start,t_stop in zip(sorted_start,sorted_stop):
+        if t_start >= t_stop:
+            print('GTO start times must always be smaller than stop times')
+            raise ValueError
+
+    # Cleaning GTIs
     clean_start = [sorted_start[0]]
     clean_stop = [sorted_stop[0]]
-    #print('clean_start',clean_start,'clean_stop',clean_stop)
+
     flag=False
     for i in range(1,len(start)):
-        #print('iteration',i)
-        # Case A
-        #print('sorted_start',sorted_start[i],'clean_stop',clean_stop[-1])
-        if sorted_start[i] <= clean_stop[-1]:
+        
+        if sorted_start[i] <= clean_stop[i-1]:
+            # Case A, overlapping GTIs
             flag = True
-            if sorted_stop[i] <= clean_stop[-1]:
-                #print('CaseA1')
+            if sorted_stop[i] <= clean_stop[i-1]:
+                # Case A1, new GTI included in the old one
                 continue
             else:
-                #print('CaseA2')
-                clean_stop[-1] = sorted_stop[i]
-        # Case B
-        elif sorted_start[i] > clean_stop[-1]:
+                # Case A2 , GTI overlap ==> updating GTI stop
+                clean_stop[i-1] = sorted_stop[i]
+        else:
+            # Case B
             clean_start += [sorted_start[i]]
             clean_stop  += [sorted_stop[i]]
 
     if flag: print('Some of the GTIs were overlapping')
+
     return np.array(clean_start),np.array(clean_stop)  
 
 def comp_gap(start,stop):
