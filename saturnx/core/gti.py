@@ -59,15 +59,15 @@ def clean_gti(start,stop):
     flag=False
     for i in range(1,len(start)):
         
-        if sorted_start[i] <= clean_stop[i-1]:
+        if sorted_start[i] <= clean_stop[-1]:
             # Case A, overlapping GTIs
             flag = True
-            if sorted_stop[i] <= clean_stop[i-1]:
+            if sorted_stop[i] <= clean_stop[-1]:
                 # Case A1, new GTI included in the old one
                 continue
             else:
                 # Case A2 , GTI overlap ==> updating GTI stop
-                clean_stop[i-1] = sorted_stop[i]
+                clean_stop[-1] = sorted_stop[i]
         else:
             # Case B
             clean_start += [sorted_start[i]]
@@ -88,10 +88,10 @@ def comp_gap(start,stop):
 
 class Gti(pd.DataFrame):
 
-    _metadata = ['notes','meta_data']
+    _metadata = ['meta_data']
 
-    def __init__(self,start_array=None,stop_array=None,clean=True,
-                notes={},meta_data={}):
+    def __init__(self,start_array=None,stop_array=None,
+                 clean=True,meta_data={}):
         if type(start_array) == list: start_array = np.array(start_array)
         if type(stop_array) == list: stop_array = np.array(stop_array)   
 
