@@ -6,7 +6,7 @@ from saturnx.utils.generic import my_cdate, round_half_up
 class CrossSpectrum(pd.DataFrame):
 
     _metadata = [
-        'weight','en_range',
+        'weight','_en_range','en_range'
         'leahy_norm','rms_norm','poi_level',
         'meta_data']
 
@@ -40,7 +40,7 @@ class CrossSpectrum(pd.DataFrame):
         self.poi_level = poi_level
 
         self.weight = weight
-        self.en_range = en_range
+        self._en_range = en_range
 
         # Initializing meta data
         if meta_data is None:

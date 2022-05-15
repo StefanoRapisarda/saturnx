@@ -6,6 +6,8 @@ from scipy.fft import ifft,irfft
 import multiprocessing as mp
 from functools import partial
 
+from .generic import round_half_up
+
 
 def poi_events(tres=1, nbins=1000, cr=1):
     '''
@@ -423,23 +425,56 @@ def rebin_xy(x,y=None,xe=None,ye=None,rf=-30,start_x=0,stop_x=np.inf,
 
 def rebin_arrays(time_array,tres=None,rf=-30,
     arrays=[],bin_mode=[],exps=[]):
+    '''
+    Rebins array either linearly or logarightmically according to a 
+    rebing factor
 
-    if not type(time_array) in [np.ndarray,pd.Series,list]:
+    PARAMETERS
+    ----------
+    time_array: np.array, pd.Series, or list
+        Array of time bin
+    tres: float (optional)
+        Time resolution. If None (default), the time array is 
+        extrapolated from time_array
+    rf: float (optional)
+        Rebinning factor. If positive, linear rebinning is applied and
+        the final time resolution will be tres*rf. If negative (default
+        is -30), logarithmic rebin is applied.
+    arrays: list of np.array (optional) 
+        List of other arrays to be re-binned together with time. Default
+        is an empty list
+    bin_mode: list of strings (optional)
+        List of either 'sum' or 'ave'. This specified for each array in
+        arrays if to average or summing the bins in the new binning
+    exps: list of strings (optional)
+        Exponent to be applied to the elements of the arrays before
+        being either summed or averaged (according to the option 
+        specified in bin_mode)
+
+    RETURNS
+    -------
+    (rta,rebinned_array): tuple
+        rta is the rebinned time array, rebinned array is a list 
+        containing the rebinned array caomputed from the input arrays
+
+    '''
+
+    if not isinstance(time_array,(np.ndarray,pd.Series,list)):
         raise ValueError('time_array must be an array')
     else:
-        if type(time_array) == list:
+        if isinstance(time_array,list):
             time_array = np.array(time_array)
-        elif type(time_array) == pd.Series:
+        elif isinstance(time_array,pd.Series):
             time_array = time_array.to_numpy()
 
-    if type(arrays) != list: arrays = [arrays]
+    if not isinstance(arrays,list): arrays = [arrays]
 
     if tres is None:
         tres = np.median(np.ediff1d(time_array))
-        tres = np.round(tres,int(abs(math.log10(tres/1e+6))))
+        tres = round_half_up(tres,12)
 
     if len(arrays) != 0:
-        if len(bin_mode) == 0:
+        if not bin_mode:
             bin_mode = ['ave' for i in range(len(arrays))]
         if len(exps) == 0:
             exps = [1 for i in range(len(arrays))]
@@ -503,8 +538,6 @@ def rebin_arrays(time_array,tres=None,rf=-30,
                     method = np.sum
                 rebinned_arrays[a] = np.append(rebinned_arrays[a],
                     method(array[mask]**exp))
-  
-    print('Done!')
 
     return rta,rebinned_arrays
 

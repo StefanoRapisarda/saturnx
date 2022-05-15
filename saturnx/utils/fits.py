@@ -7,8 +7,12 @@ from astropy.io import fits
 
 def read_fits_keys(input_object,keys,ext=0):
     '''
-    Return a dictionary of key,value for the selected
-    extension of the FITS file
+    Return a dictionary of key,value for the selected extension of the 
+    FITS file
+
+    PARAMETERS
+    ----------
+    input_object: str, pathlib.Path, or astropy.io.fits.hdu_list
 
     HISTORY
     -------
@@ -33,20 +37,20 @@ def read_fits_keys(input_object,keys,ext=0):
     else:
         if isinstance(input_object,str): 
             input_object = pathlib.Path(input_object)
-        if not input_object.isfile():
+        if not input_object.is_file():
             mylogging.error(f'FITS file {input_object} does not exist')
-            return
+            return {}
 
         try:
-            hdu_list = open(input_object,memmap=True)  
+            hdu_list = fits.open(input_object)  
             close_flag = True
         except:
-            mylogging.error(f'Could not open FITS dile ({input_object})')
-            return
+            mylogging.error(f'Could not open FITS file ({input_object})')
+            return {}
 
     for key in keys:
         try:
-            value = input_object[ext].header[key]
+            value = hdu_list[ext].header[key]
         except Exception as e:
             mylogging.warning(f'Could not read key {key} in ext {ext}')
             value = None
@@ -59,7 +63,7 @@ def read_fits_keys(input_object,keys,ext=0):
     return info
 
 
-def get_basic_info(input_object,ext=0,keys=None):
+def get_basic_info(input_object,ext=0):
     '''
     Return a dictionary with basic informations collected 
     from a fits_file (supposed to be event file)
@@ -77,8 +81,7 @@ def get_basic_info(input_object,ext=0,keys=None):
     time_keys = ['DATE-OBS','DATE-END','TSTART','TSTOP',
                 'MJDREF','MJDREFI','MJDREFF','TIMEZERO','LEAPINIT','CLOCKAPP',
                 'TIMEZERO','ONTIME','EXPOSURE','NAXIS2','TIMESYS']
-   
-    keys = keys or basic_keys + time_keys
-    info = read_fits_keys(input_object,keys,ext=ext)
+
+    info = read_fits_keys(input_object,basic_keys+time_keys,ext=ext)
 
     return info

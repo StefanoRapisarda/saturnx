@@ -33,7 +33,7 @@ class Event(pd.DataFrame):
         this syntax !!!
     '''
 
-    _metadata = ['meta_data']
+    _metadata = ['meta_data','_meta_data']
 
     def __init__(self,time_array=None,pi_array=None,det_array=None,
                  detx_array=None,dety_array=None,grade_array=None,

@@ -319,9 +319,6 @@ def read_args(usr_args={}):
 
     return arg_dict
 
-
-
-
 def get_nn_var(expr,user_char_set=''):
     '''
     Return a list of not numerical variables in a string expression

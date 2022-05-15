@@ -25,16 +25,16 @@ class TestLightcurveInit:
         lc = Lightcurve()
         
         # Attributes
-        assert lc.low_en == None
-        assert lc.high_en == None
-        assert lc.tot_counts == None
-        assert lc.count_std == None
-        assert lc.cr == None
-        assert lc.cr_std == None
-        assert lc.texp == None
-        assert lc.tres == None
-        assert lc.rms == None
-        assert lc.frac_rms == None
+        assert lc.low_en is None
+        assert lc.high_en is None
+        assert lc.tot_counts is None
+        assert lc.count_std is None
+        assert lc.cr is None
+        assert lc.cr_std is None
+        assert lc.texp is None
+        assert lc.tres is None
+        assert lc.rms is None
+        assert lc.frac_rms is None
 
     def test_empty_lc_str_energies1(self):
         lc = Lightcurve()
@@ -69,9 +69,9 @@ class TestLightcurveInit:
         lc = Lightcurve()
         
         assert type(lc.meta_data) == dict
-        assert lc.meta_data['LC_CRE_DATE'] == 'test_current_date'
-        assert len(lc.meta_data) == 1
-        assert lc.notes == {}
+        assert lc.meta_data['HISTORY']['LC_CRE_DATE'] == 'test_current_date'
+        assert len(lc.meta_data) == 2
+        assert lc.meta_data['NOTES'] == {}
 
     def test_only_time_lc_arrays(self):
         lc = Lightcurve(time_array = np.linspace(0,99,100))
@@ -89,16 +89,16 @@ class TestLightcurveInit:
         lc = Lightcurve(time_array = np.linspace(0,99,100))
         
         # Attributes
-        assert lc.low_en == None
-        assert lc.high_en == None
-        assert lc.tot_counts == None
-        assert lc.count_std == None
-        assert lc.cr == None
-        assert lc.cr_std == None
+        assert lc.low_en is None
+        assert lc.high_en is None
+        assert lc.tot_counts is None
+        assert lc.count_std is None
+        assert lc.cr is None
+        assert lc.cr_std is None
         assert lc.texp == 100
         assert lc.tres == 1.
-        assert lc.rms == None
-        assert lc.frac_rms == None
+        assert lc.rms is None
+        assert lc.frac_rms is None
 
     def test_full_lc_arrays(self,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
@@ -170,10 +170,10 @@ class TestLightcurveInit:
     def test_full_lc_meta_data(self,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
         assert type(lc.meta_data) == dict
-        assert 'LC_CRE_DATE' in lc.meta_data.keys()
+        assert 'LC_CRE_DATE' in lc.meta_data['HISTORY'].keys()
         assert lc.meta_data['MISSION'] == 'NICER'
-        assert type(lc.notes) == dict
-        assert lc.notes['STEF1'] == 'This is a test note'
+        assert isinstance(lc.meta_data['NOTES'],dict)
+        assert lc.meta_data['NOTES']['STEF1'] == 'This is a test note'
 
     def test_negative_low_energy1(self):
         lc = Lightcurve()
@@ -229,7 +229,7 @@ class TestLightcurveAdd:
 
         lc = lc1 + lc2
 
-        assert lc.meta_data['LC_CRE_DATE'] == 'test_current_date'
+        assert lc.meta_data['HISTORY']['LC_CRE_DATE'] == 'test_current_date'
         assert lc.meta_data['TEST'] == 'Test of meta_data'
         assert lc.meta_data == lc1.meta_data
         assert lc.meta_data != lc2.meta_data
@@ -315,8 +315,8 @@ class TestLightcurveAdd:
         assert lc2.cr == 2*lc1.cr
         assert np.array_equal(lc2.counts,lc1.counts*2)
         assert np.array_equal(lc1.time,lc2.time)
-        assert lc2.notes['STEF1'] == 'This is a test note'
-        assert 'LC_CRE_DATE' in  lc2.meta_data.keys()
+        assert lc2.meta_data['NOTES']['STEF1'] == 'This is a test note'
+        assert 'LC_CRE_DATE' in  lc2.meta_data['HISTORY'].keys()
         assert lc1.low_en == lc2.low_en
         assert lc1.high_en == lc2.high_en  
 
@@ -340,7 +340,7 @@ class TestLightcurveMul:
         assert type(lc2) == type(Lightcurve())
         assert len(lc2) == len(lc1)
         assert lc1.columns.equals(lc2.columns)
-        assert lc2.notes == lc1.notes
+        assert lc2.meta_data['NOTES'] == lc1.meta_data['NOTES']
         assert lc1.meta_data == lc2.meta_data
         assert lc1.low_en == lc2.low_en
         assert lc1.high_en == lc1.high_en
@@ -370,7 +370,7 @@ class TestLightcurveMul:
             assert type(lc2) == type(Lightcurve())
             assert len(lc2) == len(lc1)
             assert lc1.columns.equals(lc2.columns)
-            assert lc2.notes == lc1.notes
+            assert lc2.meta_data['NOTES'] == lc1.meta_data['NOTES']
             assert lc1.meta_data == lc2.meta_data
             assert lc1.low_en == lc2.low_en
             assert lc1.high_en == lc1.high_en
@@ -393,7 +393,7 @@ class TestLightcurveMul:
             assert type(lc2) == type(Lightcurve())
             assert len(lc2) == len(lc1)
             assert lc1.columns.equals(lc2.columns)
-            assert lc2.notes == lc1.notes
+            assert lc2.meta_data['NOTES'] == lc1.meta_data['NOTES']
             assert lc1.meta_data == lc2.meta_data
             assert lc1.low_en == lc2.low_en
             assert lc1.high_en == lc1.high_en
@@ -420,7 +420,7 @@ class TestLightcurveTruediv:
     def test_div(self,value,fake_white_noise_lc):
         lc1 = fake_white_noise_lc['lc']
         if value == 0:
-            with pytest.raises(ValueError):
+            with pytest.raises(ZeroDivisionError):
                 lc2 = lc1/value
         else:
             if type(value) == str: value = eval(value)
@@ -428,7 +428,7 @@ class TestLightcurveTruediv:
             assert type(lc2) == type(Lightcurve())
             assert len(lc2) == len(lc1)
             assert lc1.columns.equals(lc2.columns)
-            assert lc2.notes == lc1.notes
+            assert lc2.meta_data['NOTES'] == lc1.meta_data['NOTES']
             assert lc1.meta_data == lc2.meta_data
             assert lc1.low_en == lc2.low_en
             assert lc1.high_en == lc1.high_en
@@ -464,8 +464,8 @@ class TestLightcurveSplit:
             assert type(lc) == type(Lightcurve())
             assert np.isclose(lc.texp ,tdurs[i])
             assert np.isclose(lc.tres ,lc1.tres)
-            assert lc.notes == lc1.notes
-            assert 'SPLITTING_GTI' in  lc.meta_data.keys()
+            assert lc.meta_data['NOTES'] == lc1.meta_data['NOTES']
+            assert 'SPLITTING_GTI' in  lc.meta_data['HISTORY'].keys()
             assert lc.meta_data['N_GTIS'] == len(tdurs)
             assert lc.meta_data['GTI_INDEX'] == i
             assert lc.low_en == lc1.low_en
@@ -484,7 +484,7 @@ class TestLightcurveSplit:
             assert np.array_equal(lc_list[0].time,lc1.time)
             assert np.array_equal(lc_list[0].counts,lc1.counts)
             assert np.array_equal(lc_list[0].rate,lc1.rate)
-            assert lc_list[0].notes == lc1.notes
+            assert lc_list[0].meta_data['NOTES'] == lc1.meta_data['NOTES']
             assert lc_list[0].meta_data == lc1.meta_data
             assert lc_list[0].low_en == lc1.low_en
             assert lc_list[0].high_en == lc1.high_en
@@ -495,8 +495,8 @@ class TestLightcurveSplit:
                 assert type(lc) == type(Lightcurve())
                 assert lc.texp ,value
                 assert lc.tres ,lc1.tres
-                assert lc.notes == lc1.notes
-                assert 'SPLITTING_SEG' in  lc.meta_data.keys()
+                assert lc.meta_data['NOTES'] == lc1.meta_data['NOTES']
+                assert 'SPLITTING_SEG' in  lc.meta_data['HISTORY'].keys()
                 assert lc.meta_data['N_SEGS'] == n_segs,lc1.texp
                 assert lc.meta_data['SEG_DUR'] == value
                 assert lc.meta_data['SEG_INDEX'] == i
@@ -541,8 +541,8 @@ class TestLightcurveRebin:
             int(abs(math.log10(lc1.cr/1000))))
         assert lc1.low_en == lc2.low_en
         assert lc1.high_en == lc2.high_en
-        assert lc1.notes == lc2.notes
-        assert 'REBINNING' in lc2.meta_data.keys()
+        assert lc1.meta_data['NOTES'] == lc2.meta_data['NOTES']
+        assert 'REBINNING' in lc2.meta_data['HISTORY'].keys()
         assert lc2.meta_data['REBIN_FACTOR'] == [value]
 
     @pytest.mark.parametrize('value',
@@ -573,8 +573,8 @@ class TestLightcurveRebin:
             int(abs(math.log10(lc2.tres/10))))
         assert lc1.low_en == lc2.low_en
         assert lc1.high_en == lc2.high_en
-        assert lc1.notes == lc2.notes
-        assert 'REBINNING' in lc2.meta_data.keys()
+        assert lc1.meta_data['NOTES'] == lc2.meta_data['NOTES']
+        assert 'REBINNING' in lc2.meta_data['HISTORY'].keys()
         assert lc2.meta_data['REBIN_FACTOR'] == [1,2]  
 
 class TestLightcurveFromEvent:
@@ -590,9 +590,9 @@ class TestLightcurveFromEvent:
         header_keys = fake_nicer_event['header_keys']
         lc = Lightcurve.from_event(events)
 
-        assert type(lc) == type(Lightcurve())
+        assert isinstance(lc,Lightcurve)
 
-        assert 'LC_CRE_DATE' in lc.meta_data.keys()
+        assert 'LC_CRE_DATE' in lc.meta_data['HISTORY'].keys()
         assert lc.meta_data['LC_CRE_MODE'] == 'Lightcurve computed from Event object'
         assert lc.meta_data['EVT_FILE_NAME'] == 'Test file name'
         assert lc.meta_data['DIR'] == 'Test dir'
@@ -666,6 +666,7 @@ class TestReadFromFits:
         lc = fake_white_noise_lc['lc']
 
         # Making fits
+        # --------------------------------------------------------------
         hdu1 = fits.PrimaryHDU()
         
         col1 = fits.Column(name='TIME', format='D',array=lc.time.to_numpy())
@@ -690,7 +691,9 @@ class TestReadFromFits:
         d = tmp_path/'sub'
         d.mkdir()
         file_name = d/'lc.fits'
+        #file_name = '/Volumes/Samsung_T5/saturnx/tests/lc.fits'
         hdu_list.writeto(file_name)
+        # --------------------------------------------------------------
 
         # Testing
         lcr = Lightcurve.read_fits(file_name,ext='EXT2',
@@ -702,8 +705,8 @@ class TestReadFromFits:
         assert lc.texp == lcr.texp
         assert lcr.low_en is None
         assert lcr.high_en is None
-        assert lcr.notes == {}
-        assert 'LC_CRE_DATE' in lcr.meta_data.keys()
+        assert lcr.meta_data['NOTES'] == {}
+        assert 'LC_CRE_DATE' in lcr.meta_data['HISTORY'].keys()
         assert lcr.meta_data['LC_CRE_MODE'] == 'Lightcurve read from fits file'
         assert lcr.meta_data['FILE_NAME'] == 'lc.fits'
         assert lcr.meta_data['MISSION'] == 'NICER'
@@ -713,7 +716,8 @@ class TestReadFromFits:
     def test_read_fits_rate(self,tmp_path,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
 
-        # Making fits
+        # Making fits file
+        # --------------------------------------------------------------
         hdu1 = fits.PrimaryHDU()
         
         col1 = fits.Column(name='TIME', format='D',array=lc.time.to_numpy())
@@ -740,6 +744,7 @@ class TestReadFromFits:
         d.mkdir()
         file_name = d/'lc.fits'
         hdu_list.writeto(file_name)
+        # --------------------------------------------------------------
 
         # Testing
         lcr = Lightcurve.read_fits(file_name,ext='EXT2',
@@ -751,8 +756,8 @@ class TestReadFromFits:
         assert lc.texp == lcr.texp
         assert lcr.low_en is None
         assert lcr.high_en is None
-        assert lcr.notes == {}
-        assert 'LC_CRE_DATE' in lcr.meta_data.keys()
+        assert lcr.meta_data['NOTES'] == {}
+        assert 'LC_CRE_DATE' in lcr.meta_data['HISTORY'].keys()
         assert lcr.meta_data['LC_CRE_MODE'] == 'Lightcurve read from fits file'
         assert lcr.meta_data['FILE_NAME'] == 'lc.fits'
         assert lcr.meta_data['MISSION'] == 'NICER'
@@ -793,13 +798,14 @@ class TestLightcurveToFits:
         assert np.array_equal(lc.rate,lc2.rate)
         assert lc.low_en == lc2.low_en
         assert lc.high_en == lc2.high_en
-        assert 'LC_CRE_DATE' in lc2.meta_data.keys()
+        assert 'LC_CRE_DATE' in lc2.meta_data['HISTORY'].keys()
         assert lc2.meta_data['LC_CRE_MODE'] == 'Lightcurve read from fits file'
         if name == 'lc': name += '.fits'
         assert lc2.meta_data['FILE_NAME'] == name
         assert lc2.meta_data['DIR'] == str(d)
+        print(lc.meta_data['MISSION'])
         assert lc2.meta_data['MISSION'] == 'NICER'
-        assert lc2.notes == {}
+        assert lc2.meta_data['NOTES']['STEF1'] == 'This is a test note'
 
 
 class TestLightcurveSaveLoad:
@@ -846,7 +852,7 @@ class TestLightcurveSaveLoad:
         assert lc.low_en == lc2.low_en
         assert lc.high_en == lc2.high_en
         assert lc.meta_data == lc2.meta_data
-        assert lc.notes == lc2.notes
+        assert lc.meta_data['NOTES'] == lc2.meta_data['NOTES']
 
     @pytest.mark.parametrize('name',['lc','test_lc.pkl'],
         ids = ['without_pkl','with_pkl'])
@@ -866,7 +872,7 @@ class TestLightcurveSaveLoad:
         assert lc.low_en == lc2.low_en
         assert lc.high_en == lc2.high_en
         assert lc.meta_data == lc2.meta_data
-        assert lc.notes == lc2.notes
+        assert lc.meta_data['NOTES'] == lc2.meta_data['NOTES']
 
 
 class TestLightcurveList:
@@ -899,7 +905,7 @@ class TestLightcurveList:
         assert lc_list[i].low_en == lc.low_en
         assert lc_list[i].high_en == lc.high_en
         assert lc_list[i].meta_data == lc.meta_data
-        assert lc_list[i].notes == lc.notes
+        assert lc_list[i].meta_data['NOTES'] == lc.meta_data['NOTES']
 
     def test_join_diff_tres(self,fake_white_noise_lc):
         lc1 = fake_white_noise_lc['lc']
@@ -927,13 +933,13 @@ class TestLightcurveList:
         assert lcj.texp == lc.texp
         assert lcj.low_en == lc.low_en
         assert lcj.high_en == lc.high_en
-        assert 'LC_CRE_DATE' in  lcj.meta_data.keys()
+        assert 'LC_CRE_DATE' in  lcj.meta_data['HISTORY'].keys()
         assert lcj.meta_data['LC_CRE_MODE'] == \
             'Lightcurve created joining Lightcurves from LightcurveList'
         assert lcj.meta_data['N_ORI_LCS'] == 5
         assert lcj.meta_data['N_MASKED_LCS'] == 5
         assert lcj.meta_data['MISSION'] == 'NICER'
-        assert lcj.notes == {}     
+        assert lcj.meta_data['NOTES'] == {}     
 
     def test_join_mask(self,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
@@ -956,13 +962,13 @@ class TestLightcurveList:
         assert lcj.texp == lcj2.texp
         assert lcj.low_en == lc.low_en
         assert lcj.high_en == lc.high_en
-        assert 'LC_CRE_DATE' in  lcj.meta_data.keys()
+        assert 'LC_CRE_DATE' in  lcj.meta_data['HISTORY'].keys()
         assert lcj.meta_data['LC_CRE_MODE'] == \
             'Lightcurve created joining Lightcurves from LightcurveList'
         assert lcj.meta_data['N_ORI_LCS'] == 5
         assert lcj.meta_data['N_MASKED_LCS'] == 3
         assert lcj.meta_data['MISSION'] == 'NICER'
-        assert lcj.notes == {}      
+        assert lcj.meta_data['NOTES'] == {}      
 
 
 class TestLightcurveListFillGaps:
@@ -990,25 +996,25 @@ class TestLightcurveListSplit:
     def test_split_seg(self,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
         lc_protolist = lc.split(10)
-        lc_list = lc_protolist.split(5)
+        lc_list = lc_protolist.split(4)
 
         assert type(lc_list) == type(LightcurveList())
         assert len(lc_list) == 10
         for i,lci in enumerate(lc_list):
             assert type(lci) == type(Lightcurve())
             assert lci.tres == lc.tres
-            assert lci.texp == 5
+            assert lci.texp == 4
             assert lci.low_en == lc.low_en
             assert lci.high_en == lc.high_en
-            assert 'SPLITTING_SEG' in lci.meta_data.keys()
-            assert 'SPLITTING_SEG_1' in lci.meta_data.keys()
+            assert 'SPLITTING_SEG' in lci.meta_data['HISTORY'].keys()
+            assert 'SPLITTING_SEG_1' in lci.meta_data['HISTORY'].keys()
             assert lci.meta_data['SEG_DUR'] == 10
             assert lci.meta_data['N_SEGS'] == 5
-            assert lci.meta_data['SEG_DUR_1'] == 5
+            assert lci.meta_data['SEG_DUR_1'] == 4
             assert lci.meta_data['N_SEGS_1'] == 2 
             assert lci.meta_data['SEG_INDEX'] == int(i/2)
             assert lci.meta_data['SEG_INDEX_1'] == i%2     
-            assert lci.notes == lc.notes
+            assert lci.meta_data['NOTES'] == lc.meta_data['NOTES']
 
 
 class TestLightcurveListInfo:
@@ -1021,7 +1027,7 @@ class TestLightcurveListInfo:
         assert len(info) == len(lc_list)
         assert list(info.columns) == ['texp','tres','n_bins','counts','count_rate',
                     'rms','frac_rms',
-                    'max_time','min_time',
+                    'min_time','max_time',
                     'min_en','max_en','mission']
         for i in range(len(info)):
             assert info['texp'].iloc[i] == lc_list[i].texp 
@@ -1062,8 +1068,9 @@ class TestLightcurveListAttributes:
         lc = fake_white_noise_lc['lc']
         lc_list = lc.split(10)
 
+        crs = np.array([lci.cr for lci in lc_list])
         pre = int(abs(math.log10(lc.cr_std/1000)))
-        assert np.isclose(lc.cr_std,lc_list.cr_std,pre)
+        assert np.isclose(np.std(crs),lc_list.cr_std,pre)
 
     def test_count_std(self,fake_white_noise_lc):
         lc = fake_white_noise_lc['lc']
