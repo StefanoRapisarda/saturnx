@@ -856,9 +856,9 @@ class Lightcurve(pd.DataFrame):
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.fits')
 
-        if type(fold) == str:
+        if isinstance(fold,str):
             fold = pathlib.Path(fold)
-        elif type(fold) != type(pathlib.Path.cwd()):
+        elif not isinstance(fold,pathlib.Path):
             raise TypeError('fold name must be either a string or a path')
         
         file_name = fold / file_name
@@ -893,16 +893,16 @@ class Lightcurve(pd.DataFrame):
 
     def save(self,file_name='lightcurve.pkl',fold=pathlib.Path.cwd()):
 
-        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+        if not isinstance(file_name,(pathlib.Path,str)):
             raise TypeError('file_name must be a string or a Path')
-        if type(file_name) == str:
+        if isinstance(file_name,str):
             file_name = pathlib.Path(file_name)
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.pkl')
 
-        if type(fold) == str:
+        if isinstance(fold,str):
             fold = pathlib.Path(fold)
-        if type(fold) != type(pathlib.Path.cwd()):
+        if not isinstance(fold,pathlib.Path):
             raise TypeError('fold name must be either a string or a path')
         
         if not str(fold) in str(file_name):
@@ -918,16 +918,16 @@ class Lightcurve(pd.DataFrame):
     @staticmethod
     def load(file_name,fold=pathlib.Path.cwd()):
 
-        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+        if not isinstance(file_name,(pathlib.Path,str)):
             raise TypeError('file_name must be a string or a Path')
-        elif type(file_name) == str:
+        elif isinstance(file_name,str):
             file_name = pathlib.Path(file_name)
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.pkl')
 
-        if type(fold) == str:
+        if isinstance(fold,str):
             fold = pathlib.Path(fold)
-        if type(fold) != type(pathlib.Path.cwd()):
+        if not isinstance(fold,pathlib.Path):
             raise TypeError('fold name must be either a string or a path')
         
         if not str(fold) in str(file_name):
@@ -1379,16 +1379,16 @@ class LightcurveList(list):
 
     def save(self,file_name='lightcurve_list.pkl',fold=pathlib.Path.cwd()):
 
-        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+        if not isinstance(file_name,(pathlib.Path,str)):
             raise TypeError('file_name must be a string or a Path')
-        if type(file_name) == str:
+        if isinstance(file_name,str):
             file_name = pathlib.Path(file_name)
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.pkl')
 
-        if type(fold) == str:
+        if isinstance(fold,str):
             fold = pathlib.Path(fold)
-        if type(fold) != type(pathlib.Path.cwd()):
+        if not isinstance(fold,pathlib.Path):
             raise TypeError('fold name must be either a string or a path')
 
         if not str(fold) in str(file_name):
@@ -1405,16 +1405,16 @@ class LightcurveList(list):
     @staticmethod
     def load(file_name,fold=pathlib.Path.cwd()):
         
-        if not type(file_name) in [type(pathlib.Path.cwd()),str]:
+        if not isinstance(file_name,(pathlib.Path,str)):
             raise TypeError('file_name must be a string or a Path')
-        elif type(file_name) == str:
+        elif isinstance(file_name,str):
             file_name = pathlib.Path(file_name)
         if file_name.suffix == '':
             file_name = file_name.with_suffix('.pkl')
 
-        if type(fold) == str:
+        if isinstance(fold,str):
             fold = pathlib.Path(fold)
-        if type(fold) != type(pathlib.Path.cwd()):
+        if not isinstance(fold,pathlib.Path):
             raise TypeError('fold name must be either a string or a path')
         
         if not str(fold) in str(file_name):
