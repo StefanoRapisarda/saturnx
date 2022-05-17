@@ -1,10 +1,11 @@
-"""This module contains the definition of Gti and GtiList classes
+"""This module contains the definition of Gti and GtiList classes and two
+specific functions to clean GTIs and compute the gap between two 
+conscutive GTIs.
 
-The Gti object is a container for GTIs specified by a start and stop time.
+The Gti object is a container for GTIs specified by start and stop time.
 Gti objects are mainly used to determine the full duration of usable data,
 to specify specific time intervals to select in an observation, and to
-split other products (Event and Lightcurve) into lists.
-"""
+filter other data products (Event and Lightcurve) columns."""
 
 __author__ = 'Stefano Rapisarda'
 
@@ -89,6 +90,28 @@ def comp_gap(start,stop):
     return gaps
 
 class Gti(pd.DataFrame):
+    '''
+    Gti object. It stores start and stop times of GTIs (Good Time 
+    Intervals). The object extends a pandas.DataFrame
+
+    ATTRIBUTES
+    ----------
+    meta_data: dictionary
+        Container of useful information, user notes (key NOTES), and 
+        data reduction history (key HISTORY)
+
+    METHODS
+    -------
+    comparison operators (<,>,>=,<=,==,!=)
+        They return a Gti objects with rows filtered according to 
+        duration, i.e. the difference between stop and start
+    read_fits(extename=None)
+        Reads Gti from a FITS file
+    save(file_name='gti.pkl',fold=pathlib.Path.cwd())
+        Save Gti to a file via pickle
+    load(file_name,fold=pathlib.Path.cwd())
+        Read a pickled Gti file
+    ''' 
 
     _metadata = ['meta_data','_meta_data']
 
@@ -98,7 +121,8 @@ class Gti(pd.DataFrame):
         if type(stop_array) == list: stop_array = np.array(stop_array)   
 
         self.meta_data = meta_data
-        self.meta_data['HISTORY']['GTI_CRE_DATE'] = my_cdate()  
+        if not 'GTI_CRE_DATE' in self.meta_data['HISTORY'].keys():
+            self.meta_data['HISTORY']['GTI_CRE_DATE'] = my_cdate()  
 
         if start_array is None or len(start_array)==0:
             super().__init__(columns=['start','stop','dur','gap'])
@@ -166,25 +190,6 @@ class Gti(pd.DataFrame):
         meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
         meta_data['FILTERING_EXPR'] = f'!={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)  
-
-    @property
-    def meta_data(self):
-        return self._meta_data
-
-    @meta_data.setter
-    def meta_data(self,value):
-        if value is None:
-            self._meta_data = {}
-        else:
-            if not isinstance(value,dict):
-                raise TypeError('meta_data must be a dictionary')
-            self._meta_data = copy.deepcopy(value)
-
-        if not 'HISTORY' in self.meta_data.keys():
-            self._meta_data['HISTORY'] = {}            
-
-        if not 'NOTES' in self.meta_data.keys():
-            self._meta_data['NOTES'] = {} 
 
     @staticmethod
     def read_fits(file_name,extname=None):
@@ -262,7 +267,34 @@ class Gti(pd.DataFrame):
         
         return gti
 
+    @property
+    def meta_data(self):
+        return self._meta_data
+
+    @meta_data.setter
+    def meta_data(self,value):
+        if value is None:
+            self._meta_data = {}
+        else:
+            if not isinstance(value,dict):
+                raise TypeError('meta_data must be a dictionary')
+            self._meta_data = copy.deepcopy(value)
+
+        if not 'HISTORY' in self.meta_data.keys():
+            self._meta_data['HISTORY'] = {}            
+
+        if not 'NOTES' in self.meta_data.keys():
+            self._meta_data['NOTES'] = {} 
+
 class GtiList(list):
+    '''
+    A list of Gti objects with extra powers (and responsabilities)
+
+    METHODS
+    -------
+    join(mask=None)
+        Joins the elements of an EventList into a single Event 
+    '''
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)

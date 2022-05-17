@@ -1,6 +1,6 @@
 """This module contains the definition of Event and EventList classes
 
-Event objects are mission-dependent event array containers."""
+Event objects are mission-dependent event array containers"""
 
 __author__ = 'Stefano Rapisarda'
 
@@ -20,7 +20,7 @@ from saturnx.core.gti import Gti
 class Event(pd.DataFrame):
     '''
     Event object. Stores photon time arrival and other observatory-dependend
-    parameters. The object extend a pandas.DataFrame
+    parameters. The object extends a pandas.DataFrame
 
     ATTRIBUTES
     ----------
@@ -67,6 +67,8 @@ class Event(pd.DataFrame):
     '''
 
     _metadata = ['meta_data','_meta_data']
+
+    # >>> METHODS <<<
 
     def __init__(self,time_array=None,pi_array=None,det_array=None,
                  detx_array=None,dety_array=None,grade_array=None,
@@ -146,7 +148,8 @@ class Event(pd.DataFrame):
             super().__init__(data=columns)  
 
         self.meta_data = meta_data
-        self.meta_data['HISTORY']['EVT_CRE_DATE'] = my_cdate()   
+        if not 'EVT_CRE_DATE' in self.meta_data['HISTORY'].keys():
+            self.meta_data['HISTORY']['EVT_CRE_DATE'] = my_cdate()   
         self.meta_data['MISSION'] = mission
  
         if mission == 'NICER' and det_array is not None:
@@ -401,6 +404,8 @@ class Event(pd.DataFrame):
         del hdulist 
 
         return event
+
+    # >>> ATTRIBUTES <<<
 
     @property
     def texp(self):
