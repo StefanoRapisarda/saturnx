@@ -8,8 +8,8 @@ split other products (Event and Lightcurve) into lists.
 
 __author__ = 'Stefano Rapisarda'
 
-from multiprocessing.sharedctypes import Value
 import os
+import copy
 import pathlib
 import pandas as pd
 import numpy as np
@@ -90,26 +90,15 @@ def comp_gap(start,stop):
 
 class Gti(pd.DataFrame):
 
-    _metadata = ['meta_data']
+    _metadata = ['meta_data','_meta_data']
 
     def __init__(self,start_array=None,stop_array=None,
                  clean=True,meta_data=None):
         if type(start_array) == list: start_array = np.array(start_array)
         if type(stop_array) == list: stop_array = np.array(stop_array)   
 
-        # Initialiasing meta_data
-        if meta_data is None:
-            self.meta_data = {}
-        else: 
-            self.meta_data = meta_data
-
-        if not 'HISTORY' in self.meta_data.keys():
-            self.meta_data['HISTORY'] = {}
-        self.meta_data['HISTORY']['GTI_CRE_DATE'] = my_cdate()
-
-        if not 'NOTES' in self.meta_data.keys():
-            self.meta_data['NOTES'] = {}
-
+        self.meta_data = meta_data
+        self.meta_data['HISTORY']['GTI_CRE_DATE'] = my_cdate()  
 
         if start_array is None or len(start_array)==0:
             super().__init__(columns=['start','stop','dur','gap'])
@@ -177,6 +166,25 @@ class Gti(pd.DataFrame):
         meta_data['HISTORY']['GTI_FILTERING'] = my_cdate()
         meta_data['FILTERING_EXPR'] = f'!={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)  
+
+    @property
+    def meta_data(self):
+        return self._meta_data
+
+    @meta_data.setter
+    def meta_data(self,value):
+        if value is None:
+            self._meta_data = {}
+        else:
+            if not isinstance(value,dict):
+                raise TypeError('meta_data must be a dictionary')
+            self._meta_data = copy.deepcopy(value)
+
+        if not 'HISTORY' in self.meta_data.keys():
+            self._meta_data['HISTORY'] = {}            
+
+        if not 'NOTES' in self.meta_data.keys():
+            self._meta_data['NOTES'] = {} 
 
     @staticmethod
     def read_fits(file_name,extname=None):

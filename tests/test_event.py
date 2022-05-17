@@ -29,7 +29,7 @@ class TestEventInit():
         assert len(nicer_events.det.index) == 0
 
         # Properties 
-        assert nicer_events.texp is None
+        assert nicer_events.texp == 0.
         assert nicer_events.cr is None
 
         # Metadata
@@ -38,6 +38,12 @@ class TestEventInit():
         assert 'HISTORY' in nicer_events.meta_data.keys()
         assert 'NOTES' in nicer_events.meta_data.keys()
         assert 'EVT_CRE_DATE' in nicer_events.meta_data['HISTORY'].keys()
+
+    @pytest.mark.parametrize('meta_data',[123,'123',[],(1,2),{1,2}])
+    def test_wrong_meta_data(self,meta_data):
+
+        with pytest.raises(TypeError):
+            nicer_events = Event(meta_data=meta_data)
 
     def test_only_time_column_nicer(self):
 
@@ -94,7 +100,7 @@ class TestEventInit():
         assert len(swift_events.grade.index) == 0
 
         # Properties 
-        assert swift_events.texp is None
+        assert swift_events.texp == 0.
         assert swift_events.cr is None
 
         # Metadata
@@ -117,7 +123,7 @@ class TestEventInit():
         assert len(whatever_events.pi.index) == 0
 
         # Properties
-        assert whatever_events.texp is None
+        assert whatever_events.texp == 0.
         assert whatever_events.cr is None
 
         # Metadata        

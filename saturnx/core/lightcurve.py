@@ -1042,6 +1042,8 @@ class Lightcurve(pd.DataFrame):
         if value is None:
             self._meta_data = {}
         else:
+            if not isinstance(value,dict):
+                raise TypeError('meta_data must be a dictionary')
             self._meta_data = copy.deepcopy(value)
 
         if not 'HISTORY' in self.meta_data.keys():

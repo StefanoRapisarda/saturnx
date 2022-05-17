@@ -1,13 +1,15 @@
-"""This module contains the definition of Event and EventList classes"""
+"""This module contains the definition of Event and EventList classes
+
+Event objects are mission-dependent event array containers."""
 
 __author__ = 'Stefano Rapisarda'
 
 import os
+import copy
 import pathlib
 import pandas as pd
 import numpy as np
 
-from astropy.io.fits import getdata,getval
 from astropy.io import fits
 
 from saturnx.utils.generic import clean_expr, is_number, my_cdate
@@ -18,19 +20,50 @@ from saturnx.core.gti import Gti
 class Event(pd.DataFrame):
     '''
     Event object. Stores photon time arrival and other observatory-dependend
-    parameters.
+    parameters. The object extend a pandas.DataFrame
+
+    ATTRIBUTES
+    ----------
+    texp: float 
+        Difference between maximum and minimum time tag. If the size
+        of the time array is zero, texp is zero
+    cr: float or None
+        Ratio between the number of events (number of photons) and the
+        exposure time texp. If texp is zero (empty time array), None is
+        returned
+    meta_data: dictionary
+        Container of useful information, user notes (key NOTES), and 
+        data reduction history (key HISTORY)
+
+    METHODS
+    -------
+    filter(expr)
+        Filter events according to user filter expression expr.
+        The filtering expression must contain Event columns and 
+        mathematical/boolean operators, ex: ((time >= 1) and (detid > 30))
+    split(splitter)
+        Splits events according to a Gti object or a time segment 
+        returning an EventList
+    read_fits(ext='EVENTS',keys_to_read=None)
+        Reads events from a FITS file returning an Event object
 
     HISTORY
     -------
     2020 04 ##, Stefano Rapisarda (Uppsala), creation date
 
-    NOTES
-    -----
+    NOTE
+    ----
     2021 02 19, Stefano Rapisarda (Uppsala)
         !!! It is important that whatever array you will add in the 
         future to the list of already existing arrays, you write the 
-        variable in the form <whatever>_array, as methods relies on
+        variable in the form <whatever>_array, as many methods relies on
         this syntax !!!
+
+    TODO
+    ----
+    2022 05 17, Stefano Rapisarda (Uppsala)
+        Make a list of supported missions and compare the user-defined
+        variable mission with the available supported missions.
     '''
 
     _metadata = ['meta_data','_meta_data']
@@ -41,6 +74,38 @@ class Event(pd.DataFrame):
         '''
         Initialise time, pi, and detector arrays according to the specified
         mission
+
+        PARAMETERS
+        ----------
+        time_array: numpy.ndarray, pandas.Series, or list (optional)
+            Array containing the time tag of each event. Default is None
+        pi_array: numpy.ndarray, pandas.Series, or list (optional)
+            Array containing the pulse invariant value of each event.
+            Default is None
+        det_array: numpy.ndarray, pandas.Series, or list (optional)
+            Array containing the det ID of each event (the identifier 
+            specifying which detector collected the event photon).
+            Default is None
+        detx_array: numpy.ndarray, pandas.Series, or list (optional)
+            Array containing the x-coordinate of each event (the identifier 
+            specifying which sensor column collected the event photon). 
+            This is a Swift specific parameter. Default is None
+        dety_array: numpy.ndarray, pandas.Series, or list (optional)
+            Array containing the y-coordinate of each event (the identifier 
+            specifying which sensor row collected the event photon). 
+            This is a Swift specific parameter. Default is None
+        grade_array: numpy.ndarray, pandas.Series, or list (optional)    
+            Array containing the frade of each event (see Swift documentation
+            for a grade definition). Default is None
+        mission: str or None (optional)
+            String specifying the observing facility. According to this 
+            parameter, different columns are initialized and a different
+            pi --> energy conversion is applied. Default is None
+        meta_data: dicionary or None (optional)
+            Container of useful information. If None (default), a dictionary
+            is initialised. Whatever None or not, NOTES and HISTORY keys
+            will contain two dictionaries for storing user notes and data
+            reduction history, respectively. 
 
         TODO
         ----
@@ -73,27 +138,16 @@ class Event(pd.DataFrame):
                 }
 
         if time_array is None:
-            # columns parameters specifies only the names of the columns
+            # the columns argument specifies only the names of the columns
+            # This is because, if all columns are None, __init__(data=columns)
+            # would return an error
             super().__init__(columns=columns)
         else:
-            super().__init__(columns)  
+            super().__init__(data=columns)  
 
-        # Initialiasing meta_data
-        if meta_data is None:
-            self.meta_data = {}
-        else: 
-            self.meta_data = meta_data
-
-        if not 'HISTORY' in self.meta_data.keys():
-            self.meta_data['HISTORY'] = {}
-        self.meta_data['HISTORY']['EVT_CRE_DATE'] = my_cdate()
-
-        if not 'NOTES' in self.meta_data.keys():
-            self.meta_data['NOTES'] = {}
-
-        # Mission dependent meta data        
-        if not 'MISSION' in  self.meta_data.keys():
-            self.meta_data['MISSION'] = mission
+        self.meta_data = meta_data
+        self.meta_data['HISTORY']['EVT_CRE_DATE'] = my_cdate()   
+        self.meta_data['MISSION'] = mission
  
         if mission == 'NICER' and det_array is not None:
             n_act_det = len(np.unique(self.det))
@@ -351,22 +405,49 @@ class Event(pd.DataFrame):
     @property
     def texp(self):
         if len(self.time) == 0:
-            return None
+            return 0
         else:
             return max(self.time)-min(self.time)
 
     @property
     def cr(self):
-        if self.texp is not None and (self.texp !=0):
+        if self.texp !=0:
             return len(self.time)/self.texp
         else:
             return None
 
+    @property
+    def meta_data(self):
+        return self._meta_data
+
+    @meta_data.setter
+    def meta_data(self,value):
+        if value is None:
+            self._meta_data = {}
+        else:
+            if not isinstance(value,dict):
+                raise TypeError('meta_data must be a dictionary')
+            self._meta_data = copy.deepcopy(value)
+
+        if not 'HISTORY' in self.meta_data.keys():
+            self._meta_data['HISTORY'] = {}            
+
+        if not 'NOTES' in self.meta_data.keys():
+            self._meta_data['NOTES'] = {} 
+
 class EventList(list):
     '''
-    A list of Event with some superpower
+    A list of Event objects with extra powers (and responsabilities)
 
     2020 04 ##, Stefano Rapisarda (Uppsala), creation date
+
+    METHODS
+    -------
+    join(mask=None)
+        Joins the elements of an EventList into a single Event
+    info()
+        Returns a pandas DataFrame with relevant information for each 
+        Event object in the EventList        
 
     TODO
     ----
@@ -428,7 +509,7 @@ class EventList(list):
 
     def info(self):
         '''
-        Returns a pandas DataFrame with relevand information for each Event 
+        Returns a pandas DataFrame with relevant information for each Event 
         object in the EventList
         '''
 

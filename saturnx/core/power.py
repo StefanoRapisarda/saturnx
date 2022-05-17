@@ -21,7 +21,6 @@ from saturnx.utils.fits import read_fits_keys, get_basic_info
 from saturnx.utils.generic import is_number, my_cdate, round_half_up
 
 
-
 class PowerSpectrum(pd.DataFrame):
 
     _metadata = ['_weight','_high_en','_low_en',
