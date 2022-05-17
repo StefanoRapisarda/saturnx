@@ -444,8 +444,6 @@ class EventList(list):
     '''
     A list of Event objects with extra powers (and responsabilities)
 
-    2020 04 ##, Stefano Rapisarda (Uppsala), creation date
-
     METHODS
     -------
     join(mask=None)
@@ -459,6 +457,11 @@ class EventList(list):
     2021 02 19, Stefano Rapisarda (Uppsala)
         Avoid that Events with different columns can populate the same
         list
+
+    HISTORY
+    -------
+    2020 04 ##, Stefano Rapisarda (Uppsala), creation date
+
     '''
 
     def __init__(self,*args,**kwargs):

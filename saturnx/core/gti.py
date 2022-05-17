@@ -293,7 +293,7 @@ class GtiList(list):
     METHODS
     -------
     join(mask=None)
-        Joins the elements of an EventList into a single Event 
+        Joins the elements of an GtiList into a single Gti 
     '''
 
     def __init__(self,*args,**kwargs):

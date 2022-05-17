@@ -27,60 +27,54 @@ class Lightcurve(pd.DataFrame):
     Lightcurve object. It computes/stores binned events for a certain 
     range of energy
 
-    PARAMETERS
-    ----------
-    time_array: numpy.ndarray, pandas.Series, or list (optional)
-        Contains bin center time (default, empty numpy.ndarray)
-    count_array: numpy.ndarray, pandas.Series, list, or None (optional)
-        Contains counts per bin (default is None)
-    rate_array: numpy.ndarray, pandas.Series, list, or None (optional)
-        Contains count rate per bin (default is None)
-    low_en: float or string (optional)
-        Low energy in keV (default is 0)
-    high_en: float or string (optional)
-        High energy in keV (default is numpy.inf)
-    meta_data: dictionary (optional)
-        Contains useful information, including mission (default is {})
-
     ATTRIBUTES
     ----------
     low_en: float, string, or None
         Lower energy in keV
     high_en: float, string, or None
         Upper energy in keV
-    tot_counts: float
-        Total number of counts
-    count_std: float
-        Standard deviation of counts
-    cr: float
-        Count rate computed as total counts divided by total exposure
-    cr_std: float
-        Standard deciation of count rates
-    texp: float
+    tot_counts: float or None
+        Total number of counts. If the counts column is empty or full
+        of None, None is returned.
+    count_std: float or None
+        Standard deviation of counts. If the counts column is empty 
+        or full of None, None is returned.
+    cr: float or None
+        Count rate computed as total counts divided by total exposure.
+        If the counts column is empty or full of None, None is returned.
+    cr_std: float or None
+        Standard deviation of count rates. If the counts column is empty 
+        or full of None, None is returned.
+    texp: float or None
         Total exposure time computed as the time resolution times the
         number of time bins (this is equivalent to the time interval
         between the lower edge of the first time bin and the upper edge
-        of the last time bin)
-    tres: float
+        of the last time bin). If the time array is empty, None is 
+        returned.
+    tres: float or None
         Time resolution computed as the median of the difference of 
-        consecutive time bins
-    rms: float
-        Root-Mean-Squared
+        consecutive time bins rounded up to the 12th order (to the 
+        picosecond). If the time array is empty, None is returned.
+    rms: float or None
+        Root-Mean-Squared. If the count array is empty or full of None,
+        None is returned.
     frac_rms: float
         Fractional RMS, computed as the squared root of the count variance
-        divided by the count mean, squared
+        divided by the count mean, squared. If the count array is empty 
+        or full of None, None is returned.
 
     METHODS
     -------
     __add__(self, other)
-        If other is a Lightcurve...
-        Adds bin by bin the counts of the two Lightcurves with same
-        number of bins and time resolution. If the time arrays
+        - If other is a Lightcurve...
+        The other Lightcurve must have the same number of bins and time
+        resolution of the current one. The methods adds bin by bin the 
+        counts of the two Lightcurves. If the tags of the time arrays
         are not the same, a new time array starting from tres/2
         will be defined. 
-        !!! meta_data are passed from the current Lightcurve
-        If other is a value...
-        Adds value to counts and returns the modified Lightcurve
+        !!! meta_data are copied from the current Lightcurve !!!
+        - If other is a value...
+        Adds the value to counts and returns the modified Lightcurve
 
     __sub__(self,other)
         Similar to __add__
@@ -95,34 +89,37 @@ class Lightcurve(pd.DataFrame):
     __truediv__(self, value)
         Divide counts by a value and returns the modified Lightcurve
 
-    split(...)
+    split(splitter=16)
         Splits the lightcurve according to a Gti or a time segment 
         returning a LightcurveList
 
-    rebin(...)
+    rebin(factors=1)
         Rebins the lightcurve linearly returning a rebinned lightcurve
 
-    plot(...)
-        Plot either counts or count rates over time on a new or user
+    plot(norm=None,ax=None,cr=True,title=False,lfont=16,
+         norm_ylabel='',zero_start=True,**kwargs)
+        Plots either counts or count rates over time on a new or user
         defined axis
 
-    from_event(...)
+    from_event(events,time_res=1.,user_start_time=0,user_dur=None,
+               low_en=0.,high_en=np.inf)
         Computes a Lightcurve according to the given time resolution, 
         start_time, duration, low energy and high energy [keV]. Lightcurve
         computed from a single Event object will return a single Lightcurve,
         computation from an EventList will return a LightcurveList
 
-    read_fits(...)
+    read_fits(fits_file, ext='COUNTS', time_col='TIME', 
+              count_col='COUNTS',rate_col='RATE', keys_to_read=None)
         Reads specified extension and columns of a FITS file and 
         returns a Lightcurve 
 
-    to_fits(...)
+    to_fits(file_name='lightcurve.fits',fold=pathlib.Path.cwd())
         Saves Lightcurve in a FITS file
 
-    save(...)
+    save(file_name='lightcurve.pkl',fold=pathlib.Path.cwd())
         Saves Lightcurve in a pickle file
 
-    load(...)
+    load(fold=pathlib.Path.cwd())
         Loads Lightcurve from a pickle file
 
     HISTORY
@@ -135,11 +132,30 @@ class Lightcurve(pd.DataFrame):
         than the time resolution
     '''
 
-    _metadata = ['_low_en','_high_en','meta_data','_meta_data']
+    _metadata = ['_low_en','_high_en','low_en','high_en',
+                 'meta_data','_meta_data']
+
+    # >>> METHODS <<<
 
     def __init__(self, time_array = np.array([]), count_array = None,
                  low_en = None, high_en = None,rate_array = None,
-                 meta_data = None):     
+                 meta_data = None):  
+        '''
+        PARAMETERS
+        ----------
+        time_array: numpy.ndarray, pandas.Series, or list (optional)
+            Contains bin center time (default, empty numpy.ndarray)
+        count_array: numpy.ndarray, pandas.Series, list, or None (optional)
+            Contains counts per bin (default is None)
+        rate_array: numpy.ndarray, pandas.Series, list, or None (optional)
+            Contains count rate per bin (default is None)
+        low_en: float or string (optional)
+            Low energy in keV (default is 0)
+        high_en: float or string (optional)
+            High energy in keV (default is numpy.inf)
+        meta_data: dictionary (optional)
+            Contains useful information, including mission (default is {})   
+        '''
 
         # Initialisation  
         column_dict = {'time':time_array,'counts':count_array,'rate':rate_array}
@@ -160,16 +176,12 @@ class Lightcurve(pd.DataFrame):
                 self.counts = self.rate
 
         # Energy range
-        if not low_en is None and type(low_en) == str: 
-            low_en = eval(low_en)
-        if not low_en is None and type(high_en) == str: 
-            high_en = eval(high_en)
-        if not low_en is None and low_en < 0: low_en = 0
-        self._low_en = low_en
-        self._high_en = high_en
+        self.low_en = low_en
+        self.high_en = high_en
 
         self.meta_data = meta_data
-        self.meta_data['HISTORY']['LC_CRE_DATE'] = my_cdate()    
+        if not 'LC_CRE_DATE' in self.meta_data['HISTORY'].keys():
+            self.meta_data['HISTORY']['LC_CRE_DATE'] = my_cdate()    
 
     def __add__(self, other):
         if isinstance(other,Lightcurve):
@@ -241,7 +253,7 @@ class Lightcurve(pd.DataFrame):
             # ---------------------------------------------------------
         
         else:  
-            if type(other) == str:
+            if isinstance(other,str):
                 if is_number(other): 
                     other=eval(other)
                 else:
@@ -295,8 +307,8 @@ class Lightcurve(pd.DataFrame):
             counts = self.counts*value    
 
             return Lightcurve(time_array = self.time,count_array = counts,
-                low_en = self.low_en,high_en = self.high_en,
-                meta_data=self.meta_data)
+                              low_en = self.low_en,high_en = self.high_en,
+                              meta_data=self.meta_data)
 
     def __rmul__(self,value):
         return self*value
@@ -337,7 +349,8 @@ class Lightcurve(pd.DataFrame):
         representative of the number of GTIs in the Gtis object used to 
         split the Lightcurve. Viceversa, the number of GTIs in the Gti
         object used for the split will be not necesseraly equal to the
-        number of Lightcurves in the final LightcurveList
+        number of Lightcurves in the final LightcurveList. Take that in
+        mind in your analysis.
 
         PARAMETERS
         ----------
@@ -531,7 +544,7 @@ class Lightcurve(pd.DataFrame):
         return lc
 
     def plot(self,norm=None,ax=None,cr=True,title=False,lfont=16,
-        norm_ylabel='',zero_start=True,**kwargs):
+             norm_ylabel='',zero_start=True,**kwargs):
         '''
         Plots lightcurve on a new or user defined matplotlib.axes.Axes
 
@@ -939,13 +952,15 @@ class Lightcurve(pd.DataFrame):
         lc = pd.read_pickle(file_name)
         
         return lc
+
+    # >>> ATTRIBUTES <<<
         
     @property
     def tot_counts(self):
         if self.counts.empty or self.counts.isnull().all(): 
             return None
         if len(self.counts) == 0:
-            return 0
+            return 0.
         else:
             return self.counts.sum()
        
@@ -954,7 +969,7 @@ class Lightcurve(pd.DataFrame):
         if self.counts.empty or self.counts.isnull().all(): 
             return None
         if len(self.counts) == 0:
-            return 0
+            return 0.
         else:
             return self.tot_counts/self.texp
 
@@ -998,7 +1013,7 @@ class Lightcurve(pd.DataFrame):
         if self.counts.empty or self.counts.isnull().all(): 
             return None
         if len(self.counts) == 0:
-            return 0
+            return 0.
         else:
             return np.sqrt(np.sum(self.counts**2)/len(self.counts))
 
@@ -1017,10 +1032,11 @@ class Lightcurve(pd.DataFrame):
 
     @low_en.setter
     def low_en(self,value):
-        if value is not None and isinstance(value,str): 
-            value = eval(value)
-        if value is not None and value < 0: 
-            value = 0
+        if value is not None:
+            if isinstance(value,str): 
+                value = eval(value)
+            if value < 0: 
+                value = 0
         self._low_en = value
 
     @property
@@ -1053,6 +1069,44 @@ class Lightcurve(pd.DataFrame):
             self._meta_data['NOTES'] = {}   
 
 class LightcurveList(list):
+    '''
+    A list of Lightcurve objects with extra powers (and responsabilities)
+
+    ATTRIBUTES
+    ----------
+    tot_counts: float
+        Total counts of all the Lightcurves in the LightcurveList
+    texp: float
+        Sum of all the Lightcurve exposures in the LightcurveList
+    
+
+    METHODS
+    -------
+    comparison operators (<,>,>=,<=,==,!=)
+        They return a LightcurveList object with items filtered according 
+        to exposure time (texp)
+    join(mask=None)
+        Joins the elements of an LightcurveList into a single Lightcurve 
+    fill_gaps()
+        If Lightcurves in LightcurveList are not (time) contigous, it
+        fills the time gap with new Lightcurves with zero counts
+    split(splitter=16)
+        Splits Lightcurves in LightcurveList according either to a Gti
+        object or a time segment
+    plot(self,norm=None,ax=False,cr=True,title=False,lfont=16,
+         xbar=False,ybar=True,
+         vlines=False,ndet=True,zero_start=True,**kwargs)
+        Plots total number of counts (or the count rate) of each 
+        Lightcurve versus the middle time of the lightcurve 
+    compare(self,ax=False,mask=None,norm=None,step=None)
+        Plots Lightcurve in a LightcurveList on top of each other for
+        visual comparison
+    info()
+        Returns a pandas.DataFrame with basic information about 
+        Lightcurves in the LightcurveList
+    '''
+
+    # >>> METHODS <<<
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
@@ -1147,7 +1201,8 @@ class LightcurveList(list):
                 filler = np.arange(prev_lc.time.iloc[-1]+tres,lc.time.iloc[0],tres)
                 filled_lc = Lightcurve(
                     time_array = filler,count_array = np.zeros(len(filler)),
-                    low_en = self[0].low_en, high_en = self[0].high_en)
+                    low_en = self[0].low_en, high_en = self[0].high_en
+                    )
                 new_lcs += [filled_lc]
             new_lcs += [self[i]]
 
@@ -1221,7 +1276,6 @@ class LightcurveList(list):
             mid_time = (self[i].time.iloc[-1]+self[i].time.iloc[0])/2.          
             x = mid_time - start
             
-            
             # This is for avoiding printing a label for each
             # Lightcurve
             if i > 0 and 'label'  in kwargs.keys():
@@ -1236,7 +1290,6 @@ class LightcurveList(list):
             if xbar:
                 ax.plot([self[i].time.iloc[0]-start,self[i].time.iloc[-1]-start],[y,y],'k--')
             ax.plot(x,y,**kwargs)
-
 
             if i > 0 and vlines:
                 xline = (self[i].time.iloc[0]+self[i-1].time.iloc[-1])/2. - start
@@ -1306,6 +1359,8 @@ class LightcurveList(list):
             info.loc[i] = pd.Series(line)
 
         return info
+
+    # >>> ATTRIBUTES <<<
 
     @property
     def tot_counts(self):
