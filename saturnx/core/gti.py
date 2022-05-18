@@ -191,8 +191,8 @@ class Gti(pd.DataFrame):
         meta_data['FILTERING_EXPR'] = f'!={value}'
         return Gti(self.start[mask],self.stop[mask],meta_data=meta_data)  
 
-    @staticmethod
-    def read_fits(file_name,extname=None):
+    @classmethod
+    def read_fits(cls,file_name,extname=None):
         '''
         Read GTI (start and stop time) from a fits file
         '''
@@ -217,7 +217,7 @@ class Gti(pd.DataFrame):
         data = getdata(file_name,extname=extname,header=False,memmap=True)
         start,stop = data['START'],data['STOP']
                 
-        return Gti(start_array=start,stop_array=stop,meta_data=meta_data) 
+        return cls(start_array=start,stop_array=stop,meta_data=meta_data) 
 
     def save(self,file_name='gti.pkl',fold=pathlib.Path.cwd()):
 

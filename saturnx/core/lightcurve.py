@@ -629,8 +629,8 @@ class Lightcurve(pd.DataFrame):
         ax.grid(b=True, which='major', color='grey', linestyle='-')
         ax.legend(title='[keV]')
 
-    @staticmethod
-    def from_event(events,time_res=1.,user_start_time=0,user_dur=None,
+    @classmethod
+    def from_event(cls,events,time_res=1.,user_start_time=0,user_dur=None,
         low_en=0.,high_en=np.inf):
         '''
         Computes a binned lightcurve from an Event object
@@ -741,20 +741,20 @@ class Lightcurve(pd.DataFrame):
             # Computing lightcurve
             counts,dummy = np.histogram(filt_time, bins=time_bins_edges)
 
-            lc = Lightcurve(time_array=time_bins_center, count_array=counts,
-                            low_en = low_en, high_en = high_en,
-                            meta_data = meta_data)
+            lc = cls(time_array=time_bins_center, count_array=counts,
+                     low_en = low_en, high_en = high_en,
+                     meta_data = meta_data)
             lc_list += [lc]
 
         if len(lc_list) == 0:
-            return Lightcurve()
+            return cls()
         elif event_flag:
             return lc_list[0]
         else:
             return LightcurveList(lc_list)
 
-    @staticmethod
-    def read_fits(fits_file, ext='COUNTS', time_col='TIME', 
+    @classmethod
+    def read_fits(cls,fits_file, ext='COUNTS', time_col='TIME', 
                   count_col='COUNTS',rate_col='RATE', keys_to_read=None):
         '''
         Reads lightcurve from FITS file 
@@ -860,9 +860,9 @@ class Lightcurve(pd.DataFrame):
             rate = data[rate_col.lower().capitalize()]
             print('Reading Rate column')  
         
-        return Lightcurve(time_array=time,count_array=counts,rate_array=rate,
-                          low_en=low_en,high_en=high_en,
-                          meta_data = meta_data)
+        return cls(time_array=time,count_array=counts,rate_array=rate,
+                   low_en=low_en,high_en=high_en,
+                   meta_data = meta_data)
 
     def to_fits(self,file_name='lightcurve.fits',fold=pathlib.Path.cwd()):
 

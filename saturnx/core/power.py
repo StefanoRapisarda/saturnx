@@ -508,8 +508,8 @@ class PowerSpectrum(pd.DataFrame):
         ax.set_yscale('log')
         ax.grid()
 
-    @staticmethod
-    def from_lc(lightcurve):
+    @classmethod
+    def from_lc(cls,lightcurve):
 
         # I want the information contained in these keyword to propagate
         # in the power spectrum
@@ -539,7 +539,7 @@ class PowerSpectrum(pd.DataFrame):
 
                     freq = fftfreq(len(l),np.double(l.tres))
                     amp = fft(l.counts.to_numpy())
-                    powers += [PowerSpectrum(
+                    powers += [cls(
                         freq_array = freq,
                         power_array = np.multiply(amp, np.conj(amp)).real,
                         low_en = l.low_en, high_en = l.high_en, weight = 1,
@@ -550,7 +550,7 @@ class PowerSpectrum(pd.DataFrame):
                 return PowerList(powers)
             else:
                 print('WARNING: Empty PowerList')
-                return PowerList()
+                return cls()
                 
         elif isinstance(lightcurve,Lightcurve):
 
@@ -564,22 +564,22 @@ class PowerSpectrum(pd.DataFrame):
                 
                 freq = fftfreq(len(lightcurve),np.double(lightcurve.tres))
                 amp = fft(lightcurve.counts.to_numpy())
-                power = PowerSpectrum(
+                power = cls(
                     freq_array = freq, 
                     power_array = np.multiply(amp, np.conj(amp)).real,
                     low_en = lightcurve.low_en, high_en = lightcurve.high_en,
                     weight = 1, meta_data = meta_data)
             else:
-                power = PowerSpectrum()
+                power = cls()
             
             return power 
 
         else:
             raise TypeError('You can compute Power Spectrum only from lightcurve')
 
-    @staticmethod
-    def read_fits(fits_file, ext='POWER_SPECTRUM', freq_col='FREQ', power_col='POWER', 
-        spower_col='POWER_ERR',keys_to_read=None):
+    @classmethod
+    def read_fits(cls,fits_file, ext='POWER_SPECTRUM', freq_col='FREQ', 
+                  power_col='POWER',spower_col='POWER_ERR',keys_to_read=None):
 
         if not isinstance(fits_file,(pathlib.Path,str)):
             raise TypeError('file_name must be a string or a Path')
@@ -650,9 +650,9 @@ class PowerSpectrum(pd.DataFrame):
         if spower_col in data.columns.names:
             spower = data[spower_col]
 
-        return PowerSpectrum(freq_array = freq, power_array = power, spower_array = spower,
-            low_en = low_en, high_en = high_en, weight = 1,
-            meta_data = meta_data)
+        return cls(freq_array = freq, power_array = power, spower_array = spower,
+                   low_en = low_en, high_en = high_en, weight = 1,
+                   meta_data = meta_data)
 
     def to_fits(self,file_name='power_spectrum.fits',fold=pathlib.Path.cwd()):
 

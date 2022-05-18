@@ -296,8 +296,8 @@ class Event(pd.DataFrame):
 
         return EventList(events)
 
-    @staticmethod
-    def read_fits(file_name,ext='EVENTS',keys_to_read=None):
+    @classmethod
+    def read_fits(cls,file_name,ext='EVENTS',keys_to_read=None):
         '''
         Read a FITS file and store meaningful information in an Event object
         
@@ -388,17 +388,17 @@ class Event(pd.DataFrame):
             meta_data['N_INACT_DET'] = list(inact_det_list)
 
             print('Initializing event object')
-            event = Event(
+            event = cls(
                 time_array=times,det_array=det_id,pi_array=pi,
                 mission=mission,meta_data=meta_data
                 )
         elif mission == 'SWIFT':
-            event = Event(time_array=hdulist[ext].data['TIME'],
-                detx_array=hdulist[ext].data['DETX'],
-                dety_array=hdulist[ext].data['DETY'],
-                pi_array=hdulist[ext].data['PI'],
-                grade_array=hdulist[ext].data['GRADE'],
-                mission=mission)  
+            event = cls(time_array=hdulist[ext].data['TIME'],
+                        detx_array=hdulist[ext].data['DETX'],
+                        dety_array=hdulist[ext].data['DETY'],
+                        pi_array=hdulist[ext].data['PI'],
+                        grade_array=hdulist[ext].data['GRADE'],
+                        mission=mission)  
 
         hdulist.close()
         del hdulist 
