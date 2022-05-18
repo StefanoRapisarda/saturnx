@@ -76,7 +76,7 @@ def clean_gti(start,stop):
 
     if flag: print('Some of the GTIs were overlapping')
 
-    print(clean_start,clean_stop)
+    #print(clean_start,clean_stop)
 
     return np.array(clean_start),np.array(clean_stop)  
 
@@ -203,6 +203,7 @@ class Gti(pd.DataFrame):
 
         meta_data = {}
 
+        meta_data['HISTORY'] = {}
         meta_data['HISTORY']['CREATION_DATE'] = my_cdate()
         meta_data['CREATION_MODE'] = 'Gti created from fits file'
         meta_data['FILE_NAME'] = file_name.name

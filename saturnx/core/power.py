@@ -959,7 +959,7 @@ class PowerList(list):
         object in the list
         '''
 
-        columns = ['fres','nyq','n_bins','a0','count_rate',
+        columns = ['fres','nyqf','n_bins','a0','count_rate',
                     'frac_rms','frac_rms_err',
                     'leahy_norm','rms_norm','weight',
                     'min_en','max_en','mission']
@@ -969,7 +969,7 @@ class PowerList(list):
                 poi_level = 'array'
             else:
                 poi_level = pw.poi_level
-            line = {'fres':pw.fres,'nyq':pw.nyq,'n_bins':len(pw),
+            line = {'fres':pw.fres,'nyqf':pw.nyqf,'n_bins':len(pw),
                     'a0':pw.a0,'count_rate':pw.cr,
                     'leahy_norm':pw.leahy_norm,'rms_norm':pw.rms_norm,
                     'weight':pw.weight,'poi_level':poi_level,
