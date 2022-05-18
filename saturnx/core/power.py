@@ -1,3 +1,6 @@
+'''This module contains the definition of Power and PowerList 
+classes'''
+
 import numpy as np
 import pandas as pd
 import pickle
@@ -22,10 +25,104 @@ from saturnx.utils.generic import is_number, my_cdate, round_half_up
 
 
 class PowerSpectrum(pd.DataFrame):
+    '''
+    PowerSpectrum object. It computes/stores Fourier power and 
+    frequencies with specific normalization
 
-    _metadata = ['_weight','_high_en','_low_en',
-                 '_leahy_norm','_rms_norm','_poi_level',
-                 'meta_data','_meta_data']
+    ATTRIBUTES
+    ----------
+    weight: integer
+        weight of each power. If a power has been the result of average
+        of other power, it weight will be the number of averaged powers
+    low_en: float, string, or None
+        Lower energy in keV
+    high_en: float, string, or None
+        Upper energy in keV
+    leahy_norm: float or None
+        It is either initialized by the user or by the method normalize.
+        In the latter case, the Leahy normalization is equal to 2/a0,
+        where a0 is the zero-frequency Fourier amplitude (DC).
+        When not None, it also indicates that the power has been Leahy
+        normalized.
+    rms_norm: float or None
+        It is either initialized by the user or by the method normalize.
+        In the latter case, the RMS normalization is equal to cr/(cr-bkg),
+        where cr is the total count rate and bkg is the background count
+        rate. When bkg is not zero, this normalization is ofter referred
+        to as source RMS normalization.
+        When not None, it also indicates that the power has been RMS
+        normalized.
+    poi_level: float or None 
+        It is either initialized by the user or by the method sub_poi.
+        When not None, it indicates that the Poisson level has been 
+        subtracted from the Power.
+    fres: float or None
+        Frequency resolution computed as the median of the difference of 
+        consecutive frequency bins rounded up to the 12th order of 
+        magnitude (picoHz). If the frequency array is empty, None is 
+        returned.
+    nyqf: float or None
+        Value of the last frequency bin. It may not correspond to the
+        theoretical value 1/(2dt), where dt is the time resolution. 
+        If the frequency array is empty, nyqf = None
+    a0: float or None
+        Zero-frequency, or direct current (DC), Fourier component. It is
+        equal to the total number of photons. If the power has been 
+        normalized, it is retrieved from the normalization, otherwise
+        it is just the square root of the power at zero frequency.
+    cr: float or None
+        Count rate of the Lightcurve used to compute the power spectrum,
+        it is computed as a0*fres
+    meta_data: dictionary
+        Container of useful information, user notes (key NOTES), and 
+        data reduction history (key HISTORY)
+
+    METHODS
+    -------
+    __mul__(self, value)
+        - If value is a list, a numpy.ndarray, or a pandas.Series...
+        Returns a PowerList where each PowerSpectrum bin power is
+        multiplied by the i-th array element.
+        - If value object is a number...
+        Multiplies counts and value and returns the modified PowerSpectrum
+    
+    comp_frac_rms(low_freq=0,high_freq=np.inf,pos_only=False)
+        Computes fractional RMS between two specified frequencies
+
+    sub_poi(value=None,low_freq=0,high_freq=np.inf,print_value=False)
+        Subtract the Poisson noise from the power according either to
+        a specified value or averaging power between low_freq and 
+        high_freq
+
+    normalize(norm='leahy',bkg_cr=0)
+        Normalizes power spectrum according to specified normalization
+        (Leahy, RMS, or simple value)
+
+    plot(ax=False,xy=False,title=False,lfont=16,**kwargs)
+        Plots Power Spectrum to a new or existing matplotlib.Axes.axis
+
+    from_lc(lightcurve)
+        Computed PowerSpectrum from a Lightcurve or LightcurveList
+        object, in the latter case it returns a PowerList
+
+    read_fits(fits_file, ext='POWER_SPECTRUM', freq_col='FREQ', 
+              power_col='POWER', spower_col='POWER_ERR',keys_to_read=None)
+        Reads a power spectrum from a FITS file
+
+    to_fits(file_name='power_spectrum.fits',fold=pathlib.Path.cwd())
+        Write a PowerSpectrum object into a FITS file
+
+    save(file_name='power_spectrum.pkl',fold=pathlib.Path.cwd())
+        Saves Power Spectrum in a pickle file
+
+    load(fold=pathlib.Path.cwd())
+        Loads Power Spectrum from a pickle file
+    '''
+
+    _metadata = ['_weight','weight','_high_en','high_en','_low_en',
+                 'low_en','_leahy_norm','leahy_norm','_rms_norm',
+                 'rms_norm','_poi_level','poi_level','meta_data',
+                 '_meta_data']
 
     def __init__(self,freq_array=np.array([]),power_array=None,spower_array=None,
                  weight=1,low_en=None,high_en=None,
@@ -49,94 +146,23 @@ class PowerSpectrum(pd.DataFrame):
         else:
             super().__init__(column_dict)
 
-        self._weight = weight
+        self.weight = weight
 
-        self._leahy_norm = leahy_norm
-        self._rms_norm = rms_norm
-        self._poi_level = poi_level
+        self.leahy_norm = leahy_norm
+        self.rms_norm = rms_norm
+        self.poi_level = poi_level
 
-        # Energy range
-        if not low_en is None and type(low_en) == str: 
-            low_en = eval(low_en)
-        if not low_en is None and type(high_en) == str: 
-            high_en = eval(high_en)
-        if not low_en is None and low_en < 0: low_en = 0
-        self._low_en = low_en
-        self._high_en = high_en
+        self.low_en = low_en
+        self.high_en = high_en
 
         self.meta_data = meta_data
-        self.meta_data['HISTORY']['PW_CRE_DATE'] = my_cdate() 
-        
-    @property
-    def fres(self):
-        if len(self.freq) > 1:
-            fres = np.median(np.ediff1d(self.freq[self.freq>0]))
-            # fres = np.round(fres,abs(int(math.log10(fres/1000))))
-            return round_half_up(fres,12)
-        else:
-            return None
-
-    @property
-    def nyqf(self):
-        if len(self.freq) == 0: 
-            return None
-        if np.all(self.freq >= 0):
-            if len(self)%2==0:
-                nyq = (len(self)-1)*self.fres
-            else: 
-                nyq = len(self)*self.fres
-        else:
-            nyq = len(self)*self.fres/2.
-        return nyq
-
-    @property
-    def a0(self):
-        if not self.power.any(): 
-            return None
-
-        if (self._leahy_norm is None) and (self.freq.iloc[0] == 0):
-            a0 = np.sqrt(self.power.iloc[0])
-        elif not self._leahy_norm is None:
-            a0 = 2/self._leahy_norm
-        elif (self.freq.iloc[0] == 0) and self._rms_norm is None:
-            # if _leahy_norm is not None, the powerspectrum
-            # is Leahy normalized
-            a0 = self.power.iloc[0]/2
-        elif (self.freq.iloc[0] == 0):
-            a0 = self.power.iloc[0]/self._rms_norm/2
-        else:
-            a0 = None
-
-        return a0
-
-    @property
-    def cr(self):
-        if not self.a0 is None:
-            return self.a0*self.fres
-        else: return None
-
-    @property
-    def meta_data(self):
-        return self._meta_data
-
-    @meta_data.setter
-    def meta_data(self,value):
-        if value is None:
-            self._meta_data = {}
-        else:
-            self._meta_data = copy.deepcopy(value)
-
-        if not 'HISTORY' in self.meta_data.keys():
-            self._meta_data['HISTORY'] = {}            
-
-        if not 'NOTES' in self.meta_data.keys():
-            self._meta_data['NOTES'] = {}  
+        if not 'PW_CRE_DATE' in self.meta_data['HISTORY'].keys():
+            self.meta_data['HISTORY']['PW_CRE_DATE'] = my_cdate() 
 
     def __mul__(self,value):
         
-        if type(value) in [list,np.ndarray,pd.Series]:
-            if len(value) == 0: return self
-            
+        if isinstance(value,(list,np.ndarray,pd.Series)):
+     
             powers = []
             for item in value:
                 if type(item) == str:
@@ -151,22 +177,23 @@ class PowerSpectrum(pd.DataFrame):
                         raise TypeError('Array items must be numbers')
 
                 power = self.power*item
-                if not self.spower is None:
+                if self.spower is not None:
                     spower = self.spower*item
                 else:
                     spower = None
 
-                powers += [PowerSpectrum(freq_array= self.freq,
-                    power_array=power,spower_array=spower,
+                powers += [PowerSpectrum(
+                    freq_array= self.freq,power_array=power,spower_array=spower,
                     weight=self.weight,low_en=self.low_en,high_en=self.high_en,
                     leahy_norm=self.leahy_norm,rms_norm=self.rms_norm,
                     poi_level=self.poi_level,smart_index=True,
-                    meta_data=self.meta_data)]
+                    meta_data=self.meta_data
+                    )]
             
             return PowerList(powers)
 
         else:
-            if type(value) == str:
+            if isinstance(value,str):
                 if is_number(value): 
                     value=eval(value)
                 else:
@@ -183,16 +210,16 @@ class PowerSpectrum(pd.DataFrame):
             else:
                 spower = None   
 
-            return PowerSpectrum(freq_array= self.freq,
-                power_array=power,spower_array=spower,
+            return PowerSpectrum(
+                freq_array= self.freq,power_array=power,spower_array=spower,
                 weight=self.weight,low_en=self.low_en,high_en=self.high_en,
                 leahy_norm=self.leahy_norm,rms_norm=self.rms_norm,
                 poi_level=self.poi_level,smart_index=True,
-                meta_data=self.meta_data)
+                meta_data=self.meta_data
+                )
 
     def __rmul__(self,value):
         return self*value
-
 
     def comp_frac_rms(self,low_freq=0,high_freq=np.inf,pos_only=False):
 
@@ -341,26 +368,31 @@ class PowerSpectrum(pd.DataFrame):
         elif norm is None:
             return self 
         else:
-            if isinstance(norm,str): norm = eval(norm)   
+            if isinstance(norm,str): 
+                norm = eval(norm)   
             meta_data['HISTORY']['NORMALIZING'] = my_cdate()
             meta_data['NORM_MODE'] = 'number'
             meta_data['NORM_VALUE'] = norm   
             norm_leahy = None
             norm_rms = None  
 
-
         if not self.spower.any() :
             #print('Power without errors')
-            power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,
-                                weight = self._weight,low_en=self._low_en,high_en=self._high_en,
-                                leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
-                                meta_data=meta_data)    
+            power = PowerSpectrum(
+                freq_array=self.freq,power_array=self.power*norm,
+                weight = self.weight,low_en=self.low_en,high_en=self.high_en,
+                leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self.poi_level,
+                meta_data=meta_data
+                )    
         else:
             #print('Power with errors')
-            power = PowerSpectrum(freq_array=self.freq,power_array=self.power*norm,spower_array=self.spower*norm,
-                                weight = self._weight,low_en=self._low_en,high_en=self._high_en,
-                                leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self._poi_level,
-                                meta_data=meta_data)             
+            power = PowerSpectrum(
+                freq_array=self.freq,power_array=self.power*norm,
+                spower_array=self.spower*norm,weight = self.weight,
+                low_en=self.low_en,high_en=self.high_en,
+                leahy_norm=norm_leahy,rms_norm=norm_rms,poi_level=self.poi_level,
+                meta_data=meta_data
+                )             
 
         return power
                                                    
@@ -377,12 +409,12 @@ class PowerSpectrum(pd.DataFrame):
         
         # Poisson level is reintroduced, the array is rebinned, and 
         # the Poisson level is subtracted again
-        if not self._poi_level is None:
-            poi_level = self._poi_level
+        if self.poi_level is not None:
+            poi_level = self.poi_level
         else:
             poi_level = 0.
-        if type(self._poi_level) in [list,np.ndarray,pd.Series]:
-            poi_level = self._poi_level[mask]
+        if isinstance(self.poi_level,(list,np.ndarray,pd.Series)):
+            poi_level = self.poi_level[mask]
         
         binned_power = np.add(self.power[mask],poi_level)
         binned_poi = poi_level
@@ -394,16 +426,17 @@ class PowerSpectrum(pd.DataFrame):
             for f in factors:
                 binned_freq,binned_power,dummy,binned_spower=rebin_xy(
                     binned_freq,binned_power,ye=binned_spower,rf = f)
-                if type(binned_poi) in [list,np.ndarray,pd.Series]:
+                if isinstance(binned_poi,(list,np.ndarray,pd.Series)):
                     d,binned_poi,d,d = rebin_xy(binned_freq,binned_poi,rf = f)
 
             #print('After:',len(binned_power),len(binned_spower))
-            pw = PowerSpectrum(freq_array = np.append(0,binned_freq),
+            pw = PowerSpectrum(
+                freq_array = np.append(0,binned_freq),
                 power_array = np.append(dc_power,binned_power-binned_poi),
                 spower_array = np.append(0,binned_spower),
-                weight = self._weight, low_en = self._low_en, high_en = self._high_en,
+                weight = self.weight, low_en = self.low_en, high_en = self.high_en,
                 smart_index = False,
-                leahy_norm = self._leahy_norm, rms_norm = self._rms_norm,
+                leahy_norm = self.leahy_norm, rms_norm = self.rms_norm,
                 poi_level = binned_poi,
                 meta_data = meta_data)
         else:
@@ -413,13 +446,15 @@ class PowerSpectrum(pd.DataFrame):
                 if type(binned_poi) in [list,np.ndarray,pd.Series]:
                     d,binned_poi,d,d = rebin_xy(binned_freq,binned_poi,rf = f)
 
-            pw = PowerSpectrum(freq_array = np.append(0,binned_freq),
+            pw = PowerSpectrum(
+                freq_array = np.append(0,binned_freq),
                 power_array = np.append(dc_power,binned_power-binned_poi),
-                weight = self._weight, low_en = self._low_en, high_en = self._high_en,
+                weight = self.weight, low_en = self.low_en, high_en = self.high_en,
                 smart_index = False,
-                leahy_norm = self._leahy_norm, rms_norm = self._rms_norm,
+                leahy_norm = self.leahy_norm, rms_norm = self.rms_norm,
                 poi_level = binned_poi,
-                meta_data = meta_data)
+                meta_data = meta_data
+                )
 
         return pw
             
@@ -479,10 +514,10 @@ class PowerSpectrum(pd.DataFrame):
         # I want the information contained in these keyword to propagate
         # in the power spectrum
         target_keys = ['EVT_FILE_NAME','DIR','MISSION','INFO_FROM_HEADER',
-                'N_GTIS','GTI_INDEX',
-                'N_SEGS','SEG_INDEX',
-                'N_ACT_DET','INACT_DET_LIST',
-                'FILTERING','FILT_EXPR']
+                       'N_GTIS','GTI_INDEX',
+                       'N_SEGS','SEG_INDEX',
+                       'N_ACT_DET','INACT_DET_LIST',
+                       'FILTERING','FILT_EXPR']
 
         meta_data = {}
         meta_data['PW_CRE_MODE'] = 'Power computed from Lightcurve'
@@ -499,13 +534,17 @@ class PowerSpectrum(pd.DataFrame):
 
                     power_meta_data = copy.deepcopy(meta_data)
                     for key in target_keys:
-                        if key in l.meta_data.keys(): power_meta_data[key]=l.meta_data[key]
+                        if key in l.meta_data.keys(): 
+                            power_meta_data[key]=l.meta_data[key]
 
                     freq = fftfreq(len(l),np.double(l.tres))
                     amp = fft(l.counts.to_numpy())
-                    powers += [PowerSpectrum(freq_array = freq, power_array = np.multiply(amp, np.conj(amp)).real,
-                               low_en = l.low_en, high_en = l.high_en, weight = 1,
-                               meta_data = power_meta_data)]
+                    powers += [PowerSpectrum(
+                        freq_array = freq,
+                        power_array = np.multiply(amp, np.conj(amp)).real,
+                        low_en = l.low_en, high_en = l.high_en, weight = 1,
+                        meta_data = power_meta_data
+                        )]
 
             if len(powers) != 0:
                 return PowerList(powers)
@@ -525,9 +564,11 @@ class PowerSpectrum(pd.DataFrame):
                 
                 freq = fftfreq(len(lightcurve),np.double(lightcurve.tres))
                 amp = fft(lightcurve.counts.to_numpy())
-                power = PowerSpectrum(freq_array = freq, power_array = np.multiply(amp, np.conj(amp)).real,
-                                low_en = lightcurve.low_en, high_en = lightcurve.high_en,
-                                weight = 1, meta_data = meta_data)
+                power = PowerSpectrum(
+                    freq_array = freq, 
+                    power_array = np.multiply(amp, np.conj(amp)).real,
+                    low_en = lightcurve.low_en, high_en = lightcurve.high_en,
+                    weight = 1, meta_data = meta_data)
             else:
                 power = PowerSpectrum()
             
@@ -707,6 +748,8 @@ class PowerSpectrum(pd.DataFrame):
         lc = pd.read_pickle(file_name)
         
         return lc
+
+    # >>> ATTRIBUTES <<<
        
     @property
     def weight(self):
@@ -721,16 +764,23 @@ class PowerSpectrum(pd.DataFrame):
         return self._low_en
 
     @low_en.setter
-    def low_en(self,low_en_value):
-        self._low_en = low_en_value
-        
+    def low_en(self,value):
+        if value is not None:
+            if isinstance(value,str): 
+                value = eval(value)
+            if value < 0: 
+                value = 0
+        self._low_en = value
+
     @property
     def high_en(self):
         return self._high_en
 
     @high_en.setter
-    def high_en(self,high_en_value):
-        self._high_en = high_en_value 
+    def high_en(self,value):
+        if value is not None and isinstance(value,str): 
+            value = eval(value)
+        self._high_en = value
 
     @property
     def leahy_norm(self):
@@ -755,6 +805,74 @@ class PowerSpectrum(pd.DataFrame):
     @poi_level.setter
     def poi_level(self,value):
         self._poi_level = value 
+
+    @property
+    def fres(self):
+        if len(self.freq) > 1:
+            fres = np.median(np.ediff1d(self.freq[self.freq>0]))
+            # fres = np.round(fres,abs(int(math.log10(fres/1000))))
+            return round_half_up(fres,12)
+        else:
+            return None
+
+    @property
+    def nyqf(self):
+        if len(self.freq) == 0: 
+            return None
+        if np.all(self.freq >= 0):
+            if len(self)%2==0:
+                nyq = (len(self)-1)*self.fres
+            else: 
+                nyq = len(self)*self.fres
+        else:
+            nyq = len(self)*self.fres/2.
+        return nyq
+
+    @property
+    def a0(self):
+        if not self.power.any(): 
+            return None
+
+        if (self._leahy_norm is None) and (self.freq.iloc[0] == 0):
+            a0 = np.sqrt(self.power.iloc[0])
+        elif not self._leahy_norm is None:
+            a0 = 2/self._leahy_norm
+        elif (self.freq.iloc[0] == 0) and self._rms_norm is None:
+            # if _leahy_norm is not None, the powerspectrum
+            # is Leahy normalized
+            a0 = self.power.iloc[0]/2
+        elif (self.freq.iloc[0] == 0):
+            a0 = self.power.iloc[0]/self._rms_norm/2
+        else:
+            a0 = None
+
+        return a0
+
+    @property
+    def cr(self):
+        if not self.a0 is None:
+            return self.a0*self.fres
+        else: 
+            return None
+
+    @property
+    def meta_data(self):
+        return self._meta_data
+
+    @meta_data.setter
+    def meta_data(self,value):
+        if value is None:
+            self._meta_data = {}
+        else:
+            if not isinstance(value,dict):
+                raise TypeError('meta_data must be a dictionary')
+            self._meta_data = copy.deepcopy(value)
+
+        if not 'HISTORY' in self.meta_data.keys():
+            self._meta_data['HISTORY'] = {}            
+
+        if not 'NOTES' in self.meta_data.keys():
+            self._meta_data['NOTES'] = {}   
 
         
 class PowerList(list):

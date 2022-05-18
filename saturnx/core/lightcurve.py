@@ -1,4 +1,5 @@
-'''This module contains the definition of Lightcurve and LightcurveList classes
+'''This module contains the definition of Lightcurve and LightcurveList 
+classes
 
 The Lightcurve object is a container of a binned lightcurve. Computing or
 retrieving this object is a fundamental step for computing Fourier products
@@ -62,6 +63,9 @@ class Lightcurve(pd.DataFrame):
         Fractional RMS, computed as the squared root of the count variance
         divided by the count mean, squared. If the count array is empty 
         or full of None, None is returned.
+    meta_data: dictionary
+        Container of useful information, user notes (key NOTES), and 
+        data reduction history (key HISTORY)
 
     METHODS
     -------
@@ -80,10 +84,10 @@ class Lightcurve(pd.DataFrame):
         Similar to __add__
 
     __mul__(self, value)
-        If value is a list, a numpy.ndarray, or a pandas.Series...
+        - If value is a list, a numpy.ndarray, or a pandas.Series...
         Returns a LightcurveList where each Lightcurve bin counts are
         multiplied by the i-th array element
-        If value object is a number...
+        - If value object is a number...
         Multiplies counts and value and returns the modified Lightcurve
 
     __truediv__(self, value)
@@ -1079,7 +1083,6 @@ class LightcurveList(list):
     texp: float
         Sum of all the Lightcurve exposures in the LightcurveList
     
-
     METHODS
     -------
     comparison operators (<,>,>=,<=,==,!=)
