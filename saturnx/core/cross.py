@@ -6,9 +6,10 @@ from saturnx.utils.generic import my_cdate, round_half_up
 class CrossSpectrum(pd.DataFrame):
 
     _metadata = [
-        'weight','_en_range','en_range'
+        'weight','_weight','_en_range','en_range'
         'leahy_norm','rms_norm','poi_level',
-        'meta_data']
+        '_leahy_norm','_rms_norm','_poi_level',
+        'meta_data','_meta_data']
 
     def __init__(
         self,freq_array=np.array([]),cross_array=None,scross_array=None,
@@ -40,20 +41,12 @@ class CrossSpectrum(pd.DataFrame):
         self.poi_level = poi_level
 
         self.weight = weight
-        self._en_range = en_range
+        self.en_range = en_range
 
-        # Initializing meta data
-        if meta_data is None:
-            self.meta_data = {}
-        else: 
-            self.meta_data = meta_data
+        self.meta_data = meta_data
 
-        if not 'HISTORY' in self.meta_data.keys():
-            self.meta_data['HISTORY'] = {}
-        self.meta_data['HISTORY']['PW_CRE_DATE'] = my_cdate()
-
-        if not 'NOTES' in self.meta_data.keys():
-            self.meta_data['NOTES'] = {}
+        if not 'CS_CRE_DATE' in self.meta_data['HISTORY'].keys():
+            self.meta_data['HISTORY']['CS_CRE_DATE'] = my_cdate()
 
     @property
     def fres(self):
@@ -106,5 +99,24 @@ class CrossSpectrum(pd.DataFrame):
        
         #en_range = clean_en_range(en_range)
         self._en_range = en_range
+
+    @property
+    def meta_data(self):
+        return self._meta_data
+
+    @meta_data.setter
+    def meta_data(self,value):
+        if value is None:
+            self._meta_data = {}
+        else:
+            if not isinstance(value,dict):
+                raise TypeError('meta_data must be a dictionary')
+            self._meta_data = copy.deepcopy(value)
+
+        if not 'HISTORY' in self.meta_data.keys():
+            self._meta_data['HISTORY'] = {}            
+
+        if not 'NOTES' in self.meta_data.keys():
+            self._meta_data['NOTES'] = {}   
 
 

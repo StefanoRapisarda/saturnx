@@ -221,7 +221,7 @@ class Gti(pd.DataFrame):
 
     def save(self,file_name='gti.pkl',fold=pathlib.Path.cwd()):
 
-        if not isinstance(file_name,(pathlib.Path.cwd(),str)):
+        if not isinstance(file_name,(pathlib.Path,str)):
             raise TypeError('file_name must be a string or a Path')
         if isinstance(file_name,str):
             file_name = pathlib.Path(file_name)
@@ -246,7 +246,7 @@ class Gti(pd.DataFrame):
     @staticmethod
     def load(file_name,fold=pathlib.Path.cwd()):
 
-        if not isinstance(file_name,(pathlib.Path.cwd(),str)):
+        if not isinstance(file_name,(pathlib.Path,str)):
             raise TypeError('file_name must be a string or a Path')
         elif isinstance(file_name,str):
             file_name = pathlib.Path(file_name)

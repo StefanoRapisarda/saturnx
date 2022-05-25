@@ -40,7 +40,7 @@ class TestEmptyCrossSpectrum:
 
         # meta_data is supposed to contain only HISTORY and NOTES
         assert len(cross.meta_data) == 2
-        assert cross.meta_data['HISTORY']['PW_CRE_DATE'] == 'test_current_date'
+        assert cross.meta_data['HISTORY']['CS_CRE_DATE'] == 'test_current_date'
         assert cross.meta_data['NOTES'] == {}  
 
     @pytest.mark.parametrize('weight',[-3,3.2,-3.2,'-3','3.2','-3.2','ciao'])

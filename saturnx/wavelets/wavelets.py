@@ -714,6 +714,14 @@ class Patches:
     def __init__(self,patches=None,nf=None,nt=None,
         verdicts=None,flags=None,conf_level=None,patch_info=None,
         meta_data=None,notes=None):
+        '''
+        PARAMETERS
+        ----------
+        nf: int or None
+            Number of frequency bins
+        nt: int or None
+            Number of time bins
+        '''
 
         self.patches = patches
         self.nf = nf
