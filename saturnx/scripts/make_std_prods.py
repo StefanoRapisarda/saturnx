@@ -2526,7 +2526,8 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         # return that shorter-than-tseg lightcurve. >= tseg, therefore,
         # will ensure that all Lightcurves in ufa_lcs_tseg are longer 
         # than tseg)
-        ufa_lcs_tseg = ufa_lcs.split(tseg) >= tseg
+        ufa_lcs_filt_gti = ufa_lcs >= tseg
+        ufa_lcs_tseg = ufa_lcs_filt_gti.split(tseg) 
 
         cl_lcs_tseg = Lightcurve.load(main_seg_lc_list_file)
         gti = Gti.load(main_gti_file)
@@ -2607,7 +2608,7 @@ def make_nicer_std_prod_single(obs_id_dir,tres='0.0001220703125',tseg='128.0',
         fig.tight_layout(w_pad=1,rect=[0,0,1,0.98])
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     
-        del ufa_lcs,ufa_lcs_tseg,ufa_power_list,cl_power_list
+        del ufa_lcs,ufa_lcs_tseg,ufa_power_list,cl_power_list,ufa_lcs_filt_gti
         del ufa_leahy,ufa_leahy_rebin,ufa_sub_poi,ufa_rms,ufa_rms_rebin
         del cl_leahy,cl_leahy_rebin,cl_sub_poi,cl_rms,cl_rms_rebin
     
