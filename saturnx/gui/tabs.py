@@ -1042,6 +1042,7 @@ class FittingTab:
         self._y_pos.configure(text=str(np.round(event.ydata,6)))
 
     def _fit(self):
+        print('Clicking Fit button (fittint tab)')
         self._new_window(self._fit_window)
 
     def _new_window(self, newWindow):

@@ -2961,6 +2961,7 @@ def make_general_info(obs_id_dirs,main_en_band=['0.5','10.0'],
         
         else:
             mylogging.warning('std_prods file not found')    
+            mylogging.warning(std_prod_file)
 
     if clean:
         mylogging.info('Cleaning data frame')
