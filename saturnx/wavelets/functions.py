@@ -44,6 +44,7 @@ def scale2freq(scales,family='mexhat',method='fft'):
     #t = np.linspace(0,dur,n)
     mother_wavelet = Wavelet(scale=1,family=family)
     fc = mother_wavelet.fc
+    fp = mother_wavelet.fp
 
     freqs = np.zeros(len(scales))
     if method == 'an':
@@ -54,9 +55,13 @@ def scale2freq(scales,family='mexhat',method='fft'):
                 omega = mother_wavelet.f0*2*np.pi
                 freqs[i]=1/(4*np.pi*scale/(omega+np.sqrt(2+omega**2)))
 
-    elif method == 'fft':
+    elif method == 'test':
         for i,scale in enumerate(scales):
             freqs[i]=fc/scale
+
+    elif method == 'fft':
+        for i,scale in enumerate(scales):
+            freqs[i] = fp
 
     return freqs
 
@@ -124,7 +129,7 @@ def cwt(data, dt, scales, family=None,
 
     # Determining wavelet dtype, wavelet transform has the same dtype
     if family is None: family = 'mexhat'
-    mather_wavelet = Wavelet(scale=1,family=family)
+    mather_wavelet = Wavelet(scale=1,family=family,**kwargs)
     out_dtype = mather_wavelet.y.dtype
     fc = mather_wavelet.fc
 

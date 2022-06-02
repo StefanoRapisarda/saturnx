@@ -478,7 +478,7 @@ class WaveletTransform:
 
             meta_data['WT_CRE_MODE'] = 'Wavelet transform computed from array'
 
-        if scales is not None:
+        if scales is None:
             # Computing scales
             # The default minimum scale is 2 times the time resolution
             if s_min is None: s_min = 2*dt
@@ -488,7 +488,7 @@ class WaveletTransform:
             if dj is None: dj = 0.05 
 
             scales = comp_scales(s_min, s_max, dj=dj)
-            
+
         coef, freqs, coi = cwt(counts,dt=dt,scales=scales,
             family=family,method=method,pad=pad,cfreq=cfreq,**kwargs)
 
