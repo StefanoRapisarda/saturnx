@@ -452,7 +452,7 @@ class WaveletTransform:
         return result
 
     @staticmethod
-    def from_lc(lightcurve,dt=1,s_min=None,s_max=None,dj=None,family='mexhat',
+    def from_lc(lightcurve,scales=None,dt=1,s_min=None,s_max=None,dj=None,family='mexhat',
         method='fft',pad=True,cfreq='cf',**kwargs):
 
         meta_data = {}
@@ -478,15 +478,17 @@ class WaveletTransform:
 
             meta_data['WT_CRE_MODE'] = 'Wavelet transform computed from array'
 
-        # Computing scales
-        # The default minimum scale is 2 times the time resolution
-        if s_min is None: s_min = 2*dt
-        # The default maximum scales is 1/4 of the duration of the input
-        # lightcurve
-        if s_max is None: s_max = tdur/4.
-        if dj is None: dj = 0.05 
+        if scales is not None:
+            # Computing scales
+            # The default minimum scale is 2 times the time resolution
+            if s_min is None: s_min = 2*dt
+            # The default maximum scales is 1/4 of the duration of the input
+            # lightcurve
+            if s_max is None: s_max = tdur/4.
+            if dj is None: dj = 0.05 
 
-        scales = comp_scales(s_min, s_max, dj=dj)
+            scales = comp_scales(s_min, s_max, dj=dj)
+            
         coef, freqs, coi = cwt(counts,dt=dt,scales=scales,
             family=family,method=method,pad=pad,cfreq=cfreq,**kwargs)
 
