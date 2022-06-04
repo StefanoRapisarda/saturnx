@@ -5,7 +5,7 @@ from scipy.signal import convolve, fftconvolve
 from scipy.fft import fft,ifft
 from .wavelets import Wavelet
 
-def comp_scales(s_min,s_max,dj=0.25,family='mexhat',method='fft'):
+def comp_scales(s_min,s_max,dj=0.25,family='mexhat',method='fft',**kwargs):
 
     #assert s_max > s_min, 's_max must be larger then s_min'
 
@@ -15,7 +15,7 @@ def comp_scales(s_min,s_max,dj=0.25,family='mexhat',method='fft'):
     print('{} Computing scales {}'.format(10*'*',10*'*'))
     #print(len(j),(np.log(s_max/s_min)/np.log(2)),dj)
     scales = np.asarray(s_min*2**(j*dj))
-    freqs = scale2freq(scales,family=family,method=method)
+    freqs = scale2freq(scales,family=family,method=method,**kwargs)
 
     print('s_max = {}, s_min = {}'.format(scales[-1],scales[0]))
     print('f_min = {}, f_max = {}'.format(freqs[-1],freqs[0]))
@@ -23,7 +23,7 @@ def comp_scales(s_min,s_max,dj=0.25,family='mexhat',method='fft'):
     print('{} {} {}'.format(10*'*',16*'*',10*'*'))
     return scales
 
-def scale2freq(scales,family='mexhat',method='fft'):
+def scale2freq(scales,family='mexhat',method='fft',**kwargs):
     '''
     Compute Fourier frequencies corresponding to scales
 
@@ -42,9 +42,8 @@ def scale2freq(scales,family='mexhat',method='fft'):
     #n = int(2**12)
 
     #t = np.linspace(0,dur,n)
-    mother_wavelet = Wavelet(scale=1,family=family)
+    mother_wavelet = Wavelet(scale=1,family=family,**kwargs)
     fc = mother_wavelet.fc
-    fp = mother_wavelet.fp
 
     freqs = np.zeros(len(scales))
     if method == 'an':
@@ -61,7 +60,10 @@ def scale2freq(scales,family='mexhat',method='fft'):
 
     elif method == 'fft':
         for i,scale in enumerate(scales):
-            freqs[i] = fp
+            freqs[i] = Wavelet(scale=scale,family=family,**kwargs).fp
+
+    else:
+        raise ValueError('This method does not exist')
 
     return freqs
 
@@ -129,9 +131,9 @@ def cwt(data, dt, scales, family=None,
 
     # Determining wavelet dtype, wavelet transform has the same dtype
     if family is None: family = 'mexhat'
-    mather_wavelet = Wavelet(scale=1,family=family,**kwargs)
-    out_dtype = mather_wavelet.y.dtype
-    fc = mather_wavelet.fc
+    mother_wavelet = Wavelet(scale=1,family=family,**kwargs)
+    out_dtype = mother_wavelet.y.dtype
+    fc = mother_wavelet.fc
 
     #scales = comp_scales(f_min=f_min,f_max=f_max,ds=ds,family=family)
 

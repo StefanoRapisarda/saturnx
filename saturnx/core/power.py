@@ -335,7 +335,7 @@ class PowerSpectrum(pd.DataFrame):
         if self.cr-bkg_cr < 0:
             print('Warning!!! background cr larger than source cr')
 
-        if norm == 'leahy':
+        if norm.upper() == 'LEAHY':
             if (self._leahy_norm is None) and (self._rms_norm is None):
                 norm = 2./self.a0
                 norm_leahy = norm
@@ -347,7 +347,7 @@ class PowerSpectrum(pd.DataFrame):
                 norm = 1
                 norm_leahy = self._leahy_norm
                 norm_rms = self._rms_norm
-        elif norm == 'rms':
+        elif norm.upper() == 'RMS':
             if (self._leahy_norm is None) and (self._rms_norm is None):
                 norm_leahy = (2./self.a0)
                 norm_rms = self.cr/( (self.cr-bkg_cr)**2 )

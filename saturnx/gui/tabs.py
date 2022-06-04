@@ -673,7 +673,7 @@ class FittingTab:
         # When self._to_plot is None, nothing has been plotted yet
         self._to_plot = None
         self._first_plot = True
-        self._leahy = None
+        self._power = None
 
         # Frames
         # -------------------------------------------------------------
@@ -825,7 +825,7 @@ class FittingTab:
         self._norm = tk.StringVar()
         self._norm.set('Leahy')
         self._norm.trace_add('write', self._update_plot)
-        norm_menu = ttk.OptionMenu(box23,self._norm,*tuple(['','Leahy','RMS']))
+        norm_menu = ttk.OptionMenu(box23,self._norm,*tuple(['','None','Leahy','RMS']))
         norm_menu.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')
 
         bkg_label = tk.Label(box23,text='BKG [c/s]')
@@ -911,14 +911,14 @@ class FittingTab:
                 gti_indices = self.eval_gti_str(self._gti_sel_string.get())
                 power_list = PowerList([p for p in self._power_list \
                     if p.meta_data['GTI_INDEX'] in gti_indices])
-                power = power_list.average('leahy')
+                power = power_list.average(norm=self._norm.get())
             else:
-                power = self._power_list.average('leahy')
-            self._leahy = power
+                power = self._power_list.average(norm=self._norm.get())
+            self._power = power
         else:
-            self._leahy = self._power.normalize('leahy')
+            self._power = self._power.normalize(norm=self._norm.get())
 
-        self._to_plot = self._leahy.rebin(-30)
+        self._to_plot = self._power.rebin(self._rebin_factor.get())
         self._to_plot.plot(ax=self._ax,lfont=14,marker='')
         self._canvas.draw()
         self._canvas.mpl_connect('motion_notify_event',self._update_cursor)
@@ -947,12 +947,14 @@ class FittingTab:
         bkg = self._bkg.get()
         norm = self._norm.get()
 
-        poi = self._leahy.sub_poi(value=poi_level)
+        if norm.upper() == 'NONE':
+            norm_power = self._power
+        elif norm.upper() == 'LEAHY':
+            norm_power = self._power.normalize(norm='leahy')
+        elif norm.upper() == 'RMS':
+            norm_power = self._power.normalize(norm='leahy').normalize(norm='rms',bkg_cr=bkg)
 
-        if norm == 'RMS':
-            to_rebin = poi.normalize('rms',bkg_cr=bkg)
-        elif norm == 'Leahy':
-            to_rebin = poi
+        poi = norm_power.sub_poi(value=poi_level)    
 
         rebin_str = self._rebin_factor.get()
         first = True
@@ -960,12 +962,12 @@ class FittingTab:
             rfcs = rebin_str.split(',')
             for rfc in rfcs:
                 if first:
-                    rebin = to_rebin.rebin(eval(rfc))
+                    rebin = poi.rebin(eval(rfc))
                     first = False
                 else:
                     rebin = rebin.rebin(eval(rfc))
         else:
-            rebin = to_rebin.rebin(eval(rebin_str))
+            rebin = poi.rebin(eval(rebin_str))
 
         self._to_plot = rebin
         self._ax.clear()
