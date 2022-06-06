@@ -299,6 +299,7 @@ class PowerSpectrum(pd.DataFrame):
             mask = (self.freq>=low_freq) & (self.freq<high_freq) * (self.freq>0)
             value = self.power[mask].mean()
             meta_data['POI_RANGE'] = f'{low_freq}-{high_freq}'
+            meta_data['POI_LEVEL'] = value
         elif isinstance(value,(list,np.ndarray,pd.Series)):
             if len(value) != len(self):
                 raise ValueError('values must have the same dimension of power')
@@ -343,7 +344,7 @@ class PowerSpectrum(pd.DataFrame):
                 meta_data['HISTORY']['NORMALIZING'] = my_cdate()
                 meta_data['NORM_MODE'] = 'Leahy'
             elif (self._rms_norm is None):
-                print('The power spectrum is already either Leahy or RMS normalized')
+                print('The power spectrum is already Leahy normalized')
                 norm = 1
                 norm_leahy = self._leahy_norm
                 norm_rms = self._rms_norm

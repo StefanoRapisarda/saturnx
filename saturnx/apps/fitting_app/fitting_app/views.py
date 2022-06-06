@@ -30,14 +30,15 @@ class View(ttk.Frame):
 
         self._gti_box = GtiIndexBox(parent=frame)
         self._gti_box.grid(column=1,row=0,sticky='nswe')
+        self._gti_box._disable()
 
-        self._plot_button = ttk.Button(frame,text='PLOT')
+        self._plot_button = tk.Button(frame,text='PLOT')
         self._plot_button.grid(column=2,row=0,padx=5,pady=5,sticky='nswe')
         
-        self._fit_button = ttk.Button(frame,text='FIT')
+        self._fit_button = tk.Button(frame,text='FIT')
         self._fit_button.grid(column=3,row=0,padx=5,pady=5,sticky='nswe')
 
-        self._reset_button = ttk.Button(frame,text='RESET')
+        self._reset_button = tk.Button(frame,text='RESET')
         self._reset_button.grid(column=4,row=0,padx=5,pady=5,sticky='nswe')  
 
     def _init_upper_panel_row2(self):

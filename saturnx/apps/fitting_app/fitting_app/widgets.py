@@ -19,6 +19,7 @@ class PlotArea(ttk.Frame):
     def _init_canvas(self):
 
         self._fig = Figure(figsize=(5,3.5),dpi=150)
+        self._fig.tight_layout()
         self._ax  = self._fig.add_subplot()
 
         self._canvas = FigureCanvasTkAgg(self._fig, master = self)
@@ -34,13 +35,13 @@ class PlotArea(ttk.Frame):
         coor_frame.grid_columnconfigure(2,weight=1)
         coor_frame.grid_columnconfigure(3,weight=1)
 
-        labelx = ttk.Label(coor_frame,text='x coor: ')
+        labelx = ttk.Label(coor_frame,text='x coor: ',width=10)
         labelx.grid(column=0,row=0,pady=5,padx=5,sticky='nswe')
-        self._x_pos = ttk.Label(coor_frame,text=' ')
+        self._x_pos = ttk.Label(coor_frame,text=' ',width=10)
         self._x_pos.grid(column=1,row=0,pady=5,padx=5,sticky='nswe')
-        labely = ttk.Label(coor_frame,text='y coor: ')
+        labely = ttk.Label(coor_frame,text='y coor: ',width=10)
         labely.grid(column=2,row=0,pady=5,padx=5,sticky='nswe')
-        self._y_pos = ttk.Label(coor_frame,text=' ')
+        self._y_pos = ttk.Label(coor_frame,text=' ',width=10)
         self._y_pos.grid(column=3,row=0,pady=5,padx=5,sticky='nswe') 
 
 
@@ -55,16 +56,22 @@ class FileBox(ttk.Frame):
 
     def _init_box(self):
 
-        box = ttk.LabelFrame(self,text='File')
-        box.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
-        box.tag = 1
+        self._box = ttk.LabelFrame(self,text='File')
+        self._box.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
 
         self._file = tk.StringVar() # <--- PowerSpectrum or PowerList file
         self._file.set(' ') 
 
-        self._file_menu = ttk.OptionMenu(box, self._file)
+        self._file_menu = ttk.OptionMenu(self._box, self._file)
         self._file_menu.config(width=30)
         self._file_menu.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
+
+    def _reset(self):
+
+        self._box.configure(text='File')
+        self._file_menu['menu'].delete(0,'end')
+        self._file.set(' ')
+        
 
 class GtiIndexBox(ttk.Frame):
 
@@ -76,14 +83,22 @@ class GtiIndexBox(ttk.Frame):
         self._init_box()
 
     def _init_box(self):
-        box = ttk.LabelFrame(self,text='GTI selection')  
-        box.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')
+        self._box = ttk.LabelFrame(self,text='GTI selection')  
+        self._box.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')
         # This will be initialized whhen self._file is changed
         self._gti_sel_string = tk.StringVar()
         self._gti_sel_string.set('')
-        self._gti_entry = tk.Entry(box, textvariable=self._gti_sel_string,width=13)
+        self._gti_entry = tk.Entry(self._box, textvariable=self._gti_sel_string,width=13)
         self._gti_entry.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
-        self._gti_entry.to_change = 1
+
+    def _enable(self):
+        for child in self._box.winfo_children():
+            child.configure(state='normal')
+
+    def _disable(self):
+        for child in self._box.winfo_children():
+            child.configure(state='disable')        
+
 
 class PoissonBox(ttk.Frame):
 
@@ -118,9 +133,10 @@ class PoissonBox(ttk.Frame):
         self._poi_level_entry = tk.Entry(box,textvariable=self._poi_level,width=5)
         self._poi_level_entry.grid(column=4,row=0,padx=5,pady=5,sticky='nswe')
 
-        self._sub_poi_button = tk.Button(box,text='Subtract Poi')
-        self._sub_poi_button.grid(column=0,row=1,columnspan=5,padx=5,pady=5,sticky='nswe')
-        self._sub_poi_button.config(state='disabled')
+        self._poi_flag = tk.IntVar()
+        checkbox = tk.Checkbutton(box,text='Subtract',var=self._poi_flag)
+        checkbox.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')     
+
 
 class RebinBox(ttk.Frame):
 
@@ -140,8 +156,6 @@ class RebinBox(ttk.Frame):
         self._rebin_factor.set(-30)
         self._rebin_entry = tk.Entry(box,textvariable=self._rebin_factor,width=9)
         self._rebin_entry.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
-        self._rebin_button = tk.Button(box,text='Rebin')
-        self._rebin_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
 
 
 class NormalizationBox(ttk.Frame):
@@ -164,15 +178,15 @@ class NormalizationBox(ttk.Frame):
 
         self._norm = tk.StringVar()
         self._norm.set('Leahy')
-        norm_menu = ttk.OptionMenu(box,self._norm,*tuple(['','None','Leahy','RMS']))
+        norm_menu = ttk.OptionMenu(box,self._norm,*tuple(['','None ','Leahy','RMS  ']))
         norm_menu.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')
 
         bkg_label = tk.Label(box,text='BKG [c/s]')
-        bkg_label.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+        bkg_label.grid(column=2,row=0,padx=5,pady=5,sticky='nswe')
         self._bkg = tk.DoubleVar()
         self._bkg.set(0)
         bkg_entry = tk.Entry(box,textvariable=self._bkg,width=10)
-        bkg_entry.grid(column=1,row=1,padx=5,pady=5,sticky='nswe')
+        bkg_entry.grid(column=3,row=0,padx=5,pady=5,sticky='nswe')
 
 class InputDirBox(ttk.Frame):
 
