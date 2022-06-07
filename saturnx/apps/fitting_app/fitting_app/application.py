@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from .widgets import PlotArea
-from .views import View
+from .views import View, FitView
 from .models import PlotFields, FitFields
 from .controllers import Controller
 
@@ -28,3 +27,12 @@ class FitApp(tk.Tk):
         self._view.grid(row=1, padx=10, sticky=(tk.W + tk.E))
 
         self._cotroller = Controller(model=self._model, view=self._view)
+
+
+class FitAppTest(tk.Tk):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+        self._view = FitView()
+        self._view.grid(row=0, padx=10, sticky=(tk.W + tk.E))
+

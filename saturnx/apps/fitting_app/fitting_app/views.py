@@ -3,8 +3,9 @@ from tkinter import ttk
 
 from .widgets import (
     FileBox, PlotArea, GtiIndexBox, PoissonBox, RebinBox, 
-    NormalizationBox, InputDirBox
-)   
+    NormalizationBox, InputDirBox, FrequencyRangeBox, FitFunctionsBox,
+    SaveLoadBox, FitParametersBox
+    )   
 
 class View(ttk.Frame):
     def __init__(self,*args,**kwargs):
@@ -68,4 +69,50 @@ class View(ttk.Frame):
         self._input_dir_box = InputDirBox(parent=self)
         self._input_dir_box.grid(column=0,row=3,pady=5,sticky='nswe')
     
+
+class FitView(ttk.Frame):
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+        self.grid_columnconfigure(0, weight=1)
+
+        self._init_freq_panel()
+        self._init_fitting_function_panel()
+        self._init_fitting_parameters_panel()
+        self._init_save_panel()
+
+    def _init_freq_panel(self):
+
+        frame = ttk.Frame(self)
+        frame.grid(column=0,row=0,sticky='we')  
+
+        self._freq_range_box = FrequencyRangeBox(parent=frame)
+        self._freq_range_box.grid(column=0,row=0,sticky='we')  
+
+    def _init_fitting_function_panel(self):
+
+        frame = ttk.Frame(self)
+        frame.grid(column=0,row=1,sticky='we')
+
+        self._fit_function_box = FitFunctionsBox(parent=frame)
+        self._fit_function_box.grid(column=0,row=0,sticky='we') 
+
+    def _init_fitting_parameters_panel(self):
+
+        frame = ttk.Frame(self)
+        frame.grid(column=0,row=2,sticky='we')
+
+        self._fit_parameters_box = FitParametersBox(parent=frame)
+        self._fit_parameters_box.grid(column=0,row=0,sticky='we') 
+
+    def _init_save_panel(self):
+
+        frame = ttk.Frame(self)
+        frame.grid(column=0,row=3,sticky='we')
+
+        self._save_box = SaveLoadBox(parent=frame)
+        self._save_box.grid(column=0,row=0,sticky='we')
+
+
 

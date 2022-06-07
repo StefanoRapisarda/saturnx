@@ -213,25 +213,28 @@ class Controller:
                 )
             else:
                 power_list = self._power_list
-            self._power = power_list.average(norm=self._model['plot_fields']._power_norm)
+            self._power = power_list.average(norm=self._plot_vars['norm'][1])
             
         if self._power is not None:
 
             power = self._power
 
             if self._plot_vars['norm'][1].strip().upper() != 'NONE':
+                print('Normalizing')
                 power = power.normalize(
                     norm=self._plot_vars['norm'][1].strip(),
                     bkg_cr = self._plot_vars['bkg'][1]
                     )
 
-            if self._view._poi_box._poi_level:
+            if self._plot_vars['sub_poi_flag'][1]:
+                print('Subtracting Poisson')
                 power = power.sub_poi(
                     low_freq = self._plot_vars['poi_freq'][1]
                 )
 
             rebin_str = self._plot_vars['rebin_str'][1]
             if rebin_str != '':
+                print('Rebinning')
                 if ',' in rebin_str:
                     rmp = rebin_str.split(',')
                     for rf in rmp:
