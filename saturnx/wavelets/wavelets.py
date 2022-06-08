@@ -604,7 +604,7 @@ class WaveletTransform:
                 z = z/maxes
 
         if len(conf_levels)!=0:
-            dof=2
+            dof=1
             if not np.iscomplexobj(self.wt): dof=1
             power_levels = chi2.ppf(conf_levels,df=dof)/dof
 
