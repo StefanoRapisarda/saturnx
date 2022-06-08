@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+import numpy as np
+
 import matplotlib 
 matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
@@ -281,21 +283,21 @@ class FitFunctionsBox(ttk.Frame):
 
         # Fitting function menu
         self._fit_func = tk.StringVar()
-        fit_func_box = ttk.OptionMenu(right_col,self._fit_func)
-        fit_func_box.grid(column=0,row=0, columnspan=2,\
+        self._fit_func_box = ttk.OptionMenu(right_col,self._fit_func)
+        self._fit_func_box.grid(column=0,row=0, columnspan=2,\
             sticky='we',padx=5,pady=5)
 
         # Add and delete buttons
-        add_button = ttk.Button(right_col, text='ADD')
-        add_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
-        del_button = ttk.Button(right_col, text='DEL')
-        del_button.grid(column=0,row=2,padx=5,pady=5,sticky='we') 
+        self._add_button = ttk.Button(right_col, text='ADD')
+        self._add_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+        self._del_button = ttk.Button(right_col, text='DEL')
+        self._del_button.grid(column=0,row=2,padx=5,pady=5,sticky='we') 
 
         # Fit and clear button
-        fit_button = ttk.Button(right_col, text='FIT')
-        fit_button.grid(column=0,row=3,padx=5,pady=5,sticky='nswe')        
-        clear_button = ttk.Button(right_col, text='RESET')
-        clear_button.grid(column=0,row=4,padx=5,pady=5,sticky='nsew')      
+        self._fit_button = ttk.Button(right_col, text='FIT')
+        self._fit_button.grid(column=0,row=3,padx=5,pady=5,sticky='nswe')        
+        self._clear_button = ttk.Button(right_col, text='RESET')
+        self._clear_button.grid(column=0,row=4,padx=5,pady=5,sticky='nsew')      
         # --------------------------------------------------------------
 
 
@@ -373,13 +375,91 @@ class FitParametersBox(ttk.Frame):
         self._free = tk.Button(row3, text='FREE')
         self._free.grid(column=2,row=0,padx=5,pady=5,sticky='senw')
 
+class ResidualPlotBox(ttk.Frame):
+
+    def __init__(self,parent,*args,**kwargs):
+        super().__init__(parent,*args,**kwargs)
+
+        self.grid_columnconfigure(0,weight=1)
+
+        self._parent = parent
+
+        self._init_box()
+
+    def _init_box(self): 
+
+        box = ttk.LabelFrame(self,text='Residual')
+        box.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')  
+
+        fig = Figure(figsize=(6.5,5),dpi=100)
+        #gs = fig.add_gridspec(2,1)
+        #gs.tight_layout(fig)
+        self._ax1 = fig.add_subplot(211)
+        self._ax2 = fig.add_subplot(212,sharex=self._ax1)  
+        fig.tight_layout(w_pad=1,rect=[0.1,0.05,1.0,1.])
+        fig.align_ylabels([self._ax1,self._ax2])
+
+        self._ax1.get_shared_x_axes().join(self._ax1, self._ax2)
+
+        self._canvas = FigureCanvasTkAgg(fig, master = box)
+        self._canvas.draw()
+        self._canvas.get_tk_widget().grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
+        self._canvas.draw()
+        self._canvas.mpl_connect('motion_notify_event',self._update_cursor)
+        self._chi_fig = fig
+
+        coor_frame = tk.Frame(box)
+        coor_frame.grid(column=0,row=1,pady=5,sticky='nswe')
+        coor_frame.grid_columnconfigure(0,weight=1)
+        coor_frame.grid_columnconfigure(1,weight=1)
+        coor_frame.grid_columnconfigure(2,weight=1)
+        coor_frame.grid_columnconfigure(3,weight=1)
+        labelx = tk.Label(coor_frame,text='x coor: ')
+        labelx.grid(column=0,row=0,pady=5,padx=5,sticky='nswe')
+        self._x_pos = tk.Label(coor_frame,text=' ')
+        self._x_pos.grid(column=1,row=0,pady=5,padx=5,sticky='nswe')
+        labely = tk.Label(coor_frame,text='y coor: ')
+        labely.grid(column=2,row=0,pady=5,padx=5,sticky='nswe')
+        self._y_pos = tk.Label(coor_frame,text=' ')
+        self._y_pos.grid(column=3,row=0,pady=5,padx=5,sticky='nswe')
+
+    def _update_cursor(self,event):
+        x = event.xdata
+        y = event.ydata
+        if x is not None:
+            self._x_pos.configure(text=str(np.round(x,6)))
+        else:
+            self._x_pos.configure(text='Out of frame')
+        if y is not None:
+            self._y_pos.configure(text=str(np.round(y,6)))
+        else:
+            self._y_pos.configure(text='Out of frame')
+
+class FitInfoBox(ttk.Frame):
+
+    def __init__(self,parent,*args,**kwargs):
+        super().__init__(parent,*args,**kwargs)
+
+        self.grid_columnconfigure(0,weight=1)
+
+        self._parent = parent
+
+        self._init_box()
+
+    def _init_box(self):
+
+        box = ttk.LabelFrame(self,text='Fit output')
+        box.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
+
+        self._fit_info_box = tk.Listbox(box, selectmode='multiple')
+        self._fit_info_box.pack(expand=True,fill=tk.BOTH)       
 
 if __name__ == '__main__':
     print('Launching app')
     app = tk.Tk()
     frame = tk.Frame(app)
     frame.pack()
-    box = FitFunctionsBox(parent=frame)
+    box = ResidualPlotBox(parent=frame)
     box.pack()
     app.mainloop()
         

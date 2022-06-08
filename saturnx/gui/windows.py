@@ -2509,7 +2509,8 @@ class FitWindow_sherpa:
                         else:
                             q = self._fit_funcs_dict[self._sel_index+1]['par_values'][1]
                             status = self._fit_funcs_dict[self._sel_index+1]['frozen']
-                        delta = self._xpos/np.sqrt(1+4*q**2)
+                        #delta = self._xpos/np.sqrt(1+4*q**2)
+                        delta = self._xpos/2/q
                         amplitude = delta*(np.pi/2 + np.arctan(2*q))*self._ypos
                         fmax = np.sqrt(self._xpos**2+delta**2)
 

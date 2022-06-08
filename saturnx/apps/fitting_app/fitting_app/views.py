@@ -4,7 +4,7 @@ from tkinter import ttk
 from .widgets import (
     FileBox, PlotArea, GtiIndexBox, PoissonBox, RebinBox, 
     NormalizationBox, InputDirBox, FrequencyRangeBox, FitFunctionsBox,
-    SaveLoadBox, FitParametersBox
+    SaveLoadBox, FitParametersBox, FitInfoBox, ResidualPlotBox
     )   
 
 class View(ttk.Frame):
@@ -72,8 +72,10 @@ class View(ttk.Frame):
 
 class FitView(ttk.Frame):
 
-    def __init__(self,*args,**kwargs):
+    def __init__(self,*args,controller,**kwargs):
         super().__init__(*args,**kwargs)
+
+        self._controller = controller
 
         self.grid_columnconfigure(0, weight=1)
 
@@ -96,7 +98,31 @@ class FitView(ttk.Frame):
         frame.grid(column=0,row=1,sticky='we')
 
         self._fit_function_box = FitFunctionsBox(parent=frame)
-        self._fit_function_box.grid(column=0,row=0,sticky='we') 
+        self._fit_function_box.grid(column=0,row=0,sticky='we')
+
+        # Init fitting functions
+        menu = self._fit_function_box._fit_func_box
+        menu["menu"].delete(0,'end')
+        for func in self._controller._model_func_list:
+            menu["menu"].add_command(
+                label=func,
+                command=lambda value=func:self._fit_function_box._fit_func.set(value)
+            )
+        
+        self._fit_function_box._fit_func_listbox.bind(
+            '<<ListboxSelect>>',
+            self._controller._activate_draw_function)
+        
+        # Configuring buttons
+        self._fit_function_box._add_button.configure(
+            command=self._controller._add_func
+        )
+        self._fit_function_box._del_button.configure(
+            command=self._controller._del_func
+        )
+        self._fit_function_box._fit_button.configure(
+            command=self._controller._comp_fit
+        )
 
     def _init_fitting_parameters_panel(self):
 
@@ -114,5 +140,27 @@ class FitView(ttk.Frame):
         self._save_box = SaveLoadBox(parent=frame)
         self._save_box.grid(column=0,row=0,sticky='we')
 
+class FitResultView(ttk.Frame):
 
+    def __init__(self,*args,controller,**kwargs):
+        super().__init__(*args,**kwargs)
 
+        self._controller = controller
+
+        self.grid_columnconfigure(0, weight=1)
+
+        self._residual_box = ResidualPlotBox(parent=self)
+        self._residual_box.grid(column=0,row=0,sticky='we')
+
+        self._stats_box = FitInfoBox(parent=self)
+        self._stats_box.grid(column=0,row=1,sticky='we') 
+
+if __name__ == '__main__':
+    print('Launching app')
+    app = tk.Tk()
+    frame = tk.Frame(app)
+    frame.pack()
+    box = FitResultView(parent=frame)
+    box.pack()
+    app.mainloop()
+        
