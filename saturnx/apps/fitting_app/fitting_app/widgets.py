@@ -20,7 +20,7 @@ class PlotArea(ttk.Frame):
 
     def _init_canvas(self):
 
-        self._fig = Figure(figsize=(5,3.5),dpi=150)
+        self._fig = Figure(figsize=(7.5,5.5),dpi=100)
         self._fig.tight_layout()
         self._ax  = self._fig.add_subplot()
 
@@ -229,7 +229,7 @@ class FrequencyRangeBox(ttk.Frame):
     def __init__(self,parent,*args,**kwargs):
         super().__init__(parent,*args,**kwargs)
 
-        self.grid_columnconfigure(0,weight=1)
+        self.columnconfigure(0,weight=1)
 
         self._parent = parent
 
@@ -239,10 +239,11 @@ class FrequencyRangeBox(ttk.Frame):
 
         box = ttk.LabelFrame(self,text='Frequency range')
         box.grid(column=0,row=0,padx=5,pady=5,sticky='we')
+        box.columnconfigure(0,weight=1)
 
         self._freq_range = tk.StringVar()
         self._freq_range.set('0-100')
-        freq_range_entry = tk.Entry(box,textvar=self._freq_range, width=20)
+        freq_range_entry = tk.Entry(box,textvar=self._freq_range)
         freq_range_entry.grid(column=0,row=0,padx=5,pady=5,sticky='we')   
 
         freq_label = tk.Label(box,text='Hz')
@@ -271,7 +272,7 @@ class FitFunctionsBox(ttk.Frame):
         left_col.grid(column=0,row=0,sticky='nswe')
 
         self._fit_func_listbox = tk.Listbox(
-            left_col,selectmode='multiple',height=12)
+            left_col,selectmode='single',height=12)
         self._fit_func_listbox.grid(
             column=0,row=0,padx=5,pady=5,sticky='nsew')   
         # --------------------------------------------------------------  
@@ -280,24 +281,28 @@ class FitFunctionsBox(ttk.Frame):
         # --------------------------------------------------------------
         right_col = ttk.Frame(box)
         right_col.grid(column=1,row=0,sticky='nswe')
+        right_col.columnconfigure(0,weight=1)
 
         # Fitting function menu
         self._fit_func = tk.StringVar()
         self._fit_func_box = ttk.OptionMenu(right_col,self._fit_func)
+        self._fit_func_box.config(width=15)
         self._fit_func_box.grid(column=0,row=0, columnspan=2,\
             sticky='we',padx=5,pady=5)
 
         # Add and delete buttons
         self._add_button = ttk.Button(right_col, text='ADD')
-        self._add_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')
+        self._add_button.grid(column=0,row=1,padx=5,pady=3,sticky='nswe')
         self._del_button = ttk.Button(right_col, text='DEL')
-        self._del_button.grid(column=0,row=2,padx=5,pady=5,sticky='we') 
+        self._del_button.grid(column=0,row=2,padx=5,pady=3,sticky='we') 
 
         # Fit and clear button
         self._fit_button = ttk.Button(right_col, text='FIT')
-        self._fit_button.grid(column=0,row=3,padx=5,pady=5,sticky='nswe')        
-        self._clear_button = ttk.Button(right_col, text='RESET')
-        self._clear_button.grid(column=0,row=4,padx=5,pady=5,sticky='nsew')      
+        self._fit_button.grid(column=0,row=3,padx=5,pady=3,sticky='nswe')  
+        self._comp_error_button = ttk.Button(right_col, text='COMP. ERRORS')
+        self._comp_error_button.grid(column=0,row=4,padx=3,pady=5,sticky='nswe')
+        self._reset_button = ttk.Button(right_col, text='RESET')
+        self._reset_button.grid(column=0,row=5,padx=5,pady=3,sticky='nsew')      
         # --------------------------------------------------------------
 
 
@@ -324,10 +329,10 @@ class SaveLoadBox(ttk.Frame):
         name_entry = tk.Entry(box,textvariable=self._output_name)
         name_entry.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
 
-        save_button = ttk.Button(box, text='SAVE')
-        save_button.grid(column=0,row=1,padx=5,pady=5,sticky='nswe')        
-        load_button = ttk.Button(box, text='LOAD')
-        load_button.grid(column=0,row=2,padx=5,pady=5,sticky='nswe')       
+        self._save_button = ttk.Button(box, text='SAVE')
+        self._save_button.grid(column=1,row=0,padx=5,pady=5,sticky='nswe')        
+        self._load_button = ttk.Button(box, text='LOAD')
+        self._load_button.grid(column=2,row=0,padx=5,pady=5,sticky='nswe')       
 
 
 class FitParametersBox(ttk.Frame):
@@ -345,35 +350,47 @@ class FitParametersBox(ttk.Frame):
 
         box = ttk.LabelFrame(self,text='Fitting Parameters')
         box.grid(column=0,row=0,padx=5,pady=5,sticky='we')
+        box.columnconfigure(0,weight=1)
 
         row1 = ttk.Frame(box)
         row1.grid(column=0,row=0,padx=5,pady=5,sticky='we')
         row2 = ttk.Frame(box)
         row2.grid(column=0,row=1,padx=5,pady=5,sticky='we')
-        row3 = ttk.Frame(box)
-        row3.grid(column=0,row=2,padx=5,pady=5,sticky='we')
+        row2.columnconfigure(0,weight=2)
+        row2.columnconfigure(1,weight=1)
 
         # First row
         self._fit_pars_listbox = tk.Listbox(row1, selectmode='multiple',width=25)
-        self._fit_pars_listbox.grid(column=0,row=0,padx=5,pady=5,sticky='ew')     
+        self._fit_pars_listbox.pack(expand=True,fill=tk.BOTH)     
 
         # Second row
+        parframe = ttk.Frame(row2)
+        parframe.grid(column=0,row=0,sticky='senw')
+        parframe.columnconfigure(0,weight=1)
+        parframe.rowconfigure(0,weight=1)
+        parframe.rowconfigure(1,weight=1)
+
+        labelframe = ttk.Label(parframe,text='Par value')
+        labelframe.grid(column=0,row=0,padx=5,pady=5,sticky='nsew')  
+
         self._par_val = tk.StringVar()
-        reset_entry = tk.Entry(row2, textvariable=self._par_val,width=10)
-        reset_entry.grid(column=1,row=0,padx=5,pady=5,sticky='nsew')
+        reset_entry = tk.Entry(parframe, textvariable=self._par_val,width=15)
+        reset_entry.grid(column=1,row=0,padx=5,pady=5,sticky='e')
 
-        label = ttk.Label(row2,text='Par value')
-        label.grid(column=0,row=0,padx=5,pady=5,sticky='nsew')  
+        self._set_button = ttk.Button(parframe, text='SET')
+        self._set_button.grid(column=0,row=1,padx=5,pady=3,columnspan=2,sticky='nsew')      
 
-        # Third row
-        self._reset_button = ttk.Button(row3, text='SET')
-        self._reset_button.grid(column=0,row=0,padx=5,pady=5,sticky='nsew')        
+        button_frame = ttk.Frame(row2)
+        button_frame.grid(column=1,row=0,sticky='nsew',padx=2)
+        button_frame.columnconfigure(0,weight=1)
+        button_frame.rowconfigure(0,weight=1)
+        button_frame.rowconfigure(1,weight=1)
 
-        self._freeze = ttk.Button(row3, text='FREEZE')
-        self._freeze.grid(column=1,row=0,padx=5,pady=5,sticky='senw')
+        self._freeze_button = ttk.Button(button_frame, text='FREEZE')
+        self._freeze_button.grid(column=0,row=0,pady=3,sticky='senw')
         
-        self._free = tk.Button(row3, text='FREE')
-        self._free.grid(column=2,row=0,padx=5,pady=5,sticky='senw')
+        self._free_button = tk.Button(button_frame, text='FREE')
+        self._free_button.grid(column=0,row=1,pady=3,sticky='senw')
 
 class ResidualPlotBox(ttk.Frame):
 

@@ -25,6 +25,7 @@ class View(ttk.Frame):
         frame.grid_columnconfigure(2, weight=1)
         frame.grid_columnconfigure(3, weight=1)
         frame.grid_columnconfigure(4, weight=1)
+        frame.grid_rowconfigure(0,weight=1)
 
         self._file_box = FileBox(parent=frame)
         self._file_box.grid(column=0,row=0,sticky='nswe')
@@ -77,7 +78,7 @@ class FitView(ttk.Frame):
 
         self._controller = controller
 
-        self.grid_columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
 
         self._init_freq_panel()
         self._init_fitting_function_panel()
@@ -86,10 +87,7 @@ class FitView(ttk.Frame):
 
     def _init_freq_panel(self):
 
-        frame = ttk.Frame(self)
-        frame.grid(column=0,row=0,sticky='we')  
-
-        self._freq_range_box = FrequencyRangeBox(parent=frame)
+        self._freq_range_box = FrequencyRangeBox(parent=self)
         self._freq_range_box.grid(column=0,row=0,sticky='we')  
 
     def _init_fitting_function_panel(self):
@@ -123,14 +121,31 @@ class FitView(ttk.Frame):
         self._fit_function_box._fit_button.configure(
             command=self._controller._comp_fit
         )
+        self._fit_function_box._comp_error_button.configure(
+            command=self._controller._comp_errors
+        )
+        self._fit_function_box._reset_button.configure(
+            command=self._controller._reset
+        )
 
     def _init_fitting_parameters_panel(self):
 
         frame = ttk.Frame(self)
         frame.grid(column=0,row=2,sticky='we')
+        frame.columnconfigure(0,weight=1)
 
         self._fit_parameters_box = FitParametersBox(parent=frame)
         self._fit_parameters_box.grid(column=0,row=0,sticky='we') 
+        self._fit_parameters_box._set_button.configure(
+            command=lambda: self._controller._set_par('set')
+        )
+        self._fit_parameters_box._free_button.configure(
+            command=lambda: self._controller._set_par('free')
+        )
+        self._fit_parameters_box._freeze_button.configure(
+            command=lambda: self._controller._set_par('freeze')
+        )        
+
 
     def _init_save_panel(self):
 
@@ -139,6 +154,9 @@ class FitView(ttk.Frame):
 
         self._save_box = SaveLoadBox(parent=frame)
         self._save_box.grid(column=0,row=0,sticky='we')
+        self._save_box._save_button.configure(
+            command = self._controller._save_fit
+        )
 
 class FitResultView(ttk.Frame):
 

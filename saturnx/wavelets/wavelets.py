@@ -444,7 +444,7 @@ class WaveletTransform:
 
     def norm_power(self,norm_type=''):
         if len(self.time) == 0 or len(self.wt) == 0: return None
-        result = self.power/np.var(self.counts)
+        result = self.power/np.var(self.counts)*2
         if norm_type.upper() == 'LEAHY':
             result = result/np.sum(self.counts)
         elif norm_type.upper() == 'RMS':
@@ -595,7 +595,7 @@ class WaveletTransform:
         if freqs: 
             y = self.freqs
         
-        if sigma_norm: z = z/np.var(self.counts)
+        if sigma_norm: z = z/np.var(self.counts)*2
         if not norm is None:
             if type(norm) in [int,float]:
                 z = z/norm
@@ -610,7 +610,7 @@ class WaveletTransform:
 
             if not power_level is None:
                 assert len(power_level) == len(self.scales), 'Background power must have same shape of scales/freqs'
-                ps_extended = np.transpose(np.tile(power_level,(len(self.time),1)))
+                ps_extended = np.transpose(np.tile(np.flip(power_level),(len(self.time),1)))
                 power_to_check = self.norm_power()/ps_extended
             else:
                 power_to_check = self.norm_power()

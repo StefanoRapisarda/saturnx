@@ -2853,7 +2853,7 @@ class PlotFitWindow:
             style=self._head_style)
         plot_frame.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
 
-        fig = Figure(figsize=(6.5,5),dpi=100)
+        fig = Figure(figsize=(6.8,5),dpi=100)
         #gs = fig.add_gridspec(2,1)
         #gs.tight_layout(fig)
         self._controller._ax1 = fig.add_subplot(211)

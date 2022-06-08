@@ -3,6 +3,7 @@ import os
 import sys
 import glob
 import random 
+import pickle
 import pathlib
 import numpy as np
 from tkinter import filedialog
@@ -19,7 +20,7 @@ from sherpa.fit import Fit
 from sherpa.models.basic import Gauss1D,PowLaw1D,Const1D
 
 from .views import FitView, FitResultView
-from .utils import init_sherpa_model
+from .utils import init_sherpa_model, make_sherpa_result_dict, print_fit_results
 
 sys.path.append('/Volumes/Samsung_T5/saturnx')
 import saturnx as sx
@@ -179,6 +180,7 @@ class Controller:
         print('Updating variables')
         for key,item in self._plot_vars.items():
             if not key in ['data_dir','file']:
+                print(key)
                 new_var = item[0].get()
                 if key == 'poi_value':
                     if new_var < 0: new_var=0
@@ -218,6 +220,7 @@ class Controller:
 
         if os.path.isfile(full_path):
             print('Loading data...')
+            print(full_path)
 
             if 'LIST' in selected_file.upper():
                 self._power_list = sx.PowerList.load(full_path)
@@ -334,9 +337,11 @@ class Controller:
                 initialdir=self._model['plot_fields']._data_dir,
                 title='Select folder for data products')
             self._view._input_dir_box._input_dir.set(data_dir)
+        else:
+            data_dir = self._view._input_dir_box._input_dir.get()
 
         self._view._file_box._reset()
-        self._update_variables()
+        self._plot_vars['data_dir'][1] = data_dir
         self._update_file_list()
 
     # ------------------------------------------------------------------
@@ -740,11 +745,11 @@ class Controller:
                 range = range.strip()
                 start = range.split('-')[0]
                 stop  = range.split('-')[1]
-                self._data_to_fit.notice(start,stop)
+                self._data_to_fit.notice(float(start),float(stop))
         else:
             start = freq_range.split('-')[0].strip()
             stop = freq_range.split('-')[1].strip()
-            self._data_to_fit.notice(start,stop)
+            self._data_to_fit.notice(float(start),float(stop))
         # -------------------------------------------------------------
     
         self._build_model()
@@ -767,7 +772,7 @@ class Controller:
         print('='*80)      
 
         self._update_fit_funcs()
-        self._plot_model_func()
+        self._plot_fit_func()
         if not self._fit_on_canvas:
             self._plot_fit()
             self._fit_on_canvas = True
@@ -796,7 +801,7 @@ class Controller:
 
         self._line1.set_ydata(res)
         self._line2.set_ydata(chi2)    
-        self._view._plot_area._canvas.draw()        
+        self._fit_result_window._residual_box._canvas.draw()       
 
     def _plot_fit(self):
 
@@ -809,45 +814,203 @@ class Controller:
         res  = (y_data-y_model)/y_err
         chi2 = self._stat.calc_chisqr(self._data_to_fit,self._model)
 
-        self._line1,=self._controller._ax1.plot(x_data,res,'-r')
-        self._line2,=self._controller._ax2.plot(x_data,chi2,'-r')
+        self._line1,=self._fit_result_window._residual_box._ax1.plot(x_data,res,'-r')
+        self._line2,=self._fit_result_window._residual_box._ax2.plot(x_data,chi2,'-r')
 
         # Residuals
         maxr = np.max(abs(res))
-        self._view._plot_area._ax1.set_xscale('log')
-        self._view._plot_area._ax1.set_ylim([-maxr-maxr/3,maxr+maxr/3])
-        self._view._plot_area._ax1.grid()
-        self._view._plot_area._ax1.set_ylabel('Res. [(model-data)/err]',fontsize=12)
-        self._view._plot_area._ax1.set_title('').set_visible(False)
+        self._fit_result_window._residual_box._ax1.set_xscale('log')
+        self._fit_result_window._residual_box._ax1.set_ylim([-maxr-maxr/3,maxr+maxr/3])
+        self._fit_result_window._residual_box._ax1.grid()
+        self._fit_result_window._residual_box._ax1.set_ylabel('Res. [(model-data)/err]',fontsize=12)
+        self._fit_result_window._residual_box._ax1.set_title('').set_visible(False)
 
-        self._view._plot_area._ax1bis = self._view._plot_area._ax1.twinx()
-        self._view._plot_area._to_plot.plot(ax=self._view._plot_area._ax1bis,\
-            alpha=0.3,lfont=12,xy=self._view._plot_area._xy_flag.get())
-        self._view._plot_area._ax1bis.set_ylabel('')
-        self._view._plot_area._ax1bis.grid(False)
-        self._view._plot_area._ax1bis.tick_params(axis='both',which='both',length=0)
-        self._view._plot_area._ax1bis.set_yscale('log')  
-        self._view._plot_area._ax1bis.set_yticklabels([])     
+        self._fit_result_window._residual_box._ax1bis = self._fit_result_window._residual_box._ax1.twinx()
+        self._to_plot.plot(ax=self._fit_result_window._residual_box._ax1bis,\
+            alpha=0.3,lfont=12,xy=self._view._norm_box._xy_flag.get())
+        self._fit_result_window._residual_box._ax1bis.set_ylabel('')
+        self._fit_result_window._residual_box._ax1bis.grid(False)
+        self._fit_result_window._residual_box._ax1bis.tick_params(axis='both',which='both',length=0)
+        self._fit_result_window._residual_box._ax1bis.set_yscale('log')  
+        self._fit_result_window._residual_box._ax1bis.set_yticklabels([])     
             
         # Contribution to chi2
-        self._view._plot_area._ax2.set_ylabel('$\chi^2$',fontsize=12)
-        self._view._plot_area._ax2.set_xscale('log')
-        self._view._plot_area._ax2.set_xlabel('Frequency [ Hz]',fontsize=12)
-        self._view._plot_area._ax2.grid()
-        self._view._plot_area._ax2.set_title('').set_visible(False)
-        self._view._plot_area._ax2.yaxis.set_label_position('left')
-        self._view._plot_area._ax2.yaxis.tick_right()
+        self._fit_result_window._residual_box._ax2.set_ylabel('$\chi^2$',fontsize=12)
+        self._fit_result_window._residual_box._ax2.set_xscale('log')
+        self._fit_result_window._residual_box._ax2.set_xlabel('Frequency [ Hz]',fontsize=12)
+        self._fit_result_window._residual_box._ax2.grid()
+        self._fit_result_window._residual_box._ax2.set_title('').set_visible(False)
+        self._fit_result_window._residual_box._ax2.yaxis.set_label_position('left')
+        self._fit_result_window._residual_box._ax2.yaxis.tick_right()
 
-        self._view._plot_area._ax2bis = self._view._plot_area._ax2.twinx()
-        self._view._plot_area._to_plot.plot(ax=self._view._plot_area._ax2bis,\
-            alpha=0.3,lfont=12,xy=self._view._plot_area._xy_flag.get())
-        self._view._plot_area._ax2bis.set_ylabel('')
-        self._view._plot_area._ax2bis.grid(False)
-        self._view._plot_area._ax2bis.tick_params(axis='both',which='both',length=0)
-        self._view._plot_area._ax2bis.set_yscale('log')  
-        self._view._plot_area._ax2bis.set_yticklabels([])     
+        self._fit_result_window._residual_box._ax2bis = self._fit_result_window._residual_box._ax2.twinx()
+        self._to_plot.plot(ax=self._fit_result_window._residual_box._ax2bis,\
+            alpha=0.3,lfont=12,xy=self._view._norm_box._xy_flag.get())
+        self._fit_result_window._residual_box._ax2bis.set_ylabel('')
+        self._fit_result_window._residual_box._ax2bis.grid(False)
+        self._fit_result_window._residual_box._ax2bis.tick_params(axis='both',which='both',length=0)
+        self._fit_result_window._residual_box._ax2bis.set_yscale('log')  
+        self._fit_result_window._residual_box._ax2bis.set_yticklabels([])     
  
-        if self._first_fit: 
-            self._controller._canvas2.draw()
-        self._controller._canvas2.mpl_connect(\
-            'motion_notify_event',self._controller._update_cursor)
+        if self._fit_on_canvas: 
+            self._fit_result_window._residual_box._canvas.draw()
+        self._fit_result_window._residual_box._canvas.mpl_connect(\
+            'motion_notify_event',self._fit_result_window._residual_box._update_cursor)
+
+    def _update_info(self):
+        self._report = self._fit_result.__str__().split('\n')
+        for line in self._report:
+            self._fit_result_window._stats_box._fit_info_box.insert(tk.END,line)
+        if self._fit_on_canvas:
+            self._fit_result_window._stats_box._fit_info_box.insert(tk.END,'='*70+'\n')
+
+    def _build_model(self):
+        print('Building model')
+        first = True
+        for key, value in self._fit_funcs_dict.items():
+            print('Building model component n.',key)
+            if 'plots' in value.keys():
+                
+                # Initializing model accortding to values stored in
+                # self._fit_funcs_dict
+                func=init_sherpa_model(sherpa_model=self._model_func_dict[value['name']],
+                    name=str(key),
+                    parvals=value['par_values'],
+                    frozen=value['frozen'])
+                
+                # first tracks the first iteration
+                if first:
+                    first = False        
+                    self._model = func
+                else:
+                    self._model += func
+
+    def _set_par(self,opt='set'):
+
+        sel = self._fit_window._fit_parameters_box._fit_pars_listbox.curselection()
+        items = self._fit_window._fit_parameters_box._fit_pars_listbox.get(0,tk.END)
+        par_val = self._fit_window._fit_parameters_box._par_val.get()
+
+        for index in sel[::-1]:
+            item = items[index]
+            # Lines in the par box are in the format:
+            # key) par_name = value (status)
+            key = int(item.split(')')[0])
+            par_name = item.split()[1]
+            pars = self._fit_funcs_dict[key]['par_names']
+
+            for i in range(len(pars)):
+                if par_name == self._fit_funcs_dict[key]['par_names'][i]:
+
+                    if par_val == '' or opt != 'set':
+                        par_val = self._fit_funcs_dict[key]['par_values'][i]
+                    else:
+                        par_val = float(par_val)
+
+                    self._fit_funcs_dict[key]['par_values'][i] = par_val  
+                    if opt == 'freeze':
+                        self._fit_funcs_dict[key]['frozen'][i] = True
+                    elif opt == 'free':
+                        self._fit_funcs_dict[key]['frozen'][i] = False
+        
+        self._print_par_value()
+        self._plot_fit_func()
+
+    def _comp_errors(self):
+        if self._fit_on_canvas:
+            # TODO: make this an option in the future
+            self._fit.estmethod = Covariance()
+            self._fit.estmethod.sigma = 3
+            self._errors = self._fit.est_errors()
+
+            for key0,item in self._fit_funcs_dict.items():
+                errors = [[0.,0.] for j in range(len(item['par_names']))]
+                for j,name0 in enumerate(item['par_names']):
+                    for i,full_name in enumerate(self._errors.parnames):
+                        key = full_name.split('.')[0]
+                        name = full_name.split('.')[1]
+                        if str(key0) == key and name0 == name:                        
+                            plus = self._errors.parmaxes[i]
+                            minus = self._errors.parmins[i]
+                            if not plus is None:
+                                plus = np.round(plus,6)
+                            else: 
+                                plus = np.NaN
+                            if not minus is None:
+                                minus = np.round(minus,6)
+                            else:
+                                minus=np.NaN
+                            errors[j] = [plus,minus]
+                self._fit_funcs_dict[key0]['errors']=errors
+
+            self._print_par_value()
+
+    def _reset(self):
+        '''
+        Clear all the model related objects:
+        - the dictionary self._fit_funcs_dict;
+        - the listbox self._fit_func_listbox;
+        - the listbox self._fit_pars_listbox;
+        - plot lines
+
+        Called when the button CLEAR is clicked
+        '''
+
+        if self._fit_on_canvas:
+
+            # Deleting plots (if existing)
+            if self._fit_funcs_dict != {}:
+                for key,item in self._fit_funcs_dict.items():
+                    self._view._plot_area._ax.lines.remove(self._fit_funcs_dict[key]['plots'])
+            if 'plot' in self._total_fit_func_dict.keys():
+                self._view._plot_area._ax.lines.remove(self._total_fit_func_dict['plot'])
+
+            self._view._plot_area._canvas.draw()
+            self._fit_result_window.destroy()
+
+            # Deleting boxes
+            self._fit_window._fit_function_box._fit_func_listbox.delete(0,tk.END)
+            self._fit_window._fit_function_box._fit_pars_listbox.delete(0,tk.END)
+            self._fit_result_window._stats_box.delete(0,tk.END)
+            
+            # Resetting variables
+            self._fit_on_canvas = False
+            self._index = 1
+            self._fit_funcs_dict = {}
+            self._total_fit_func_dict = {}
+
+    def _save_fit(self):
+        fit_dir = os.path.join(self._plot_vars['data_dir'][1],'fits')
+        os.system(f'mkdir {fit_dir}')
+        output_file_name = os.path.join(
+            fit_dir,self._fit_window._save_box._output_name.get()
+            )
+
+        # Saving fit plots  
+        self._fit_result_window._residual_box._chi_fig.savefig(output_file_name+'_chi2.jpeg', dpi=300)
+        
+        self._view._plot_area._ax.legend(title='Model comp.')
+        self._view._plot_area._fig.savefig(output_file_name+'_fit.jpeg', dpi=300)
+
+        # Saving model result dictionary
+        result_dict=make_sherpa_result_dict(self._fit_result)
+        del result_dict['parnames']
+        del result_dict['parvals']
+        fit_dict=make_sherpa_result_dict(self._fit)
+        estmethod_dict=make_sherpa_result_dict(self._fit.estmethod)
+        result_dict['model']=fit_dict['model']
+        result_dict['estmethod']=fit_dict['estmethod']
+        result_dict['sigma_error']=estmethod_dict['sigma']
+
+        with open(output_file_name+'_fit_stats.pkl','wb') as outfile:
+            pickle.dump(result_dict,outfile)
+
+        # Saving model pars dictionary
+        with open(output_file_name+'_fit_pars.pkl','wb') as outfile:
+            pickle.dump(self._fit_funcs_dict,outfile) 
+
+        # Make pdf page        
+        print_fit_results(result_dict,self._fit_funcs_dict,self._fit_result.format(),
+                        output_file_name+'_fit.jpeg',
+                        output_file_name+'_chi2.jpeg',
+                        output_file_name+'_fit_results.pdf')
