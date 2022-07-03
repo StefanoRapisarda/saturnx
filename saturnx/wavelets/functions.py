@@ -5,6 +5,7 @@ from scipy.signal import convolve, fftconvolve
 from scipy.fft import fft,ifft
 from .wavelets import Wavelet
 
+
 def comp_scales(s_min,s_max,dj=0.25,family='mexhat',method='fft',**kwargs):
 
     #assert s_max > s_min, 's_max must be larger then s_min'

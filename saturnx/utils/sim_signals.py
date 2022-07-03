@@ -41,7 +41,7 @@ def sin_signal_from_bkg_lc(bkg_lc,freq=1,snr=1,mean=0):
     # Computing fractional RMS of bkg_lc
     # at the given frequency
     bkg_power = PowerSpectrum.from_lc(bkg_lc)
-    df = bkg_power.df
+    df = bkg_power.fres
     rms_bkg_power = bkg_power.normalize('rms')
     bkg_frac_rms = rms_bkg_power.comp_frac_rms(low_freq=freq-df/2,high_freq=freq+df/2)[0]
     
@@ -95,7 +95,7 @@ def chirp_signal_from_bkg_lc(bkg_lc,freq1=1,freq2=2,snr=1,mean=0):
     # Computing fractional RMS of bkg_lc
     # at the given frequency
     bkg_power = PowerSpectrum.from_lc(bkg_lc)
-    df = bkg_power.df
+    df = bkg_power.fres
     rms_bkg_power = bkg_power.normalize('rms')
     bkg_frac_rms = rms_bkg_power.comp_frac_rms(low_freq=freq1-df/2,high_freq=freq2+df/2)[0]
     

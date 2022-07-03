@@ -336,6 +336,9 @@ class PowerSpectrum(pd.DataFrame):
         if self.cr-bkg_cr < 0:
             print('Warning!!! background cr larger than source cr')
 
+        if norm is None:
+            return self
+        
         if norm.upper() == 'LEAHY':
             if (self._leahy_norm is None) and (self._rms_norm is None):
                 norm = 2./self.a0
@@ -366,8 +369,6 @@ class PowerSpectrum(pd.DataFrame):
                 norm_leahy = self._leahy_norm
                 norm_rms = self._rms_norm  
                 print('The power spectrum is already RMS normalized') 
-        elif norm is None:
-            return self 
         else:
             if isinstance(norm,str): 
                 norm = eval(norm)   

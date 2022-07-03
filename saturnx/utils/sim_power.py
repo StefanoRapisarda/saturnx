@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.fft import rfftfreq
 
 def sbend_pl(dt=1,nt=1000,freq_array=None,a1=0,a2=1,b=100,f0=1,norm=1,
-    dc=100,frac_rms=0.3,force_freq=False):
+    dc=100,frac_rms=0.3):
     '''
     It returns a (smoothly) bending power law power spectral shape
     given a certain total fractional RMS amplitude and a normalizaion
@@ -103,10 +103,10 @@ def sbend_pl(dt=1,nt=1000,freq_array=None,a1=0,a2=1,b=100,f0=1,norm=1,
             print('!!! Frequencies are not evenly spaced !!!')
             print('I will use dt and nt to compute the normalization')
             df = f[2]-f[1]
-            power_for_norm = xtemp**-a1/( (1.0+xtemp**b)**((a2-a1)/b))
+            power_for_norm = xtemp**a1/( (1.0+xtemp**b)**(-(a2-a1)/b))
             
         if norm.upper() == 'POWER':
-            current_frac_rms2 = np.sum(power_for_norm)/dc**2
+            current_frac_rms2 = np.sum(2*power_for_norm)/dc**2
         elif norm.upper() == 'LEAHY':
             current_frac_rms2 = np.sum(power_for_norm)/dc
         elif norm.upper() == 'RMS':
