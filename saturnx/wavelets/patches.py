@@ -60,7 +60,7 @@ class Patches:
     def __len__(self):
         return len(self.patches)
 
-    def get_single_patch_info(self,patch_i,wavelet):
+    def get_single_patch_info(self,patch_i,wavelet,norm):
         patch = self.patches[patch_i]
         info = {}
         info['area'] = patch.area
@@ -78,13 +78,13 @@ class Patches:
         mask = self.extract_mask(patch_i)
         n_area_points = np.sum(mask)
         info['n_area_points'] = n_area_points
-        masked_power = mask*wavelet.norm_power() 
+        masked_power = mask*wavelet.norm_power(norm) 
         info['max_power'] = np.max(masked_power)
         info['mean_power'] = np.sum(masked_power)/n_area_points
 
         return info
 
-    def get_patch_info(self,wavelet,freq_band=[]):
+    def get_patch_info(self,wavelet,freq_band=[],norm='leahy'):
 
         if len(freq_band) != 0:
             # This will be interpreted as upper limit
@@ -110,7 +110,7 @@ class Patches:
             print('Centroid freq index',centroid_freq_index)
             if centroid_freq_index >= low_index and centroid_freq_index <= upp_index:
                 print('Accepted!')
-                result += [self.get_single_patch_info(patch_i=patch_i,wavelet=wavelet)]
+                result += [self.get_single_patch_info(patch_i=patch_i,wavelet=wavelet,norm=norm)]
         self.patch_info = result
   
     @classmethod

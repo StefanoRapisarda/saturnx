@@ -484,7 +484,7 @@ class WaveletTransform:
             if s_max is None: s_max = tdur/4.
             if dj is None: dj = 0.05 
 
-            scales = comp_scales(s_min, s_max, dj=dj)
+            scales = comp_scales(s_min, s_max, dj=dj, family=family, method=method, **kwargs)
 
         coef, freqs, coi = cwt(counts,dt=dt,scales=scales,
             family=family,method=method,pad=pad,cfreq=cfreq,**kwargs)
