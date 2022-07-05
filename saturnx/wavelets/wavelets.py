@@ -450,7 +450,7 @@ class WaveletTransform:
 
     @staticmethod
     def from_lc(lightcurve,scales=None,dt=1,s_min=None,s_max=None,dj=None,family='mexhat',
-        method='fft',pad=True,cfreq='cf',**kwargs):
+        method='fft',pad=True,cfreq='cf',comp_scale_method='fft',**kwargs):
 
         meta_data = {}
 
@@ -484,7 +484,7 @@ class WaveletTransform:
             if s_max is None: s_max = tdur/4.
             if dj is None: dj = 0.05 
 
-            scales = comp_scales(s_min, s_max, dj=dj, family=family, method=method, **kwargs)
+            scales = comp_scales(s_min, s_max, dj=dj, family=family, method=comp_scale_method, **kwargs)
 
         coef, freqs, coi = cwt(counts,dt=dt,scales=scales,
             family=family,method=method,pad=pad,cfreq=cfreq,**kwargs)
