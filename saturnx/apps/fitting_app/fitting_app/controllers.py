@@ -860,9 +860,9 @@ class Controller:
     def _update_info(self):
         self._report = self._fit_result.__str__().split('\n')
         for line in self._report:
-            self._fit_result_window._stats_box._fit_info_box.insert(tk.END,line)
+            self._fit_result_window._stats_box._fit_info_listbox.insert(tk.END,line)
         if self._fit_on_canvas:
-            self._fit_result_window._stats_box._fit_info_box.insert(tk.END,'='*70+'\n')
+            self._fit_result_window._stats_box._fit_info_listbox.insert(tk.END,'='*70+'\n')
 
     def _build_model(self):
         print('Building model')
@@ -966,18 +966,19 @@ class Controller:
                 self._view._plot_area._ax.lines.remove(self._total_fit_func_dict['plot'])
 
             self._view._plot_area._canvas.draw()
-            self._fit_result_window.destroy()
 
             # Deleting boxes
             self._fit_window._fit_function_box._fit_func_listbox.delete(0,tk.END)
-            self._fit_window._fit_function_box._fit_pars_listbox.delete(0,tk.END)
-            self._fit_result_window._stats_box.delete(0,tk.END)
+            self._fit_window._fit_parameters_box._fit_pars_listbox.delete(0,tk.END)
+            self._fit_result_window._stats_box._fit_info_listbox.delete(0,tk.END)
+            self._fit_result_window.destroy()
             
             # Resetting variables
             self._fit_on_canvas = False
             self._index = 1
             self._fit_funcs_dict = {}
             self._total_fit_func_dict = {}
+            
 
     def _save_fit(self):
         fit_dir = os.path.join(self._plot_vars['data_dir'][1],'fits')

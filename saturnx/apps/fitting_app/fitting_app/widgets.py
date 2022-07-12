@@ -468,8 +468,8 @@ class FitInfoBox(ttk.Frame):
         box = ttk.LabelFrame(self,text='Fit output')
         box.grid(column=0,row=0,padx=5,pady=5,sticky='nswe')
 
-        self._fit_info_box = tk.Listbox(box, selectmode='multiple')
-        self._fit_info_box.pack(expand=True,fill=tk.BOTH)       
+        self._fit_info_listbox = tk.Listbox(box, selectmode='multiple')
+        self._fit_info_listbox.pack(expand=True,fill=tk.BOTH)       
 
 if __name__ == '__main__':
     print('Launching app')
